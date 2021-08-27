@@ -1,0 +1,1055 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="ru">
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no", http-equiv="Content-Type" content="text/html; charset=utf8">
+
+<link rel="shortcut icon" href="../../image/favicon.ico"/>
+
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<link rel="stylesheet" type="text/css" media="all" href="../../css/demoStyles.css" />
+<link rel="stylesheet" href="../../css/jquery12/jquery-ui.css" type="text/css" />
+
+<script src="../../js/knockout-3.5.1.js" type="text/javascript"> </script>
+<script src="../../js/knockout.mapping.js" type="text/javascript"> </script>
+
+<script src="../../js/jquery12/jquery.js"></script>
+<script src="../../js/jquery12/jquery-ui.js"></script>
+
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+
+  
+<script src="../../js/pdfobject.min.js" type="text/javascript"></script>
+
+<title>   %(html_title)s   </title>
+
+<SCRIPT  TYPE="text/javascript"> 
+
+<!--
+
+var viewModel = new function(){
+	var self = this;
+	self.tracks = ko.mapping.fromJS([{ album: '', album_crc32: '',  format: '', TrackL: [] }]);
+}	
+
+var artistTEdDDL = [{'key':"ARTIST_VIRT",'value':'ARTIST'},{'key':"COMPOSITOR",'value':'COMPOSITOR'},{'key':"ATHOR_TEXT",'value':'Text Writer'},{'key':"RADER",'value':'Text Reader'}];
+  var albumTEdDDL = [{'key':"ALBUM_VIRT",'value':'ALBUM'},{'key':"BOX",'value':'Box Set'},{'key':"SERIA",'value':'Seria'},{'key':"DBL_DISC",'value':'Double disc'}];
+  var init_OBJEDIT_struct = new Object({'active_obj':'','object_data':{'object_name':'','object_descr':'','object_search_list':'','object_type':'','object':'','objectD':{}}});
+  var dlgRouter = {'album':'#editalbumdlg','artist':'#editartistdlg'}
+  var artist_rel_type_DDL = [{'key':'same_artist'},{'key':'play_together'},{'key':'play_music_of'}]
+  var album_rel_type_DDL = [{'key':'DBL_DISC'},{'key':'BOX'},{'key':'SERIA'},{'key':'ALBUM_VIRT'}]
+  
+var sw_OBJEDIT_M = new function(){
+	var self = this;
+	
+	self.object_selector = ko.observable('artist');		
+	
+	self.ddl_sub_model = ko.computed({
+		read: function() {
+		if ((albumTEdDDL.length > 0) && (artistTEdDDL.length > 0)){
+			//alert('read:'+albumTEdDDL.length);
+			return {'artist':artistTEdDDL,'album':albumTEdDDL,'active_obj':self.object_selector()};
+		} else {
+			alert('andef')
+			return {}
+			
+		}},
+		write: function () {	
+		alert('data write'+':');
+		return {};
+		},
+		 owner: this
+		}); 
+		
+	self.ddl_obj_sel_key = ko.observable('artist');		
+	
+	
+	
+	
+	self.base_obj_struct =  ko.observable(new Object(init_OBJEDIT_struct));
+	self.sw_OBJEDIT_name =  ko.observable('');
+	self.main =  ko.observable('');
+	self.search_terms = ko.observable('');
+	self.sw_OBJEDIT_srch_terms =  ko.observable('');
+	
+	self.tb_assign_selected =  ko.observable();
+	
+	self.navi_dlg_stack =  ko.observableArray([{'object': '','key': '','name':  ''},{'object': '','key': '','name': ''}]);
+		
+	//tb_assign_selected=  ko.dependentObservable({
+	//	read=  function() { return this.ddl_obj_sel_key},
+	//	write=  function (value) {
+	//		if (this.tb_assign_selected){
+	//			this.tb_assign_selected.object_type = this.ddl_obj_sel_key
+	//		}
+	//		},
+	//	owner=  this
+	//	}),
+	
+	self.assgn_artist_rel_tbl = new ko.observableArray();
+	self.assgn_album_rel_tbl = new ko.observableArray();
+	self.assgn_album_from_rel_tbl = new ko.observableArray();
+	self.assgn_artists_all_relLD = new ko.observableArray();
+	self.assgn_artists_main_to_relLD = new ko.observableArray();
+	self.assgn_artists_from_main_relLD = new ko.observableArray();
+	self.assgn_artist_inAlb_tbl = new ko.observableArray();
+	self.assgn_albume_forArt_tbl = new ko.observableArray();
+	
+	self.reset_all_rel_tables =  function(){
+			$("#get_obj_artist_album_editdlg_alb").val("")
+			this.tb_assign_selected(false)
+			self.object_selector('artist')
+			
+			//alert(this.ddl_obj_sel_key())
+			
+			//self.object_selector('artist')
+			
+			this.tb_assign_selected.valueHasMutated()
+			
+			//self.object_selector('artist')
+			
+			
+			
+			if 	(this.assgn_album_from_rel_tbl() != null){
+				if (this.assgn_album_from_rel_tbl().length > 0){
+					this.assgn_album_from_rel_tbl.removeAll(this.assgn_album_from_rel_tbl())
+					this.assgn_album_from_rel_tbl.valueHasMutated()
+				}
+			}
+			
+			if 	(this.assgn_artist_rel_tbl() != null){
+				if (this.assgn_artist_rel_tbl().length > 0){
+					this.assgn_artist_rel_tbl.removeAll(this.assgn_artist_rel_tbl())
+					this.assgn_artist_rel_tbl.valueHasMutated()
+				}
+			}
+			
+			if 	(this.assgn_artists_main_to_relLD() != null){
+				if (this.assgn_artists_main_to_relLD().length > 0){
+					this.assgn_artists_main_to_relLD.removeAll(this.assgn_artists_main_to_relLD())
+					this.assgn_artists_main_to_relLD.valueHasMutated()
+				}
+			}
+			
+			if 	(this.assgn_artists_from_main_relLD() != null){
+				if (this.assgn_artists_from_main_relLD().length > 0){
+					this.assgn_artists_from_main_relLD.removeAll(this.assgn_artists_from_main_relLD())
+					this.assgn_artists_from_main_relLD.valueHasMutated()
+				}
+			}
+			
+			if (this.assgn_album_rel_tbl() != null){
+				if (this.assgn_album_rel_tbl().length > 0){
+					this.assgn_album_rel_tbl.removeAll(this.assgn_album_rel_tbl())
+					this.assgn_album_rel_tbl.valueHasMutated()
+				}	
+			}
+			
+			if (this.assgn_artists_all_relLD() != null){
+				if (this.assgn_artists_all_relLD().length > 0){
+					this.assgn_artists_all_relLD.removeAll(this.assgn_artists_all_relLD())
+					this.assgn_artists_all_relLD.valueHasMutated()
+				}	
+			}
+			
+				
+			
+			if (this.assgn_albume_forArt_tbl() != null){
+				if (this.assgn_albume_forArt_tbl().length > 0){
+					this.assgn_albume_forArt_tbl.removeAll(this.assgn_albume_forArt_tbl())
+					this.assgn_albume_forArt_tbl.valueHasMutated()
+					}	
+				}
+			
+			if (this.assgn_artist_inAlb_tbl() != null){
+				if (this.assgn_artist_inAlb_tbl().length > 0){
+					this.assgn_artist_inAlb_tbl.removeAll(this.assgn_artist_inAlb_tbl())
+					this.assgn_artist_inAlb_tbl.valueHasMutated()
+					}	
+				}
+	
+	return true												
+	};												
+	
+	self.save_object_attrs =  function(){
+		
+		var object = this.base_obj_struct().active_obj
+		action = "maintain_object_attrs"
+		if (object == "artist"){
+			key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.artist_crc32
+			json_data = ko.toJSON({'alb_art_attrs_struct': {'artist_key': key, 'main': this.main,'search_terms': this.search_terms },'123': action})
+		}	else if (object == "album"){
+			key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.album_crc32
+			json_data = ko.toJSON({'alb_art_attrs_struct': {'album_key': key, 'main': this.main,'search_terms': this.search_terms,'relis': '','label': '' },'123': action})
+		}	
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		
+		if ( !('maintain_object_attrs' in response)){
+			
+			alert('Error at object maintain server side')
+		}
+	};
+	self.save_artist_from_to_relation =  function(ref_tbl_item,relation){
+		//alert(ko.toJSON(ref_tbl_item))
+		
+		var mode = ''
+		var ref_object = ''
+		
+		if (ref_tbl_item.checked && (ref_tbl_item.colorcl == "newasgn")){	
+			mode = "create"
+		} else if (!ref_tbl_item.checked && (ref_tbl_item.colorcl != "newasgn")){	
+			mode = "delete"
+		} else {
+			alert('error mode')
+		}
+		
+		
+		if (relation != "ART_MAIN_TO_REL"){
+			key = ref_tbl_item.key
+			ref_key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.artist_crc32
+		} else if  (relation != "ART_MAIN_FROM_REL"){
+			key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.artist_crc32	
+			ref_key = ref_tbl_item.key
+		}
+		
+		action = "maintain_single_artist_rel"
+		json_data = ko.toJSON({'alb_art_relation_struct': {'artist_key': key,'ref_artist_key': ref_key,'relation': relation,'rel_type': ref_tbl_item.rel_type,'mode': mode },'123': action})
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		
+		if ( !('maintain_single_artist_album_rel' in response)){
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain server side')
+		}
+		if (response.maintain_single_artist_album_rel != 'error') {
+				if (mode == 'create'){	ref_tbl_item.colorcl = "artist saved"
+				} else if(mode == 'delete'){ ref_tbl_item.colorcl = "artist tb_save remove"	}
+		} else {
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain')
+		}
+		
+		if (relation == "ART_MAIN_TO_REL"){
+			this.assgn_artists_main_to_relLD.valueHasMutated()
+	
+		} else if (relation == "ART_MAIN_FROM_REL") {
+			this.assgn_artists_from_main_relLD.valueHasMutated()	
+		} 
+		};
+		
+		
+	self.check_album2artist_rel =  function(album_key){
+		//alert(album_key)
+			action = "check_album2artist_rel"
+		json_data = ko.toJSON({'album_key': album_key,'123': action})
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		
+		if ( !('object_edit_data' in response)){
+			
+			alert('Error at relation check server side')
+		} else {
+			if (response.object_edit_data.artist_album_relLD.length > 0)
+				for ( var i =0; i < response.object_edit_data.artist_album_relLD.length;i++ ) {
+					item = response.object_edit_data.artist_album_relLD[i]
+					//alert(ko.toJSON(item))
+					this.assgn_artist_inAlb_tbl.unshift(item)
+				}
+		}
+		
+		
+	};
+
+	self.save_artist_album_relation =  function(ref_tbl_item,relation){
+		//alert(ko.toJSON(ref_tbl_item))
+		
+		var mode = ''
+		var ref_object = ''
+		key = this.base_obj_struct().object_data.objectD.path_crc32
+		ref_key = ref_tbl_item.key
+		parent_object = sw_OBJEDIT_M.base_obj_struct().object_data.object
+		if ('artist' in ref_tbl_item){
+			ref_object = 'artist'
+		} else if ('album' in ref_tbl_item){
+			ref_object = 'album'
+		}
+		
+		rel_type = '' 
+		local_relation = relation
+		if ((relation != "ART_IN_ALB_REL") || (relation != "ALB_OF_ART_REL")){
+			rel_type = ref_tbl_item.rel_type
+		}
+		
+		if ((relation == "ART_IN_ALB_REL") || (relation == "ALB_OF_ART_REL")){
+			rel_type = "ART_ALB_REL"
+			local_relation = "ART_ALB_REL"
+		}
+		
+			
+		if (ref_tbl_item.checked && (ref_tbl_item.colorcl == "newasgn")){	
+			mode = "create"
+		} else if (!ref_tbl_item.checked && (ref_tbl_item.colorcl != "newasgn")){	
+			mode = "delete"
+		}
+		
+		//'ART_ALB_REL_ROLE' last edded 10.12.12
+		if ((relation == "ART_ALB_REL_ROLE") && (mode == "create")){
+			rel_type = sw_OBJEDIT_M.tb_assign_selected().object_type
+			//alert(ko.toJSON(ref_tbl_item))
+		}
+		
+		if ((parent_object == "album") && (ref_object == 'artist')){
+			action = "maintain_single_artist_album"
+			json_data = ko.toJSON({'object': parent_object,'alb_art_relation_struct': {'album_key': key,'artist_key': ref_key,'relation': local_relation,'rel_type': rel_type,'mode': mode },'123': action})
+		}
+		
+		if ((parent_object == "album") && (ref_object == 'album')){
+			action = "maintain_single_album_rel"
+			json_data = ko.toJSON({'object': parent_object,'alb_art_relation_struct': {'album_key': key,'ref_album_key': ref_key,'relation': local_relation,'rel_type': rel_type,'mode': mode },'123': action})
+		}
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		if ( !('maintain_single_artist_album' in response)){
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain server side')
+		}
+		if (response.maintain_single_artist_album != 'error') {
+				if (mode == 'create'){	ref_tbl_item.colorcl = "artist saved"
+				} else if(mode == 'delete'){ ref_tbl_item.colorcl = "album tb_save remove"	}
+		} else {
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain')
+		}
+		
+		if (relation == "ART_IN_ALB_REL"){
+			this.assgn_artist_inAlb_tbl.valueHasMutated()
+	
+		} else if (relation == "ART_ALB_REL_ROLE") {
+			this.assgn_artist_rel_tbl.valueHasMutated()	
+		} else if (relation == "ALB_REL_ROLE") {
+			this.assgn_album_rel_tbl.valueHasMutated()	
+		}	
+	};
+	
+	
+	
+	self.initialize_sw_OBJEDIT_model =  function(object,key){
+		var name = ''
+		json_data = ko.toJSON({'object': object,'key': key, '123': 'get_object_edit_data'})
+		json_data = json_data.replace('123',proc_name)
+					
+		this_self = this
+		// Get Data				
+		//alert('http://' + host + '/medialib/report/')	
+		$.ajax({	url:  'http://' + host + '/medialib/report/',type:  'POST', dataType:  'json', data:  json_data,async:  false,
+					error:  function( data ) { 
+							
+							alert('Error at data received= '+data.responseText)
+							this_self.base_obj_struct({'object_data': {'object': ''}})
+							this_self.base_obj_struct.valueHasMutated()
+					},
+										
+					success:  function( data ) { 
+												//alert('first')
+												
+												if (!('object_edit_data' in data)){
+													alert('No object data received')
+													this_self.base_obj_struct({'object_data': {'object': ''}})
+													this_self.base_obj_struct.valueHasMutated()
+													return
+												}
+												response = data.object_edit_data;
+												if ( 'artist' in data.object_edit_data){
+													this_self.sw_OBJEDIT_name(response.artist); 
+													this_self.main(response.artistD.main); 
+													this_self.search_terms(response.artistD.search_term)
+													this_self.base_obj_struct().object_data.object_name = response.artist;
+													this_self.base_obj_struct().object_data.object = 'artist';
+													this_self.base_obj_struct().active_obj='artist';
+													this_self.base_obj_struct().object_data.objectD = response.artistD;
+													//--this_self.ddl_sub_model().album.push({key: 'ALB_OF_ART_REL',value: 'Album for Artist relation'});
+													
+													this_self.base_obj_struct().object_data.object_type = response.object_type;
+													
+													// 1.
+													if (this_self.assgn_albume_forArt_tbl() != null){
+														if (this_self.assgn_albume_forArt_tbl().length > 0){	
+															this_self.assgn_albume_forArt_tbl.removeAll(this_self.assgn_albume_forArt_tbl())
+															this_self.assgn_albume_forArt_tbl(response.album_for_artist_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_albume_forArt_tbl(response.album_for_artist_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_albume_forArt_tbl(response.album_for_artist_relLD)
+														}
+													
+																
+														
+													// 2.
+													if (this_self.assgn_artists_all_relLD() != null){
+														if (this_self.assgn_artists_all_relLD().length > 0){	
+															this_self.assgn_artists_all_relLD.removeAll(this_self.assgn_artists_all_relLD())
+															this_self.assgn_artists_all_relLD(response.artists_all_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_artists_all_relLD(response.artists_all_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_artists_all_relLD(response.artists_all_relLD)
+														}
+													
+													// 3.
+													if (this_self.assgn_artists_main_to_relLD() != null){
+														if (this_self.assgn_artists_main_to_relLD().length > 0){	
+															this_self.assgn_artists_main_to_relLD.removeAll(this_self.assgn_artists_main_to_relLD())
+															this_self.assgn_artists_main_to_relLD(response.artists_main_to_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_artists_main_to_relLD(response.artists_main_to_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_artists_main_to_relLD(response.artists_main_to_relLD)
+														}	
+														
+													// 4.
+													if (this_self.assgn_artists_from_main_relLD() != null){
+														if (this_self.assgn_artists_from_main_relLD().length > 0){	
+															this_self.assgn_artists_from_main_relLD.removeAll(this_self.assgn_artists_from_main_relLD())
+															this_self.assgn_artists_from_main_relLD(response.artists_from_main_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_artists_from_main_relLD(response.artists_from_main_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_artists_from_main_relLD(response.artists_from_main_relLD)
+														}
+
+													
+													
+													
+												}	
+												else if ('album' in data.object_edit_data){
+													//--this_self.ddl_sub_model().artist.push({key: 'ART_IN_ALB_REL',value: 'Artist in Album relation'})
+													//--this_self.ddl_sub_model.valueHasMutated()
+													
+													this_self.sw_OBJEDIT_name(response.album); 
+													this_self.main(response.albumD.main); 
+													this_self.search_terms(response.albumD.search_term)
+													this_self.base_obj_struct().object_data.object_name = response.album;
+													this_self.base_obj_struct().object_data.object = 'album';
+													this_self.base_obj_struct().active_obj='album';
+													this_self.base_obj_struct().object_data.format_type = response.albumD.format_type
+													
+													this_self.base_obj_struct().object_data.objectD = response.albumD;
+													this_self.base_obj_struct().object_data.object_type = response.object_type;
+													
+													if (this_self.assgn_album_rel_tbl() != null){
+													if (this_self.assgn_album_rel_tbl().length > 0){	
+														this_self.assgn_album_rel_tbl.removeAll(this_self.assgn_album_rel_tbl())
+														this_self.assgn_album_rel_tbl(response.album_relLD)
+													} else {
+														this_self.assgn_album_rel_tbl(response.album_relLD)
+													}
+													} else {
+														this_self.assgn_album_rel_tbl(response.album_relLD)
+													}
+													
+													if (this_self.assgn_artist_inAlb_tbl() != null){
+													if (this_self.assgn_artist_inAlb_tbl().length > 0){
+														this_self.assgn_artist_inAlb_tbl.removeAll(this_self.assgn_artist_inAlb_tbl())
+														this_self.assgn_artist_inAlb_tbl(response.artist_album_relLD)
+																						
+													} else {
+														//alert('len = 0 in art albl rel')
+														this_self.assgn_artist_inAlb_tbl(response.artist_album_relLD)
+													}
+													} else {
+														//alert('null in art albl rel')
+														this_self.assgn_artist_inAlb_tbl(response.artist_album_relLD)
+													}	
+													
+													if (this_self.assgn_artist_rel_tbl() != null){
+													if (this_self.assgn_artist_rel_tbl().length > 0){	
+														this_self.assgn_artist_rel_tbl.removeAll(this_self.assgn_artist_rel_tbl())
+														this_self.assgn_artist_rel_tbl(response.artist_relLD)
+													} else {
+														//alert('len = 0 in art rel')
+														this_self.assgn_artist_rel_tbl(response.artist_relLD)
+													}
+													} else {
+														//alert('null artist')
+														this_self.assgn_artist_rel_tbl(response.artist_relLD)
+													}		
+													
+													//1.
+													if (this_self.assgn_album_from_rel_tbl() != null){
+													if (this_self.assgn_album_from_rel_tbl().length > 0){	
+														this_self.assgn_album_from_rel_tbl.removeAll(this_self.assgn_album_from_rel_tbl())
+														this_self.assgn_album_from_rel_tbl(response.album_from_relLD)
+													} else {
+														this_self.assgn_album_from_rel_tbl(response.album_from_relLD)
+													}
+													} else {
+														this_self.assgn_album_from_rel_tbl(response.album_from_relLD)
+													} 
+													
+													
+												} else {
+													alert('No object data received')
+													this.base_obj_struct({'object_data': {'object': ''}})
+												}
+												this_self.base_obj_struct.valueHasMutated()
+												
+												//this_self.assgn_artist_inAlb_tbl.valueHasMutated()
+												this_self.sw_OBJEDIT_name.valueHasMutated()
+												
+												
+												},
+				})
+				
+		
+	};
+	
+
+	
+	self.map_artist_album_req_eddlg_data=  function (obj_type,key) {
+	
+			if ( ( this.object_tbcreate_data_name() !='' ) && ( this.object_tbcreate_data_search_list() !='' )){
+		this.artist_album_sub_model().object_data.object_name = this.object_tbcreate_data_name()
+		this.artist_album_sub_model().object_data.object_descr = this.object_tbcreate_data_descr()
+		this.artist_album_sub_model().object_data.object_search_list = this.object_tbcreate_data_search_list()
+		this.artist_album_sub_model().object_data.object_type = this.object_tbcreate_data_objtype
+		this.artist_album_sub_model().object_data.object = this.artist_album_sub_model()['active_obj']
+		} else {
+			alert ('Object data is empty (name ore description)')
+		}
+	};
+	
+		self.assign_rel_object=  function (){
+		//processSimpleRequest(proc_name,'assign_object_editdlg_rel_data','','')
+		this.tb_assign_selected().object_data.rel_type = this.ddl_obj_sel_key()
+		this.tb_assign_selected().object_data.colorcl='newasgn'
+		this.tb_assign_selected().object_data.checked=false
+		this.tb_assign_selected().object_type = this.ddl_obj_sel_key()
+		
+		//alert(ko.toJSON(this.tb_assign_selected()))
+		
+		this.tb_assign_selected.valueHasMutated()
+		if (this.ddl_obj_sel_key() == "ART_IN_ALB_REL"){
+			if ((this_self.assgn_artist_inAlb_tbl() != null) && (this_self.assgn_artist_inAlb_tbl().length != 0)){
+				if (this.tb_assign_selected().object_data.key != this.assgn_artist_inAlb_tbl()[0].key){
+				this.assgn_artist_inAlb_tbl.unshift(this.tb_assign_selected().object_data)
+				}
+			} else {
+				this.assgn_artist_inAlb_tbl([this.tb_assign_selected().object_data])
+				}	
+			} else if (this.ddl_obj_sel_key() == "ALB_OF_ART_REL"){
+				alert(ko.toJSON(this.tb_assign_selected()))
+				if ((this_self.assgn_albume_forArt_tbl() != null) && (this_self.assgn_albume_forArt_tbl().lenght != 0)){
+					if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_albume_forArt_tbl()[0].key){
+					this.assgn_albume_forArt_tbl.unshift(this.tb_assign_selected().object_data)
+					}
+			} else {
+				this.assgn_albume_forArt_tbl([this.tb_assign_selected().object_data])
+			}		
+		} else if  (this.ddl_sub_model().active_obj == 'artist'){
+			if (this.assgn_artist_rel_tbl()  != null ){
+				if (this.assgn_artist_rel_tbl().length > 0){
+				
+				if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_artist_rel_tbl()[0].key){
+				
+				this.assgn_artist_rel_tbl.unshift(this.tb_assign_selected().object_data)
+				}
+				}else {this.assgn_artist_rel_tbl.unshift(this.tb_assign_selected().object_data)}
+				}  else {
+				this.assgn_artist_rel_tbl([this.tb_assign_selected().object_data])
+			}
+			
+			if (this.assgn_artists_main_to_relLD()  != null ){
+				if (this.assgn_artists_main_to_relLD().length > 0){
+				
+				if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_artists_main_to_relLD()[0].key){
+				
+				this.assgn_artists_main_to_relLD.unshift(this.tb_assign_selected().object_data)
+				}
+				}else {this.assgn_artists_main_to_relLD.unshift(this.tb_assign_selected().object_data)
+					}
+			} else {
+				this.assgn_artists_main_to_relLD([this.tb_assign_selected().object_data])
+			}
+			
+			
+		} else if  (this.ddl_sub_model().active_obj == 'album'){
+			if (this.assgn_album_rel_tbl() != null){
+				if (this.assgn_album_rel_tbl().length > 0){
+				if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_album_rel_tbl()[0].key){
+				this.assgn_album_rel_tbl.unshift(this.tb_assign_selected().object_data)
+				} 
+				}else {this.assgn_album_rel_tbl.unshift(this.tb_assign_selected().object_data)}
+			} else {
+					this.assgn_album_rel_tbl([this.tb_assign_selected().object_data])
+			}
+		}
+		
+		
+	};
+	
+	self.jump_to_object =  function(object,key,mode){
+		var old_object = this.base_obj_struct().object_data.object	
+	
+		this.reset_all_rel_tables();
+		this.initialize_sw_OBJEDIT_model(object,key) 
+	 
+	 
+		format_type = ""
+		if (object == "album"){
+				format_type = " 	format =  ["+this.base_obj_struct().object_data.format_type+"]"
+			}	
+	 var d_title = this.base_obj_struct().object_data.object+' =  '+ this.sw_OBJEDIT_name() +'	 type=  ['+this.base_obj_struct().object_data.object_type+']'+format_type;
+	 
+	//if ( object != old_object){
+	//	stack_elem = this.navi_dlg_stack.pop()
+		//alert(ko.toJSON(stack_elem))
+	//	 $( dlgRouter[old_object] ).dialog('close');		
+	 //   this.navi_dlg_stack.push(stack_elem)	 
+	//	  $( dlgRouter[object] ).dialog('open');
+		  
+		 
+	//} else {
+	
+	//}
+	 
+	 
+	 
+	
+	$( "#editalbumdlg" ).dialog( "option", "title", d_title );
+	if (mode == 'back'){
+		this.navi_dlg_stack.pop()
+	} else {
+		this.navi_dlg_stack.push({'object': object,'key': key,'name': this.sw_OBJEDIT_name()})
+	}
+	
+	
+	
+	};
+	
+	self.editAAElem=  function (obj_type,key,mode) {
+		if (mode == 'color'){
+		$('#'+key).css("background-color","Pink")
+		}
+		
+		this.initialize_sw_OBJEDIT_model(obj_type,key)
+		this.base_obj_struct.valueHasMutated()
+		this.sw_OBJEDIT_name.valueHasMutated()
+		
+		//alert( 'AAedit   '+this.sw_OBJEDIT_name())
+		
+		this.navi_dlg_stack.push({'object': obj_type,'key': key,'name': this.sw_OBJEDIT_name()})
+		format_type = ""
+		if (obj_type == "album"){
+			format_type = ".....format =  ["+this.base_obj_struct().object_data.format_type+"]"
+		}	
+		var d_title = this.base_obj_struct().object_data.object+' =  '+ this.sw_OBJEDIT_name() +'.....type =   '+this.base_obj_struct().object_data.object_type + format_type;
+		$( "#editalbumdlg" ).dialog( "option", "title", d_title );
+			
+		$( "#editalbumdlg" ).dialog('open');
+		
+		
+	}
+  };
+  
+  // EDIT DIALOG SUBMODEL------<END
+var m_vM =  new function(){
+	var self = this;
+	self.is_trackL_load = ko.observable(false)
+	self.update_mode = ko.observable(false);
+	var search_object_selector = ko.observable('artist');
+	self.view_trackL = ko.observableArray();
+
+	self.loadTrackViewCntxt = function (server_respond) {
+		var id = "";
+		var d_title = "";
+		var old_pl_list = 0;
+		
+		ko.mapping.fromJS(server_respond,{},viewModel.tracks);
+		self.is_trackL_load(true); 
+	}
+	
+};
+
+$(document).ready(function(){
+  
+
+ko.applyBindings(viewModel, $("#vmtrackL")[0]);
+ko.applyBindings(m_vM,$("#search_block")[0]);	
+
+
+ $( "#search_req_text_field" ).autocomplete({
+			minLength: 2,
+			delay: 500,
+			source: function( request, response ) {
+				
+				$.ajax({
+					
+					url: 'http://' + host + '/medialib/trackpreload/',type: 'POST',dataType: "json",
+					contentType:'multipart/form-data',
+					data: ko.toJSON({
+						object_data : {'object':'artist','search_term':request.term},
+						search_process : 'get_album_folder_autocompl_data',
+						update_mode : m_vM.update_mode()
+					}),
+					focus: function( event, ui ) {
+					$( "#search_req_text_field" ).val( ui.item.key );
+					return false;
+					},
+					success: function( data ) {
+						json_data = data.autocoml_data
+						response( $.map( json_data, function( item ) {	return {value: item.album, id: item.key, descr:item.name	}} ))
+					},
+			})},
+			select:	function( event, ui ) {
+				 $("#album_descr").html(ui.item.descr);
+				 
+				 mode = 'new'
+				 sel_req = ko.toJSON({"trackpreload" : 'get_tracks_selected_folder', 'album_crc32': ui.item.id,"srch_rep_mode":"trackpreload","update_mode":m_vM.update_mode()})
+				 
+				 return do_send_json_req(sel_req)
+				 
+	}
+		});
+ });	
+
+  var proc_mode = 0;
+  var req = createRequestObject();
+  var host = "%(host)s";
+  var action_key = 0;
+  var proc_name = "trackpreload";
+  var autocompl_response = [];
+  
+  
+function text_req_send(proc_name,action_name,text_line) {
+	//alert(param)
+		
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "text_line" +"\"" + ':'+"\""+text_line+"\""+"}";
+
+	return do_send_json_req(json_req);
+}  
+  
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+		stopProgressBar()
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					if (data == 'search_result_frm'){
+							document.getElementById("search_result_frm").innerHTML = Base64.decode(my_JSON_object[data]);
+							$('.fotorama').fotorama();
+							do_cancell_action()
+					}
+					else if ( data == 'action_result'){
+						//alert(my_JSON_object)
+						if (my_JSON_object['action_result'] == 2){
+						document.getElementById('action_go').type = "hidden";
+						do_cancell_action()
+							
+						}
+						else if (my_JSON_object['action_result'] == 1){
+							document.getElementById('play_butn').type = "button";
+							document.getElementById('play_butn').style.background='BurlyWood'
+							 
+							document.getElementById('action_result').innerHTML = "Play result succesfuly!";
+							do_cancell_action()
+							}
+							//else {
+							//document.getElementById('action_result').innerHTML = "Changes succesfuly saved!";
+								
+							//}
+						else if (my_JSON_object['action_result'] == 0){
+								document.getElementById('play_butn').type = "hidden";
+								document.getElementById('action_result').innerHTML = "Action failed with!";
+								do_cancell_action()
+							}
+							
+						else if (data == 'autocoml_data'){
+								autocompl_response = my_JSON_object[data]
+							}
+
+					}else if (data == 'tracks_view'){
+						
+							console.log(m_vM.is_trackL_load())
+							m_vM.loadTrackViewCntxt(my_JSON_object[data].dataD.initial.albumL)
+							console.log(m_vM.is_trackL_load())
+							
+							proc_state = 'no_srch_action'
+							if ('proc_state' in my_JSON_object[data]){
+							proc_state = my_JSON_object[data]['proc_state']
+							}
+					} //- IF 
+			
+						
+							//try{
+							//m_vM.add_searchItem(proc_state)
+							//}
+							//catch ( e ) {
+								//alert ('Error: at add_searchItem:  '+e)
+								//}
+						
+				} //- For 
+		} // IF 200
+	} //IF re state 4
+  }
+  catch( e ) {
+       //alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+
+function do_cancell_action() {
+	proc_mode = 0
+	
+}
+
+
+
+function set_form_layout() {
+	
+	
+	document.getElementById('loading').style.visibility="hidden";
+	return null;
+	
+	
+}
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/trackpreload/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	//alert(json_req)
+	req.send(json_req)
+	startProgressBar()
+
+	return false;
+
+}
+
+
+ window.onload = set_form_layout;
+
+//--> 
+</SCRIPT>
+
+</head>
+
+<body>
+<div id="pagewidth" >
+ <div id="header">
+ 	%(bookmark_tmpl)s
+ </div>
+
+
+
+<div id="search_block" align="center" > 
+<br>
+<FORM action=""   data-bind="submit: function() {return search_req_send(proc_name,'search_artist_db',$('#search_req_text_field').val(),$('#search_req_text_mass').val())}" enctype="multipart/form-data" >
+
+
+<div class="ui-widget">
+			<label for="search_req_text_field">Search: </label>
+		<input id="search_req_text_field" placeholder="Album, Artist" /> 
+		Update mode: <select size="1" data-bind="value:m_vM.update_mode">
+				<option value='notindb'>New Tracks </option>
+				<option value='reload'>Reload existed recently changed</option>
+				<option value='reloadsimpl'>Reload existed</option>
+				
+		 </select>
+		
+		
+		<input name="do_search"  title="Search" value="Search" type="button" onclick="search_req_send(proc_name,'search_artist_db',this.form.search_req_text_field.value,$('#search_req_text_mass').val())">   	
+		<BR>	
+		<span id="album_descr"></span>
+		
+</div>
+
+<BR>
+
+
+
+<input name="get_cur_plist"  value="Current Playing Album" type="button" onclick="text_req_send(proc_name,'get_tracks_cur_play_folder',m_vM.update_mode())"> 
+
+
+<SPAN id="action_name"></SPAN>
+<SPAN id="action_result"></SPAN>
+<span style="width:50px" id="loading"  align="center"><img style="width:50px" src="../../image/ajax-loader.gif" /></span> 
+</form>
+ </div>
+	
+	
+</div>
+<BR><BR>
+
+<div id = 'vmtrackL'>
+ 	
+		<ul style="list-style: none;" data-bind='visible: m_vM.is_trackL_load(), foreach: viewModel.tracks' >
+					<li style="height: 20px;">
+					<ul style="list-style: none; padding: 5px; border: 1px solid white;">		
+						<li style="display:inline;float:left;position:relative;width:650px;">
+							<span >  Album </SPAN>
+						</li>	
+						
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span > NSA </SPAN>
+					</li>
+					
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span >  Frmt </SPAN>
+					</li>	
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span > Cue </SPAN>
+					</li>		
+					
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span > trNum </SPAN>
+					</li>
+					
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span> inDB</SPAN>
+					</li>
+					
+					
+					
+					</ul>	
+					
+					<li style="height: 40px;">
+					<ul style="list-style: none; padding: 10px; background-color: rgb(240, 255, 240); border: 3px solid white;">		
+						<li style="display:inline;float:left;position:relative;width:650px;">
+							<span  data-bind="text: $data.album"> </SPAN>
+						</li>	
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span data-bind="text: $data.NSA"> </SPAN>
+					</li>
+					
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span data-bind="text: $data.format"> </SPAN>
+					</li>	
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span data-bind="text: $data.cue"> </SPAN>
+					</li>		
+					
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span data-bind="text: $data.tracks_number"> </SPAN>
+					</li>
+					
+					<li style="display:inline;float:left;position:relative;width:40px;">
+						<span data-bind="text: $data.db_album"> </SPAN>
+					</li>
+					
+					<li style="display:inline;float:left;position:relative;width:70px;">
+						<input data-bind="attr: {  id: $data.album_crc32 }"} name="play_album"  value="Play" type="button" onclick="text_req_send(proc_name,'play_album',this.id)"> 
+					</li>	
+					<li style="display:inline;float:left;position:relative;width:70px;">
+						<input data-bind="attr: {  id: $data.album_crc32 }"} name="save_tracks"  value="Save" type="button" onclick="text_req_send(proc_name,'save_tracks',this.id)"> 
+					</li>
+					
+					<li style="display:inline;float:left;position:relative;width:70px;">
+						<input data-bind="attr: {  id: $data.album_crc32 }"} name="remove_tracks"  value="Remove" type="button" onclick="text_req_send(proc_name,'remove_tracks',this.id)"> 
+					</li>
+					
+					</ul>	
+					</li>	
+					<BR>
+					<ul>		
+							<li style="display:inline;float:left;position:relative;width:20px;">
+								<span>  N</SPAN>
+							</li>		
+							<li style="display:inline;float:left;position:relative;width:250px;">	
+								<span>   Artist </SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:400px;">
+								<span>   Title </SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span>  Time </SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span>  BitR </SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span>  db_tr </SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span>  db_art </SPAN>
+							</li>
+								
+						</ul>
+					<BR>	
+					<ul style="list-style: none;" data-bind='foreach: TrackL'>		
+					<li style="height: 30px;">	
+						<ul style="list-style: none; padding: 10px; background-color: rgb(224, 255, 255); border: 3px solid white;">		
+							<li style="display:inline;float:left;position:relative;width:20px;">
+								<span data-bind="text: number"> </SPAN>
+							</li>		
+							<li style="display:inline;float:left;position:relative;width:250px;">	
+								<span  data-bind="text: artist"></SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:400px;">
+								<span data-bind="text: title"> </SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span data-bind="text: time"></SPAN>
+							</li>	
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span data-bind="text: bitrate"></SPAN>
+							</li>		
+							
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span data-bind="text: db_track"></SPAN>
+							</li>
+							<li style="display:inline;float:left;position:relative;width:50px;">
+								<span data-bind="text: db_artist"></SPAN>
+							</li>
+							<li style="display:inline;float:left;position:relative;width:100px;">
+								<input data-bind="attr: {  id: $data.track_crc32 }"} name="play_track"  value="Play check" type="button" onclick="text_req_send(proc_name,'play_track',this.id)"> 
+							</li>	
+						</ul>
+					</li>
+					</ul>
+					</li>	
+				</ul>
+				
+
+</div>	
+	
+
+ 
+</body>
+</html>

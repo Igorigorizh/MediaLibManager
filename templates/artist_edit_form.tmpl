@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<script src="../../js/mylib.js" type="text/javascript"></script>
+<script type="text/javascript" src="../../js/jquery.js"></script>
+
+<title>   %(html_title)s   </title>
+
+<SCRIPT TYPE="text/javascript"> 
+
+  var host = "%(host)s"
+  
+ 
+ var req = createRequestObject(); 
+ 
+ 
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  var control_state_new = {'curList_crc32':0,'curAlbum':0,'curTrack':0}
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					
+					if (data == 'action_name'){
+					
+						if (my_JSON_object[data] == 'artist_rfn_save'){ 
+							if (my_JSON_object['action_result'] != 1){ 
+								alert('result wes no saved')
+								 } else {
+									window.close()
+								 }
+												   
+					 }
+					}
+					else if (data == 'artist_search_vars_opt'){
+						document.getElementById("ref_artist_avlbl").innerHTML=my_JSON_object[data];
+						document.getElementById("ref_artist_avlbl").style.border="1px solid #A5ACB2";
+						
+					}
+				} 
+            
+    }
+  }
+  }
+  catch( e ) {
+       alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+
+var cur_sel_L = new Array();
+
+function addOption(theSel, theText, theValue)
+{
+  var newOpt = new Option(theText, theValue);
+  var selLength = theSel.length;
+  theSel.options[selLength] = newOpt;
+}
+
+function deleteOption(theSel, theIndex)
+{ 
+  var selLength = theSel.length;
+  if(selLength>0)
+  {
+    theSel.options[theIndex] = null;
+  }
+}
+
+function moveOptions(theSelFrom, theSelTo)
+{
+  
+  var selLength = theSelFrom.length;
+  var selectedText = new Array();
+  var selectedValues = new Array();
+  var selectedCount = 0;
+  
+  var i;
+  
+  // Find the selected Options in reverse order
+  // and delete them from the 'from' Select.
+  for(i=selLength-1; i>=0; i--)
+  {
+    if(theSelFrom.options[i].selected)
+    {
+      selectedText[selectedCount] = theSelFrom.options[i].text;
+      selectedValues[selectedCount] = theSelFrom.options[i].value;
+      deleteOption(theSelFrom, i);
+      selectedCount++;
+    }
+  }
+  
+  // Add the selected text/values in reverse order.
+  // This will add the Options to the 'to' Select
+  // in the same order as they were in the 'from' Select.
+  for(i=selectedCount-1; i>=0; i--)
+  {
+    addOption(theSelTo, selectedText[i], selectedValues[i]);
+  }
+  
+}
+
+
+
+function send_Saved_Artist(){
+
+
+	selL = new Array();
+	main_artist = "";
+	artist_name = "";
+	search_term = "";
+    ref_artist = "";
+	
+	
+	refer_type = document.getElementById('refer_type').value;
+	
+	if (document.getElementById('main_artist').checked == true){
+		main_artist = "X"
+	}
+	
+	artist_name = $("#artist_name").val();
+	search_term = $("#search_term").val();
+	
+	$("#ref_artist_new option").each( function() {
+	selL.push($(this).val());	
+	})
+	
+	
+
+	//alert(myForm.toString())
+	
+	fieldL =['artist_name','search_term','main_artist','ref_artistL']
+
+	var params = 'name= edit_artist' + ';; main_artist= '+main_artist + ';; artist_name= '+artist_name + ';; search_term= '+search_term + ';; ref_artistL=' + selL.toString();	
+	//params  = "name= 12345"
+	//if ( artist_name > '' and search_term > '' ){
+
+	req.open("POST", 'http://%(host_name)s/edit_artist/', true)
+	
+	
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+        
+	
+	json_req = "{" +"\"" + "action_result" +"\"" + ':' +"\"" + 'artist_rfn_form' + "\"" +','+ "\"" + "search_term" + "\""+ ':' + "\"" + search_term + "\""+','+ "\"" + "main_artist" + "\""+ ':' + "\"" + main_artist + "\""+','+ "\"" + "artist_name" + "\""+ ':' + "\"" + artist_name + "\""+',';
+	json_req +=  "\"" + "refer_type" +"\"" + ':'  +"\"" +refer_type +"\"" + ','   +"\"" + "sel_idL" +"\"" + ':['+ selL.toString().toString()+"]}";	
+	//alert(json_req)
+	//json_req  = ""
+	
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	
+	//}
+	//alert(params)
+	//window.close()
+	return null;
+
+}
+
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/tagadmin/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	//startProgressBar()
+
+	return false;
+	}
+
+function showResult(search_term)
+{
+if (search_term.length==0)
+  { 
+  //document.getElementById("ref_artist_avlbl").innerHTML="";
+  //document.getElementById("ref_artist_avlbl").style.border="0px";
+  //return;
+  }
+	json_req = "{" +"\"" + 'search_process' +"\"" + ':' +"\"" + 'get_artist_live_search_variants_opt' + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+"}";
+  do_send_json_req(json_req)
+}	
+
+</SCRIPT>
+</head>
+<body>
+
+
+<br>
+<div align="center">
+ <table border="1" bordercolor="#FFCC01" style="background-color:#FFFFCC" width="700" cellpadding="0" cellspacing="0"> 
+  <tr style="background-color:#00CCFF" >
+
+
+<td>
+        <fieldset>
+	<legend>Artist Edit:</legend>
+	Artist type:  <SELECT NAME="artist_type">
+			<OPTION VALUE="ARTIST" > ARTIST	
+			<OPTION VALUE="COMPOSITOR" > COMPOSITOR	
+			<OPTION VALUE="ATHOR_TEXT" > Text Writer
+			<OPTION VALUE="RADER" > Text Reader
+					
+		
+		</SELECT>
+	Artist Name: <input type="text" id="artist_name" name="artist_name" value="%(artist_name)s" size="30" /><br />
+	Search Term: <input type="text" id="search_term" name="search_term" value="%(search_term)s" size="30" /><br />
+	
+	Main <INPUT  height="27" width="36" TYPE="checkbox" id="main_artist" name="main_artist" VALUE="" %(checked_flag)s ><br /> 
+
+
+	</fieldset> 
+</td>
+<td>
+<input type="text" size="30" id="search_req_text_field_autosuggest" onkeyup="showResult(this.value)" /><br>
+Availbl Rfrnc Artist - %(main_artist_num)s: <SELECT style="width:200px" NAME="ref_artist_avlbl" id="ref_artist_avlbl" size = "6"> 
+				
+				%(ref_artist_avlbl_list)s	
+				
+			</SELECT> 
+
+</td>
+
+	<td align="center" valign="middle">
+		<input type="button"  onclick="moveOptions(document.getElementById('ref_artist_avlbl'),document.getElementById('ref_artist_new'));" value='--&gt;'> 
+		<input type="button"  onclick="moveOptions(document.getElementById('ref_artist_new'), document.getElementById('ref_artist_avlbl'));" value='&lt;--'> 
+	<td>
+<td>
+  <SELECT NAME="refer_type" id="refer_type" style="width:200px" >
+		%(rel_type_list)s	
+		
+ </SELECT> <BR>
+ Added refer Artist: <SELECT style="width:200px" NAME="ref_artist_new" id="ref_artist_new" size = "6"> 
+		%(ref_artist_list)s	
+	</SELECT> 
+</td>
+
+	
+
+
+<td>
+Related Artist - %(rel_artist_num)s: <SELECT style="width:200px"  NAME="rel_artist" id="rel_artist" size = "6"> 
+		%(rel_artist_list)s	
+
+	</SELECT> 
+</td>
+
+</TR>
+</TABLE>
+<BR>
+<input type="button"  name="save_edit_artist"  value="Save"  onclick="send_Saved_Artist()">	
+</DIV>
+
+</body>
+
+</html>

@@ -1,0 +1,1095 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head onload="fill_all_span()"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<link href="../../css/jplayer.blue.monday.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/jquery.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.jplayer.min.js"></script>
+
+<link href="../../css/jPlayer11.css" rel="stylesheet" type="text/css" />
+
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+
+
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+
+
+
+<title id="play_status_txt">    </title>
+
+<script type="text/javascript"> 
+
+
+  var host = "%(host)s";
+  var html_title = "%(html_title)s";
+  
+  var play_list = ""
+  
+  var jquery_this = ''  
+  var flag_init = true; 
+  
+  var song_frame = {key:{index_in_list:0,ready:false,song:""}}
+  
+   
+  var req = createRequestObject();
+ 
+ 
+ var control_state = null
+
+ var winamp_cntrl_block_stat = true
+ 
+ var timer = null;
+ var timer_refresh = null;
+ //var clock = "00:00"
+ 
+ myDate = new Date()
+ //myDate.setMinutes(1)
+ //myDate.setSeconds(1)
+ 
+ var cover_image = new Image();
+ cover_image.src = "/images/cover";
+ 
+ var cur_song_length = 0
+
+ var timestamp = Number(myDate)
+
+
+ function dura(){
+	jQuery(document).trigger("format_changed",[ $("#format_select option:selected").val() ])
+ }
+
+
+	/* ORIGINAL PLAYLIST -- FOR REFERENCE
+
+		{name:"Tempered Song",mp3:"http://www.miaowmusic.com/audio/mp3/Miaow-01-Tempered-song.mp3",ogg:"http://www.miaowmusic.com/audio/ogg/Miaow-01-Tempered-song.ogg"},
+
+		{name:"Partir",mp3:"http://www.miaowmusic.com/audio/mp3/Miaow-09-Partir.mp3",ogg:"http://www.miaowmusic.com/audio/ogg/Miaow-09-Partir.ogg"},
+
+		{name:"Thin Ice",mp3:"http://www.miaowmusic.com/audio/mp3/Miaow-10-Thin-ice.mp3",ogg:"http://www.miaowmusic.com/audio/ogg/Miaow-10-Thin-ice.ogg"}
+
+		*/
+ 
+
+
+$(document).ready(function(){
+
+	jquery_this = this;
+	var playItem = 0;
+	var format = 'mp3'
+	var myPlayList = [{name:"Partir",mp3:"/audio/mp3/219311"}]; 
+	
+	if (myPlayList == []) {return false;}
+	
+	
+
+
+	$(document).bind('list_new', function(event, msg) {
+	
+    createPlaylist(msg)
+	
+	playListChange( 0 )
+	});
+	
+	$(document).bind('format_changed', function(event, msg) {
+	
+    change_format(msg)
+	
+	});
+	
+	$(document).bind('list_changed', function(event, msg) {
+    
+	playListChange( msg )
+	});
+	
+
+
+
+	// Local copy of jQuery selectors, for performance.
+
+	var jpPlayTime = $("#jplayer_play_time");
+
+	var jpTotalTime = $("#jplayer_total_time");
+
+	
+	
+
+	$("#jquery_jplayer_1").jPlayer({
+
+		ready: function(event) {
+
+			//displayPlayList();
+
+			playListInit(true); // Parameter is a boolean for autoplay.
+
+		},
+		swfPath: "../../js/",
+		supplied: "mp3",
+		//wmode: "window",
+		errorAlerts: true,
+ 		warningAlerts: true,
+		cssSelectorAncestor: "#jp_container_1"
+
+//		oggSupport: false
+
+	})
+	
+	
+	
+		
+
+	.jPlayer("onProgressChange", function(loadPercent, playedPercentRelative, playedPercentAbsolute, playedTime, totalTime) {
+
+		jpPlayTime.text($.jPlayer.convertTime(playedTime));
+
+		jpTotalTime.text($.jPlayer.convertTime(totalTime));
+
+	})
+
+	.jPlayer("ended", function() {
+
+		playListNext();
+
+	});
+
+
+
+	$("#jplayer_previous").click( function() {
+
+		playListPrev();
+
+		$(this).blur();
+
+		return false;
+
+	});
+
+
+
+	$("#jplayer_next").click( function() {
+
+		playListNext();
+
+		$(this).blur();
+
+		return false;
+
+	});
+	
+	
+	function change_format(new_format){
+		//alert(new_format)
+		format = new_format
+			for ( a in myPlayList ){
+			
+			myPlayList[a].format=format
+			myPlayList[a].media='/audio/'+myPlayList[a].format+'/'+myPlayList[a].id
+			//alert(myPlayList[a].mp3)
+			
+		}
+		if (format == 'mp3'){
+		oggSupport: false
+		mp3Support: true
+		}else{
+		oggSupport: true
+		mp3Support: false
+		}
+		
+		
+			
+	
+	return false;
+	}
+	
+	function createPlaylist(list){
+		//alert(list)
+		myPlayList = []
+		for ( a in list ){
+			
+			myPlayList[a] = {name:list[a].toString(),format:format,id:list[a].toString(),media:'/audio/'+format+'/'+list[a].toString()}
+			//alert(myPlayList[a].mp3)
+		}
+	
+	return false;
+	}
+
+	function displayPlayList() {
+	/*
+		$("#jplayer_playlist ul").empty();
+
+		for (i=0; i < myPlayList.length; i++) {
+
+			var listItem = (i == myPlayList.length-1) ? "<li class='jplayer_playlist_item_last'>" : "<li>";
+
+			listItem += "<a href='#' id='jplayer_playlist_item_"+i+"' tabindex='1'>"+ myPlayList[i].name +"</a> (<a id='jplayer_playlist_get_mp3_"+i+"' href='" + myPlayList[i].mp3 + "' tabindex='1'>download</a>)</li>";
+
+			$("#jplayer_playlist ul").append(listItem);
+
+			$("#jplayer_playlist_item_"+i).data( "index", i ).click( function() {
+
+				var index = $(this).data("index");
+
+				if (playItem != index) {
+
+					playListChange( index );
+
+				} else {
+
+					$("#jquery_jplayer").jPlayer("play");
+
+				}
+
+				$(this).blur();
+
+				return false;
+
+			});
+
+			$("#jplayer_playlist_get_mp3_"+i).data( "index", i ).click( function() {
+
+				var index = $(this).data("index");
+
+				$("#jplayer_playlist_item_"+index).trigger("click");
+
+				$(this).blur();
+
+				return false;
+
+			});
+
+		}
+*/
+return false;
+	}
+
+	
+
+	function playListInit(autoplay) {
+		if (myPlayList == []) {return false;}
+		if(autoplay) {
+
+			playListChange( playItem );
+
+		} else {
+
+			playListConfig( playItem );
+
+		}
+
+	}
+
+
+
+	function playListConfig( index ) {
+
+		//$("#jplayer_playlist_item_"+playItem).removeClass("jplayer_playlist_current").parent().removeClass("jplayer_playlist_current");
+
+		//$("#jplayer_playlist_item_"+index).addClass("jplayer_playlist_current").parent().addClass("jplayer_playlist_current");
+
+		playItem = index;
+		//alert(myPlayList[playItem].media)
+		//alert(myPlayList[playItem].toString())
+		$("#jquery_jplayer_1").jPlayer("setMedia",{mp3: myPlayList[playItem].media});
+
+	}
+
+
+
+	function playListChange( index ) {
+
+		playListConfig( index );
+		send_player_status('goto_track',myPlayList[playItem].name)
+		$("#jquery_jplayer_1").jPlayer("play");
+
+	}
+
+
+
+	function playListNext() {
+		
+		var index = (playItem+1 < myPlayList.length) ? playItem+1 : 0;
+		
+		playListChange( index );
+
+	}
+
+
+
+	function playListPrev() {
+
+		var index = (playItem-1 >= 0) ? playItem-1 : myPlayList.length-1;
+		playListChange( index );
+
+	}
+	
+	
+
+});
+
+
+	 function start(old_timestamp){
+		 
+		 //new_timestamp = old_timestamp
+		 
+		 new_timestamp = old_timestamp - 1000;
+		 
+		 
+		 var time = new Date(new_timestamp);
+		 var minutes = time.getMinutes();
+		 minutes = ((minutes < 10) ? "0" : "") + minutes;
+		 var seconds = time.getSeconds();
+		 
+		 
+		 seconds=((seconds < 10) ? "0" : "") + seconds;
+		 var clock = minutes + ":" + seconds
+		 document.getElementById("refresh_time").innerHTML = clock;	
+		 
+		 //if ( ( minutes == "00" ) & ( seconds == "00" )) {
+		//	clearTimeout(timer)
+		 //}
+		 timer = setTimeout("start(" + new_timestamp + ")",1000); //refresh 
+	 } 
+
+	 
+
+	
+function setSongPageTime(){
+duration = 5000
+if (duration >= 0){
+
+	clearTimeout(timer)
+	clearTimeout(timer_refresh)
+	
+	
+								
+	var time = new Date(duration*1000);
+	var minutes = time.getMinutes();
+	minutes = ((minutes < 10) ? "0" : "") + minutes;
+	var seconds = time.getSeconds();
+		 
+	seconds=((seconds < 10) ? "0" : "") + seconds;
+	var clock = minutes + ":" + seconds
+	document.getElementById("refresh_time").innerHTML = clock;	
+	}							
+}								
+	
+
+	
+	
+
+
+
+
+function send_player_status(command,value){
+
+req.open("POST", 'http://' + host + '/medialib/cast/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+	if (play_list != ''){
+		json_req = "{" +"\"" + "cast_player_control" +"\"" + ':' +"\"" + command + "\"" +','+"\"" + "track_id" +"\"" + ':'+value+"}";
+	} else {
+		json_req = "{" +"\"" + "initial_cast_load" +"\"" + ':' +"\""+ "initial"+ "\""+"}";
+	}	
+	
+  
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	
+
+	return null;
+
+
+}
+
+ 
+function secondsToTime(secs){
+var hours = Math.floor(secs / (60 * 60));
+   
+    var divisor_for_minutes = secs %% (60 * 60);
+    var minutes = Math.floor(divisor_for_minutes / 60);
+ 
+    var divisor_for_seconds = divisor_for_minutes %% 60;
+    var seconds = Math.ceil(divisor_for_seconds);
+    
+   
+    var obj = {
+        "h": hours,
+        "m": minutes,
+        "s": seconds
+    };
+    return obj;
+
+
+}
+	 
+function imgReload(imgId) {
+	var timer_absolute=new Date();
+	var path = "/images/cover";
+	//if(path.indexOf('?') < 1) path+= '?';
+	//document.write(timer_absolute.getTime() + " milliseconds since 1970/01/01");
+	path+= timer_absolute.getTime();
+	document.getElementById(imgId).src = path;
+}
+
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  var control_state_new = {'curList_crc32':0,'curAlbum':0,'curTrack':0}
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+            // обработка ответа
+			//alert(req.responseText)
+				my_JSON_object = JSON.parse( req.responseText)
+			 //my_JSON_object = JSON.parse( req.responseText,	 function (key, my_value) {
+			//	document.getElementById(key).innerHTML = my_value;	
+			//	if (key == 'play_status') {
+			//	 document.title = my_value + " Udalennaya igralka";	
+			//	} 
+				
+			//});
+			
+				for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					if (data == 'cast_frame3'){
+					 for ( t_item_key in my_JSON_object[data] ) {
+						//alert(t_item_key)
+					  document.getElementById(t_item_key).innerHTML = Base64.decode(my_JSON_object[data][t_item_key]);	
+					  
+					   
+					 }
+					
+					} 
+					else if (data == 'artist_search_vars'){
+						document.getElementById("livesearch").innerHTML=my_JSON_object[data];
+						document.getElementById("livesearch").style.border="1px solid #A5ACB2";
+						
+					}
+					else if (data == 'play_status'){
+						//alert(my_JSON_object[data])
+						if ( my_JSON_object[data] == 3 ){
+						//Paused
+						if ( timer != null ) {
+						clearTimeout(timer)
+						clearTimeout(timer_refresh)
+						}
+						} 
+						else if ( my_JSON_object[data] == 1 ){	
+							// Playing
+							//clearTimeout(timer)
+							//clearTimeout(timer_refresh)
+							//start(timestamp)
+							
+						} 
+						
+						else if ( my_JSON_object[data] == 0 ){	
+							// Stopped
+							if ( timer != null ) {
+								clearTimeout(timer)
+								clearTimeout(timer_refresh)
+								
+								var time = new Date(my_JSON_object[data]*1000);
+								var minutes = time.getMinutes();
+								minutes = ((minutes < 10) ? "0" : "") + minutes;
+								var seconds = time.getSeconds();
+		 
+		 						seconds=((seconds < 10) ? "0" : "") + seconds;
+								var clock = minutes + ":" + seconds
+								document.getElementById("refresh_time").innerHTML = clock;	
+								
+								}
+						
+							//start(timestamp)
+							
+						} 
+					}
+					
+					else if (data == 'refresh_time'){
+						if (my_JSON_object[data] > 1) {
+							my_JSON_object[data] = my_JSON_object[data] + 1
+						}
+						var time_obj = secondsToTime(my_JSON_object[data])
+						
+						myDate.setMinutes(time_obj['m'])
+						myDate.setSeconds(time_obj['s'])
+						timestamp = Number(myDate)
+						clearTimeout(timer)
+						clearTimeout(timer_refresh)
+						
+						if ( 'play_status' in my_JSON_object) {
+							if ( my_JSON_object['play_status'] == 1 ) {
+								//start(timestamp)
+						//alert(my_JSON_object[data])
+								//timer_refresh = setTimeout("get_new_data_after_refresh()",my_JSON_object[data]*1000)
+							}
+						}
+					}
+					else if (data == 'play_status_txt'){
+						document.getElementById(data).innerHTML = my_JSON_object[data] +  html_title;	
+					}
+					
+					else if (data == 'trackL'){
+						document.getElementById("getTrack").innerHTML =  Base64.decode(my_JSON_object[data]);	
+					}
+					
+					else if (data == 'albumL'){
+						document.getElementById("getAlbum").innerHTML = Base64.decode(my_JSON_object[data]);
+						 
+						
+						//document.getElementById("album_numb").innerHTML = document.myform_getAlbum.getAlbum.options.length.toString();
+						
+						
+					}
+					
+					else if (data == 'tagsL'){
+						document.getElementById("hard_tags").innerHTML = my_JSON_object[data];	
+					}
+					
+					else if (data == 'cast_data'){
+						var pre_str = my_JSON_object[data]
+						
+						play_list = JSON.parse(pre_str)
+																	
+						
+						
+						//$(document).ready()	
+									
+						jQuery(document).trigger('list_new', [play_list]);
+					}
+					else if (data == 'queueL'){
+						document.getElementById("getPlistQueue").innerHTML = my_JSON_object[data];	
+					}
+					
+					
+					
+					else if (data == 'cover'){
+						//document.getElementById("cover").src = "/images/cover"
+						if ( my_JSON_object[data] == 1 ){
+						//	imgReload("cover")
+						}
+					}
+
+					else if (data == 'image_crc32'){
+						document.getElementById("cover").src = "/images/cover/"+my_JSON_object[data] + ".jpg"
+				//		if ( my_JSON_object[data] == 1 ){
+				//			imgReload("cover")
+				//		}	
+					
+					}
+					
+					
+					
+				    	
+				}
+				
+				if ('curState' in my_JSON_object){
+						//alert(my_JSON_object['curState'])
+						
+						if (control_state != null){
+							//document.getElementById("livesearch").innerHTML=my_JSON_object[data]
+							for ( t_item_key in my_JSON_object['curState'] ) {
+								
+								control_state_new[t_item_key] = my_JSON_object['curState'][t_item_key]
+								//alert(control_state_new[t_item_key])
+							 } // enf for
+						
+							if ( control_state_new['curAlbum'] == control_state['curAlbum'] ) {
+								if ( control_state_new['curTrack'] != control_state['curTrack'] ){
+									set_ddl_selected(document.myform_getpTrack.getTrack, control_state_new['curTrack'])
+								}
+							}
+							
+							if ( control_state_new['curList_crc32'] == control_state['curList_crc32'] ){
+								if ( control_state_new['curAlbum'] != control_state['curAlbum'] ) {
+									if ( control_state_new['curTrack'] != control_state['curTrack'] ){
+										set_ddl_selected(document.myform_getAlbum.getAlbum, control_state_new['curAlbum'])
+										set_ddl_selected(document.myform_getpTrack.getTrack, control_state_new['curTrack'])
+								}
+							}
+							}
+							} else {
+						
+						for ( t_item_key in my_JSON_object['curState'] ) {
+							
+							control_state_new[t_item_key] = my_JSON_object['curState'][t_item_key]
+							//alert(control_state_new[t_item_key])
+					 	 } // enf for
+						
+						if (control_state == null){
+							control_state = control_state_new
+							return
+						}
+						
+						}
+						for ( t_item_key in my_JSON_object['curState'] ) {
+							
+							control_state_new[t_item_key] = my_JSON_object['curState'][t_item_key]
+							//alert(control_state_new[t_item_key])
+					 	 } // enf for
+						
+						control_state = control_state_new
+											
+					} // end if (data == 'curState')
+			//the_object = eval( "(" + req.responseText + ")" );
+			//alert(the_object.toString())
+			
+        } 
+		//req = null;
+    }
+  }
+  catch( e ) {
+       alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+ 
+ 
+ 
+ function set_ddl_selected(ddl,index){
+	for (var i=0; i < ddl.length; i++) {
+		if (ddl[i].value == index) {
+			ddl[i].selected = true;
+			return 
+		}
+	}
+}
+ 
+	 
+function player_control_send(param) {
+	
+	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+        //req.setRequestHeader("Content-Length", json_req.length);
+        //req.setRequestHeader("Connection", "close");
+	json_req = "{" +"\"" + "player_control" +"\"" + ':' +"\"" + param + "\"" +"}";
+	//json_req  = ""
+	//alert(json_req)
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	
+	
+	//req.close() 
+	//alert(json_req)
+
+	//}
+	//alert(params)
+	return null;
+
+}  	 
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/main/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	//startProgressBar()
+
+	return false;
+
+}
+function navigation_control_send(param,indx) {
+	
+	req.open("POST", 'http://' + host + '/medialib/cast/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+        //req.setRequestHeader("Content-Length", json_req.length);
+        //req.setRequestHeader("Connection", "close");
+	if ( param == "goto_libL") {
+	json_req = "{" +"\"" + "cast_navigation_control" +"\"" + ':' +"\"" + param + "\"" +','+"\"" + "sel_idL" +"\"" + ':['+"\""+indx.toString()+"\""+"]}";	
+	}	else {
+	json_req = "{" +"\"" + "cast_navigation_control" +"\"" + ':' +"\"" + param + "\"" +','+"\"" + "sel_idL" +"\"" + ':['+indx.toString()+"]}";
+	}
+
+	//alert(json_req)
+	
+	
+	
+	document.getElementById("livesearch").innerHTML="";
+	document.getElementById("livesearch").style.border="0px";
+  
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	
+
+	return null;
+
+}  
+
+ function fill_all_span(){
+		 document.getElementById("play_status_txt").innerHTML = 'initial';	
+		
+	} 
+	
+ function get_new_data_after_refresh(){
+ 	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+    json_req = "{" +"\"" + "initial_main_load" +"\"" + ':' +"\"" + "refresh_check" + "\"" +"}";
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	return null;
+		
+	} 	
+	
+function at_initial_page_load(){
+	
+	req.open("POST", 'http://' + host + '/medialib/cast/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	json_req = "{" +"\"" + "initial_cast_load" +"\"" + ':' +"\""+ "initial"+ "\""+"}";
+
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+
+	
+
+}  
+	 
+ window.onload = at_initial_page_load;
+ //window.onload = start;
+ window.onload = fill_all_span;
+
+ function setOptions_plist(selbox,num_label,chosen) { 
+	//var selbox = document.myform_Playlist.getPlayList; 
+	//var selbox =  group_selbox;
+	selbox.options.length = 0; 
+	}
+
+ function setOptions_tag(selbox,num_label,chosen) { 
+	//var selbox = document.myform_Playlist.getPlayList; 
+	//var selbox =  group_selbox;
+	selbox.options.length = 0; 
+	}
+
+function showResult(search_term)
+{
+if (search_term.length==0)
+  { 
+  document.getElementById("livesearch").innerHTML="";
+  document.getElementById("livesearch").style.border="0px";
+  return;
+  }
+	json_req = "{" +"\"" + 'search_process' +"\"" + ':' +"\"" + 'get_artist_live_search_variants' + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+"}";
+  do_send_json_req(json_req)
+}
+
+ </script> 
+
+</head>
+
+<body  window.onload = fill_all_span(); window.onload = at_initial_page_load()" style="font-size:20;">
+
+
+
+
+
+<div id="pagewidth" >
+
+<form onsubmit="return false;">
+
+
+</form>
+
+<div align="center">
+ <table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0"> 
+  <tr style="background-color:#00CCFF" >
+  <th colspan="7" > 
+   <div align="center"> 
+    <TABLE BORDER="0"> 
+     <TR> <TD> <B>  </B></TD> 
+ 	 <TD>  <B> ..... ends in: </B> <B> <SPAN id="refresh_time"></SPAN> </B>    </body></TD>
+
+     </tr>
+   </TABLE>
+  </div>
+ </tr>
+
+  <tr style="background-color:#CCFFFF" height="20" >
+   <td> %(t_song)s </td> <td> %(t_actor)s </td> <td> %(t_album)s </td> 
+   <td width="30" > %(t_time)s  </td> <td width="20" > %(t_bitrate)s  </td> <td width="20" > %(t_format)s  </td>
+ <td rowspan="4" width="200" >
+   <img src="/images/cover/" name="cover" id="cover" height="200" width="200"> 
+ </td>
+ </tr>
+                         <tr height="60" id="frame3-row-0">
+ <td><br>------</td>
+ <td><br>------</td>
+ <td><br>------</td>
+ <td><br></td>
+ <td><br>------</td>
+ <td><br>------</td>
+</tr>
+
+<tr style="background-color:#CCFFCC" id="frame3-row-1" height="60">
+ <td><br>------</td>
+ <td><br>------</td>
+ <td><br>------</td>
+ <td><br></td>
+ <td><br>------</td>
+ <td><br>------</td>
+</tr>
+
+
+<tr height="60" id="frame3-row-2">
+ <td><br>------</td>
+ <td><br>------</td>
+ <td><br>------</td>
+ <td><br></td>
+ <td><br>------</td>
+ <td><br>------</td>
+</tr>
+ </table>
+
+ </div>	
+
+
+<div align="center">
+<TABLE BORDER="0">
+	 <tbody><tr id="hard_tags">
+		<td></td></tr>
+
+</tbody>
+</TABLE>
+</div>
+
+
+
+
+
+<div align="center"> 
+
+
+<div id="jquery_jplayer_1" class="jp-jplayer"></div>
+
+
+
+		<div id="jp_container_1" class="jp-audio">
+
+			<div class="jp-type-playlist">
+
+				<div class="jp-gui jp-interface">
+
+					<ul class="jp-controls">
+						<li><a href="javascript:;" class="jp-previous" tabindex="1">previous</a></li>
+
+						<li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+
+						<li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+						
+
+						<li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
+						<li><a href="javascript:;" class="jp-next" tabindex="1" title="mute">next</a></li>
+
+						<li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
+
+						<li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
+
+						<li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
+
+					</ul>
+
+					<div class="jp-progress">
+
+						<div class="jp-seek-bar">
+
+							<div class="jp-play-bar"></div>
+
+
+
+						</div>
+
+					</div>
+
+					
+
+					<div class="jp-current-time"></div>
+
+					<div class="jp-duration"></div>
+
+					
+
+				</div>
+
+
+
+				<div class="jp-no-solution">
+
+					<span>Update Required</span>
+
+					To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
+
+				</div>
+
+                
+
+			</div>
+
+		</div>
+		</div>
+
+
+
+			<div id="jplayer_inspector" style="display:block;"></div>
+
+ 
+
+<div align="center">
+
+
+<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0">
+ <tr style="background-color:#CCFFFF" >
+  <th colspan="2" > 
+ </tr>
+ <th colspan="7" >
+ <tr style="background-color:#CCFFCC" height="20" >
+  <td width="500">
+   
+	<SELECT NAME="getAlbum" id="getAlbum">	
+   
+     
+	</SELECT>	
+	
+<INPUT  height="27" width="36" TYPE="button" id="goto_album" title = "Goto Album" name="goto_album" VALUE="Go" onclick="jQuery(document).trigger('list_changed', parseInt($('#getAlbum').val() ));">
+  </td>
+
+  <td>
+   
+    <SELECT NAME="getTrack" id="getTrack">
+       
+    </SELECT>	
+ 	
+	<INPUT  height="27" width="36" TYPE="button" id="goto_track" title = "Goto Track" name="goto_track" VALUE="Go" onclick="jQuery(document).trigger('list_changed', parseInt($('#getTrack').val() ))"> 
+	</div>	
+    
+	
+	
+   
+  </td>
+  </tr>
+ </table>			
+
+<br>
+
+
+<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0">
+ <tr style="background-color:#CCFFFF" >
+  <th colspan="2" > 
+    
+	<SPAN id="lg"></SPAN>  <a href="#" title="Close/Restore WinAmp Panel" id="hide_me"> X/Я </a>
+ </tr>
+ <th colspan="7" >
+ <tr id="winamp_cntrl_block" style="background-color:#CCFFCC" height="20" >
+  <td width="500">
+      <FORM name='myform_Playlist' enctype='multipart/form-data'   method='POST'>	
+	<SELECT NAME="getGroupOfPlayList" size="1" onchange="setOptions_plist(document.myform_Playlist.getPlayList,'lg',this.options[this.selectedIndex].value);">
+	 
+        </SELECT>
+    	</td>	 
+
+       <td>
+         <select name="getPlayList" id="getPlayList" size="1">
+	   
+	 </SELECT> 
+ 	
+	<INPUT  height="27" width="36" TYPE="button" id="goto_libL" title = "Goto Winamp List" name="goto_libL" VALUE="Go" onclick="navigation_control_send('goto_libL',document.myform_Playlist.getPlayList.options[document.myform_Playlist.getPlayList.selectedIndex].value)"> 
+      </FORM>
+    </td>
+  </tr>
+ </table>			
+<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0">
+ <tr style="background-color:#CCFFFF" >
+	<TD width="350"> 
+		<FORM name='myform_getPLQueue' enctype='multipart/form-data'   method='POST'> 	
+		    <SELECT NAME="getPlistQueue" id="getPlistQueue">
+		      
+		    </SELECT>
+		  
+			<INPUT  height="27" width="36" TYPE="button" id="goto_queueL" title = "Goto Queue List" name="goto_queueL" VALUE="Go" onclick="navigation_control_send('goto_queueL',document.myform_getPLQueue.getPlistQueue.options[document.myform_getPLQueue.getPlistQueue.selectedIndex].value)"> 
+	
+	   </FORM>
+	</TD> 
+
+	<td>
+
+	<SELECT NAME="format_set" id="format_select" >
+			<OPTION VALUE="MP3" > MP3
+			<OPTION VALUE="OGG" > OGG
+		
+		</SELECT>	
+<INPUT  height="27" width="36" TYPE="button" id="format_set" title="Change format" name="change_format" VALUE="Go" onclick={dura()}> 
+		
+		
+		
+		
+		
+		
+		
+	</TD> 	
+<TD width="100"> 	
+<FORM name='myform_AllTagL' enctype='multipart/form-data'   method='POST'> 	
+ <SELECT NAME="TagType" id="TagType" onchange="setOptions_tag(document.myform_AllTagL.getTag,'num_tags',this.options[this.selectedIndex].value);">
+ 		<OPTION VALUE="ALL_GRP" > All Groups	
+			<OPTION VALUE="ARTIST" > ARTIST	
+			<OPTION VALUE="COMPOSITOR" > COMPOSITOR	
+			<OPTION VALUE="SONG" > SONG
+			<OPTION VALUE="ALBUM" > ALBUM
+			<OPTION VALUE="BOXSET" > BOXSET
+			<OPTION VALUE="VOLUMESET" > VOLUMESET			                               	
+			<OPTION VALUE="THEMATIC" > THEMATIC
+			<OPTION VALUE="STYLE" > STYLE
+ </SELECT>
+ 
+</TD> 	
+<TD width="350"> 
+		
+		    <SELECT NAME="getTag" id="getTag">
+		     	%(tagsAllL_content)s 
+		    </SELECT>
+			
+			<INPUT  height="27" width="36" TYPE="button" id="goto_tag" title = "Play selected Tag" name="goto_tag" VALUE="Go" onclick="navigation_control_send('goto_tagL',document.myform_AllTagL.getTag.options[document.myform_AllTagL.getTag.selectedIndex].value)"> 
+			<SPAN id="num_tags"></SPAN>
+	
+	   </FORM>
+	</TD> 	
+		<TD> 	
+	<form name='myform_ArtistNavigate'>
+		Artist:<input type="text" size="30" id="artist_input_field" onkeyup="showResult(this.value)" />
+		 
+		</form>
+		
+	</TD> 	
+	
+  </tr>
+ </table>
+  
+<table border="0" bordercolor="#FFFFFF" style="background-color:#FFFFFF" width="1000" cellpadding="0" cellspacing="0"> 
+<tr>
+<TD width="350"> </TD> 	<TD width="100"> </TD> 	<TD width="350"> </TD> 	<TD ><div class="js-autosuggest-output-container"><div id="livesearch" class="js-autosuggest-output"></div></div> </TD> 	
+</tr>
+</table>
+
+
+
+</div>
+
+ </form>
+</div>
+
+
+
+
+
+
+
+
+</body>
+</html>

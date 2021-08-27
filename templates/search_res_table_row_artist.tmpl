@@ -1,0 +1,19 @@
+<tr style="background-color:%(color)s;width:100%%" id="%(tr_crc32)s">
+<td style="width:30%%" >  <input type="CHECKBOX" class="sel_track" name="search_entry" value="%(tr_crc32)s" checked>  %(artist_name)s   </td>
+ 
+ <td width="" "1"=""> <input style="color:red" type="CHECKBOX" name="main" %(main_checked)s DISABLED> </td>
+ <td width="" "1"=""> <input style="color:red" type="CHECKBOX" name="in_db" %(in_db_checked)s DISABLED> </td>
+<td width="" "1"="">
+ <a href="" onclick="openEditForm('%(tr_crc32)s'); return false">  edit </a>
+</td>
+ <td width="" "2"=""> %(song_num)s  </td>
+ <td width="" "2"=""> %(album_num)s </td>
+<td style="width:410px">
+ <form action="" method="POST" enctype="multipart/form-data">
+<select name="getAlbum" style="width:400px">
+%(album_stat_dd)s
+</select>
+</form>
+</td>
+</tr>
+

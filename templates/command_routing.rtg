@@ -1,0 +1,555 @@
+{ 'page_load':{'main_page':{'model_update_method':'do_nothing',
+							'logic_process':'player_state',
+							'view_template':'main_page',
+							'view_method':'send_HtmlPage_main',
+							'view_elem_id_Dic':{'oldvers':'','frame3':'','gen_page_elements':'','main_page_elements':'','cover':0,
+												'refresh_time':0,'tagsL':'','curState':'','play_status':0,'queueL':'',
+												'albumL':'','trackL':'','lib_plistL':'','plist_groupL':'','jscript_plist_groupL':'','tagsAllL':'','jscript_tag_typeL':''}},
+				'cast_page':{'model_update_method':'do_nothing',
+							
+							'view_template':'cast_page',
+							'view_method':'send_HtmlPage_cast',
+							'view_elem_id_Dic':{'gen_page_elements':'','tagAdmin_page_elements':'',												
+												'tagsAllL':'','castL':''}},												
+												
+												
+				'tagAdmin_page':{'model_update_method':'do_nothing',
+							'view_template':'tag_adm_page',
+							'view_method':'send_HtmlPage_tagAdmin_new',
+							'view_elem_id_Dic':{'gen_page_elements':'','tagAdmin_page_elements':'', 'mpdHostL':'','style_claster_groupL':''}},
+							
+				'search_page':{'model_update_method':'do_nothing',
+							'view_template':'search_page_new',
+							'view_method':'send_HtmlPage_search_new',
+							'view_elem_id_Dic':{'gen_page_elements':'','tagAdmin_page_elements':'', 'mpdHostL':''}},
+							
+				'image_page':{'model_update_method':'do_nothing',
+							'view_template':'image_page',
+							'view_method':'send_HtmlPage_image',
+							'view_elem_id_Dic':{'gen_page_elements':'','tagAdmin_page_elements':''}},			
+							
+				'track_preload_page':{'model_update_method':'do_nothing',
+							'view_template':'track_preload_page',
+							'view_method':'send_HtmlPage_track_preload',
+							'view_elem_id_Dic':{'gen_page_elements':'','tagAdmin_page_elements':''}},										
+							
+				'graf_page':{'model_update_method':'do_nothing',
+							'view_template':'graf_page',
+							'view_method':'send_HtmlPage_graf',
+							'view_elem_id_Dic':{'gen_page_elements':'','tagAdmin_page_elements':'' }},
+							
+				'report_artist_page':{'model_update_method':'do_nothing',
+							'view_method':'send_HtmlPage_reports',
+							'view_elem_id_Dic':{'gen_page_elements':'','report_artist_page_elements':'','style_claster_groupL':''}},	
+				'edit_artist_page':{'model_update_method':'do_edit_artist',
+							'view_method':'send_ArtistEdit_form_new',
+							'view_elem_id_Dic':{'gen_page_elements':'','report_artist_page_elements':'','style_claster_groupL':''}},			
+							
+				'info_page':{'model_update_method':'do_nothing',
+							'view_template':'info_page',
+							'view_method':'send_HtmlPage_info',
+							'view_elem_id_Dic':{'gen_page_elements':''}},
+							
+				'debug_page':{'model_update_method':'do_nothing',
+							'logic_process':'player_state',
+							'view_template':'debug_page',
+							'view_method':'send_HtmlPage_debug',
+							'view_elem_id_Dic':{'frame3':'','gen_page_elements':'','main_page_elements':'','curState':'','play_status':0,'albumL':'',
+																		'tagsL':'','albumD':'','cfgD':'','medialibD':'', 'mpdHostL':''}},			
+							
+				'admin_page':{'model_update_method':'do_nothing',
+							'view_template':'admin_page',	
+							'view_method':'send_HtmlPage_admin',
+							'view_elem_id_Dic':{'gen_page_elements':'','admin_page_elements':''}}},
+							
+	'action_result':{'artist_rfn_form':{'model_update_method':'artist_refinment_db_save',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'artist_rfn_save','action_result':''}}
+					},		
+
+	'do_admin':{'admin':{'model_update_method':'do_admin',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'do_admin','action_result':''}},
+				'reload_templ':{'model_update_method':'do_admin',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'do_admin','action_result':''}},			
+				'task_schedule':{'model_update_method':'do_admin',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'do_admin','action_result':''}},			
+				'get_picture':{'model_update_method':'get_picture',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'do_admin','action_result':''}},
+				'get_radio':{'model_update_method':'get_radio',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'do_admin','action_result':''}},
+				'set_mpd_instance':{'model_update_method':'set_mpd_instance',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'do_admin','action_result':''}}},
+
+	'do_debug':{'debug':{'model_update_method':'do_debug',
+							'logic_process':'player_state',
+							'view_template':'tag_adm_page',
+							'view_method':'ajax_debug_update',
+							'view_elem_id_Dic':{'frame3':'','gen_page_elements':'','main_page_elements':'','curState':'','play_status':0,'albumL':'',
+																		'tagsL':'','albumD':'','cast_frame3':'','artist_search_vars_opt':'','artist_search_vars':''}}			
+				},						
+
+	'artists_maintain':{							
+				'artist_maintain':{'model_update_method':'artist_maintain',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'tag_assign_update','action_result':''}},
+							
+				'create_object':{'model_update_method':'new_object_create',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_result':''}},
+							
+				'maintain_object_attrs':{'model_update_method':'maintain_object_attrs',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'maintain_object_attrs':''}},	
+							
+				'get_object_edit_data':{'model_update_method':'get_object_edit_data',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'get_object_edit_data':''}},
+							
+				'check_album2artist_rel':{'model_update_method':'check_album2artist_rel',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'get_object_edit_data':''}},
+				'maintain_single_artist_album':{'model_update_method':'maintain_single_artist_album',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'maintain_single_artist_album':''}},
+							
+				'maintain_single_album_rel':{'model_update_method':'maintain_single_album_rel',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'maintain_single_artist_album':''}},			
+							
+				'maintain_single_artist_rel':{'model_update_method':'maintain_single_artist_rel',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'maintain_single_artist_rel':''}},			
+							
+	
+				'artist_album_maintain_check':{'model_update_method':'artist_album_maintain_check',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'tb_save','action_result':'','artist_search_buf_data':''}},
+
+				'artist_album_maintain_restore_init_edit':{'model_update_method':'artist_album_maintain_check',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'tb_save','action_result':'','artist_search_buf_data':''}},	
+
+				'artist_album_maintain_categ_check':{'model_update_method':'artist_album_maintain_check',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'tb_save','action_result':'','artist_album_categ_buf_data':''}},
+
+				'artist_album_maintain_categ_restore_init_edit':{'model_update_method':'artist_album_maintain_check',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'tb_save','action_result':'','artist_album_categ_buf_data':''}},				
+							
+				'artist_album_maintain_categ_save':{'model_update_method':'artist_album_categ_maintain_mass',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'saved','action_result':'','artist_album_categ_buf_data':''}},			
+								
+				'artist_album_mass_save':{'model_update_method':'artist_album_maintain_mass',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'saved','action_result':'','artist_search_buf_data':''}},			
+							
+				'artist_album_get_cat':{'model_update_method':'artist_album_get_categ',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'action_name':'tb_save_cat','action_result':'','artist_album_categ_buf_data':''}},						
+							
+				'artist_page_data':{'model_update_method':'do_nothing',
+							'view_method':'ajax_artist_update',
+							'view_elem_id_Dic':{'folder_data':'','category_data':''}},			
+								
+				'search_artist':{'model_update_method':'do_artist_search',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'artist_search_res_buf':''}},
+							
+				'search_artist_data':{'model_update_method':'do_artist_search',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'artist_search_buf_data':''}},			
+							
+				'search_artist_db':{'model_update_method':'do_artist_search',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'artist_search_buf_data_db':''}},			
+				
+				'maintain_album_component':{'model_update_method':'maintain_album_component',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'maintain_album_component':''}},		
+							
+				'get_albumes_cmpl_clast':{'model_update_method':'get_albumes_cmpl_clast',
+							'view_method':'ajax_artist_search_like_page_update',
+							'view_elem_id_Dic':{'get_albumes_cmpl_clast':''}},						
+							
+				'artist_tag_assign_update_check':{'model_update_method':'artist_tag_assign_update_check',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'artist_tag_adm_search_res_buf':'','change_delta_list':'','change_action':'','artist_tagAdmin_page_elements':'','action_result':''}}
+							},				
+				
+	'search':{'search_tracks':{'model_update_method':'do_search',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'search_res_buf':''}},
+						
+							
+				'get_tracks_from_cur_plist':{'model_update_method':'get_tracks_from_cur_plist',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'search_res_buf':'','tagAdmin_page_elements':''}}},						
+	'image':{'search_album':{'model_update_method':'do_search',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'search_res_buf_image':''}},
+						
+							
+				'get_cur_album':{'model_update_method':'get_images_4_cur_album_fromPL',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'search_res_buf_image':'','tagAdmin_page_elements':''}},	
+
+				'get_selected_album':{'model_update_method':'get_images_4_selected_album',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'search_res_buf_image':'','tagAdmin_page_elements':''}}},	
+
+	'trackpreload':{'search_album':{'model_update_method':'do_search',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'search_res_buf_image':''}},
+						
+							
+				'get_tracks_cur_play_folder':{'model_update_method':'get_tracks_4_cur_album_fromPL',
+							'view_method':'ajax_tracks_preload_page_update',
+							'view_elem_id_Dic':{'tracks_preload_proc_buf_db':'','tagAdmin_page_elements':''}},	
+
+				'get_tracks_selected_folder':{'model_update_method':'get_tracks_4_selected_folder',
+							'view_method':'ajax_tracks_preload_page_update',
+							'view_elem_id_Dic':{'tracks_preload_proc_buf_db':'','tagAdmin_page_elements':''}},
+							
+							
+				'save_tracks':{'model_update_method':'save_tracks_from_preload_scenario', 
+								'view_method':'ajax_tracks_preload_page_update',
+								'view_elem_id_Dic':{'action_result':''}},
+								
+				'remove_tracks':{'model_update_method':'remove_tracks_from_db', 
+								'view_method':'ajax_tracks_preload_page_update',
+								'view_elem_id_Dic':{'action_result':''}},
+								
+								
+				'play_album':{'model_update_method':'play_album_or_track_from_folder', 'logic_process':'player_state',
+								'view_method':'ajax_player_prc_update',
+								'view_elem_id_Dic':{'cover':0,'refresh_time':0,'play_status':0,'curState':''}},
+				'play_track':{'model_update_method':'play_album_or_track_from_folder', 'logic_process':'player_state',
+								'view_method':'ajax_player_prc_update',
+								'view_elem_id_Dic':{'cover':0,'refresh_time':0,'play_status':0,'curState':''}}				
+								},				
+		
+	'tag_maintain':{
+				'tag_page_init_data': {'model_update_method':'do_nothing',
+										'view_method':'ajax_tag_admin_page_update',
+								'view_elem_id_Dic':{'tag_init_data':'','tagAdmin_page_elements':'','style_claster_groupL':''}},
+	
+				'get_tag_tracks':{'model_update_method':'get_track_search_list_for_tag_id',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'tag_adm_search_res_buf':'','tagAdmin_page_elements':''}},
+							
+				'tag_assign_update_check':{'model_update_method':'tag_assign_update_check',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'tag_adm_search_res_buf':'','change_delta_list':'','change_action':'','tagAdmin_page_elements':'','action_result':''}},
+							
+				'tag_assign_to_categ_check':{'model_update_method':'tag_assign_to_categ_check',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'tag_adm_search_res_buf':'','change_delta_list':'','change_action':'','tagAdmin_page_elements':'','action_result':''}},
+							
+							
+				'tag_assignament_db_save':{'model_update_method':'tag_assignament_db_save',
+							'view_method':'ajax_gen_action_confirmed',
+							'view_elem_id_Dic':{'action_name':'tag_assign_update','action_result':''}},
+								
+				'search_tracks':{'model_update_method':'do_search',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'tag_adm_search_res_buf':'','tagAdmin_page_elements':''}},			
+							
+				'get_tracks_from_cur_plist':{'model_update_method':'get_tracks_from_cur_plist',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'tag_adm_search_res_buf':'','tagAdmin_page_elements':''}},
+							
+				'get_tracks_from_temp_plist':{'model_update_method':'get_tracks_from_temp_plist',
+							'view_method':'ajax_search_like_page_update',
+							'view_elem_id_Dic':{'tag_adm_search_res_buf':'','tagAdmin_page_elements':''}},								
+							
+				'create_new_tag':{'model_update_method':'create_new_tag',
+							'view_method':'ajax_tag_admin_page_update',
+							'view_elem_id_Dic':{'action_name':'create_new_tag','action_result':'','tag_id':'','tag_name':''}},
+				'delete_empty_tag':{'model_update_method':'delete_empty_tag',
+							'view_method':'ajax_tag_admin_page_update',
+							'view_elem_id_Dic':{'action_name':'delete_empty_tag','action_result':'','tag_id':'','tag_name':''}}
+				
+				
+														 
+							},						
+							
+		'search_process':{'play_search_selectedL':{'model_update_method':'play_search_selectedL_new',
+																	'logic_process':'player_state',
+																  'view_method':'ajax_search_like_page_update',
+																   'view_elem_id_Dic':{'action_name':'play_result','action_result':''}},
+						'goto_artist_tagL_search':{'model_update_method':'goto_artist_tagL','logic_process':'player_state',
+																  'view_method':'ajax_search_like_page_update',
+  															   'view_elem_id_Dic':{'action_name':'play_result','action_result':'','tagsL':''}},		
+															
+						'goto_album_tagL_search':{'model_update_method':'goto_album_tagL','logic_process':'player_state',
+																  'view_method':'ajax_search_like_page_update',
+																'view_elem_id_Dic':{'action_name':'play_result','action_result':'','tagsL':''}},
+																
+						'goto_tagL_search':{'model_update_method':'goto_tagL','logic_process':'player_state',
+																  'view_method':'ajax_search_like_page_update',
+																'view_elem_id_Dic':{'action_name':'play_result','action_result':'','tagsL':''}},												
+						 
+						'play_rel_lib_pl':{'model_update_method':'play_rel_lib_pl',
+																	'logic_process':'player_state',
+																  'view_method':'do_nothing',
+																   'view_elem_id_Dic':{}},
+						
+						'get_artist_album_autocompl_data':{'model_update_method':'get_artist_album_autocompl_data_db',
+																 'view_method':'ajax_search_like_page_update',
+																   'view_elem_id_Dic':{'artist_album_autocompl_data':''}},
+																   
+						'get_album_autocompl_data':{'model_update_method':'get_album_autocompl_data_db',
+																 'view_method':'ajax_search_like_page_update',
+															'view_elem_id_Dic':{'artist_album_autocompl_data':''}},
+															
+						'get_album_folder_autocompl_data':{'model_update_method':'get_album_folder_autocompl_data_db',
+																 'view_method':'ajax_search_like_page_update',
+															'view_elem_id_Dic':{'artist_album_autocompl_data':''}},										
+															
+						'get_artist_live_search_variants':{'model_update_method':'get_artist_live_search_variants',
+																 'view_method':'ajax_search_like_page_update',
+																   'view_elem_id_Dic':{'artist_search_vars':''}},
+																   
+						'get_artist_live_search_variants_opt':{'model_update_method':'get_artist_live_search_variants',
+																 'view_method':'ajax_search_like_page_update',
+																   'view_elem_id_Dic':{'artist_search_vars_opt':''}},										   
+											
+					'get_artist_meta_buf_live_search_variants':{'model_update_method':'get_artist_meta_buf_live_search_variants',
+																 'view_method':'ajax_search_like_page_update',
+																   'view_elem_id_Dic':{'artist_search_vars':''}}
+																   },											   
+		
+	'graf_load_update':{'tag_graf_load':{'model_update_method':'get_tag_graf_data',
+								
+								 'view_method':'ajax_graf_update',
+								'view_elem_id_Dic':{'graf_data':0,'graf_input_data_tag':''}},
+								
+								
+						'navi_musiclib_graf_load':{'model_update_method':'get_lib_navi_graf_data',
+								
+								 'view_method':'ajax_graf_update',
+								'view_elem_id_Dic':{'graf_data':0,'graf_input_data_navi':'', 'mpdHostL':''}}		
+								},
+								
+																	
+	'initial_cast_load':{'initial':{'model_update_method':'do_nothing',
+								'logic_process':'player_state',
+								  'view_method':'ajax_cast_page_update',
+								'view_elem_id_Dic':{'trackL':'','albumL':'','cast_frame3':'','castL':''}}},			
+
+								
+	'navi_categ_process':{'navi_categ_process':{'model_update_method':'getNavi_Album_Artist_DataSet',
+								 'view_method':'ajax_nav_cat_data_update',
+								'view_elem_id_Dic':{'artistL':'','album_cat_L':'','songL':''}}},	
+								
+	'navi_play_process':{'navi_play_process':{'model_update_method':'play_navi_object_viaId','logic_process':'player_state',
+								 'view_method':'ajax_gen_action_confirmed',
+								'view_elem_id_Dic':{'curState':'','action_name':'navi_play_process'}},
+								
+						'navi_play_process_':{'model_update_method':'play_navi_object_viaId','logic_process':'player_state',
+								 'view_method':'ajax_player_prc_update',
+								'view_elem_id_Dic':{'curState':'','cover':0,'tagsL':'','playerMData':''}}},								
+
+								
+								
+  'initial_main_load':{'initial':{'model_update_method':'do_nothing',
+								'logic_process':'player_state',
+								  'view_method':'ajax_main_page_update',
+								'view_elem_id_Dic':{'refresh_time':0,'curState':'','play_status':0}},
+								
+					 'refresh_check':{'model_update_method':'refresh_check_player_state',
+									'logic_process':'player_state',
+									  'view_method':'ajax_main_page_update',
+									  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'tagsL':'',
+									  'curState':'','play_status':0,'queueL':''}}},
+									  
+	'player_process_info':{'get_player_process_info':{'model_update_method':'refresh_check_player_state',
+								'logic_process':'player_state',
+								  'view_method':'ajax_player_prc_update',
+								'view_elem_id_Dic':{'playerMData':'','cover':0,'refresh_time':0,'curState':'','play_status':0,'tagsL':''}},
+								
+					 'merge_client_state':{'model_update_method':'do_nothing',
+								'logic_process':'client_merge',
+								  'view_method':'ajax_player_prc_update',
+								'view_elem_id_Dic':{'refresh_time':0,'curState':'','play_status':0}}},								  
+		
+	'player_control':{'forward':{'model_update_method':'forward','logic_process':'player_state','view_method':'ajax_main_page_update',
+																'view_elem_id_Dic':{'refresh_time':0,'curState':'','play_status':0}},
+													  'rewind':{'model_update_method':'rewind','logic_process':'player_state',
+																'view_method':'ajax_main_page_update',
+																'view_elem_id_Dic':{'refresh_time':0,'curState':'','play_status':0}},	
+																
+														'set_song_pos':{'model_update_method':'set_song_pos','logic_process':'player_state',
+																'view_method':'ajax_main_page_update',
+																'view_elem_id_Dic':{'refresh_time':0,'curState':'','play_status':0,'oldvers':''}},			
+																
+													  'play':{'model_update_method':'play','logic_process':'player_state',
+																'view_method':'ajax_main_page_update',
+																'view_elem_id_Dic':{'play_status':0,'play_status_txt':'','curState':'','refresh_time':0,'oldvers':''}},
+													  'stop':{'model_update_method':'stop','logic_process':'player_state',
+															    'view_method':'ajax_main_page_update',
+																'view_elem_id_Dic':{'play_status':0,'play_status_txt':'','curState':'','refresh_time':0,'oldvers':''}},
+													  'pause':{'model_update_method':'pause','logic_process':'player_state',
+																'view_method':'ajax_main_page_update','logic_process':'player_state',
+																'view_elem_id_Dic':{'play_status':0,'play_status_txt':'','curState':'','refresh_time':0,'oldvers':''}},
+																
+														'play_':{'model_update_method':'play','logic_process':'player_state',
+																'view_method':'ajax_player_prc_update',
+																'view_elem_id_Dic':{'cover':0,'refresh_time':0,'curState':''}},
+														'stop_':{'model_update_method':'stop','logic_process':'player_state',
+															    'view_method':'ajax_player_prc_update',
+																'view_elem_id_Dic':{'cover':0,'refresh_time':0,'curState':''}},
+														'pause_':{'model_update_method':'pause','logic_process':'player_state',
+																'view_method':'ajax_player_prc_update','logic_process':'player_state',
+																'view_elem_id_Dic':{'cover':0,'refresh_time':0,'curState':''}},		
+																
+														 'refresh_check':{'model_update_method':'refresh_check_player_state',
+																		'logic_process':'player_state',
+																		  'view_method':'ajax_player_prc_update',
+																		  'view_elem_id_Dic':{'cover':0,'refresh_time':0,'curState':'','queueL':''}},	
+														'set_song_pos_':{'model_update_method':'set_song_pos_','logic_process':'player_state',
+																'view_method':'ajax_player_prc_update',
+																'view_elem_id_Dic':{'curState':'','tagsL':''}},						
+																
+																
+													  'next_trc':{'model_update_method':'next_trc','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																  'tagsL':'',
+																  'queueL':'','oldvers':''}},
+																  
+														'next_trc_':{'model_update_method':'next_trc','logic_process':'player_state',
+																  'view_method':'ajax_player_prc_update',
+																  'view_elem_id_Dic':{'cover':0,'refresh_time':0,'curState':'','play_status':0,'tagsL':''
+																  }},		  
+													  
+														'remember_current':{'model_update_method':'remember_current','logic_process':'player_state',
+																  'view_method':'ajax_gen_action_confirmed',
+																  'view_elem_id_Dic':{'refresh_time':0,'curState':'','play_status':0}},
+																  
+													  'prev_trc':{'model_update_method':'prev_trc','logic_process':'player_state',
+																'view_method':'ajax_main_page_update',
+																 'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																 'tagsL':'',
+																 'queueL':'','oldvers':''}},
+														'prev_trc_':{'model_update_method':'prev_trc','logic_process':'player_state',
+																'view_method':'ajax_player_prc_update',
+																 'view_elem_id_Dic':{'cover':0,'refresh_time':0,'curState':'','play_status':0,'tagsL':''
+																 }},	
+							
+																 
+																 
+														'next_alb':{'model_update_method':'next_alb','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																  'tagsL':'',
+																  'queueL':'','oldvers':''}},		  
+														'prev_alb':{'model_update_method':'prev_alb','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																  'tagsL':'',
+																  'queueL':'','oldvers':''}},		  				
+														'prev_plst':{'model_update_method':'prev_plst','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+  																 'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'play_status':0,
+																 'tagsL':'','albumL':'', 'trackL':'','queueL':'','curState':'','oldvers':''}}},
+													 
+									 'navigation_control':{'goto_track':{'model_update_method':'goto_Track','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'tagsL':'','play_status':0,
+																  'curState':'','oldvers':''}},
+																  
+																  'goto_track_':{'model_update_method':'goto_Track_','logic_process':'player_state',
+																  'view_method':'ajax_player_prc_update',
+																  'view_elem_id_Dic':{'cover':0,'refresh_time':0,'play_status':0,
+																  'curState':''}},
+
+																  'goto_album':{'model_update_method':'goto_Album','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'tagsL':'','play_status':0,
+																  'trackL':'','curState':'','oldvers':''}},
+																  
+																  'goto_album_':{'model_update_method':'goto_Album_','logic_process':'player_state',
+																  'view_method':'ajax_player_prc_update',
+																  'view_elem_id_Dic':{'cover':0,'refresh_time':0,'play_status':0,'tagsL':'',
+																  'curState':''}},
+
+																  
+
+															'goto_tagL':{'model_update_method':'goto_tagL','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																   'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																   'trackL':'','albumL':'','queueL':'','tagsL':'','oldvers':''}},
+															
+															'goto_artist_tagL':{'model_update_method':'goto_artist_tagL','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																   'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																   'trackL':'','albumL':'','queueL':'','tagsL':'','oldvers':''}},		
+															
+															'goto_album_tagL':{'model_update_method':'goto_album_tagL','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																   'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																   'trackL':'','albumL':'','queueL':'','tagsL':'','oldvers':''}},			
+																   
+															'goto_libL':{'model_update_method':'goto_libL','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																   'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																   'tagsL':'','trackL':'','albumL':'','queueL':'','oldvers':''}},	  
+																  
+														   'goto_queueL':{'model_update_method':'goto_queueL','logic_process':'player_state',
+																  'view_method':'ajax_main_page_update',
+																   'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'','play_status':0,
+																   'tagsL':'','trackL':'','albumL':'','oldvers':''}}	   
+																   },
+																   
+									'cast_navigation_control':{'goto_track':{'model_update_method':'cast_goto_Track','logic_process':'player_state',
+																  'view_method':'ajax_cast_page_update',
+																  'view_elem_id_Dic':{'cast_frame3':'','cover':0,'refresh_time':0,'cast_tagsL':'' }},
+																  
+
+																 'goto_album_tagL':{'model_update_method':'goto_dynamicle_tagL_cast',
+																  'view_method':'ajax_cast_page_update',
+																   'view_elem_id_Dic':{'cast_frame3':'','cover':0,'refresh_time':0,
+																   'trackL':'','albumL':'','castL':'','cast_tagsL':''}},
+																  
+																 'goto_tagL':{'model_update_method':'goto_dynamicle_tagL_cast',
+																  'view_method':'ajax_cast_page_update',
+																   'view_elem_id_Dic':{'cast_frame3':'','cover':0,'refresh_time':0,
+																   'trackL':'','albumL':'','castL':'','cast_tagsL':''}},
+																   
+																 'player_status':{'model_update_method':'set_status',
+																  'view_method':'ajax_cast_page_update',
+																   'view_elem_id_Dic':{'cover':0,'refresh_time':0,
+																   'trackL':'','albumL':''}}
+																   },
+									'cast_player_control':{'goto_track':{'model_update_method':'cast_goto_Track',
+																  'view_method':'ajax_cast_page_update',
+																  'view_elem_id_Dic':{'cast_frame3':'','trackL':'','albumL':'','cast_tagsL':''}},	  
+															'next_trc':{'model_update_method':'cast_next_trc',
+																  'view_method':'ajax_cast_page_update',
+																  'view_elem_id_Dic':{'cast_frame3':'','trackL':'','albumL':'','cast_tagsL':''}},	  
+															'prev_trc':{'model_update_method':'cast_prev_trc',
+																  'view_method':'ajax_cast_page_update',
+																  'view_elem_id_Dic':{'cast_frame3':'','trackL':'','albumL':'','cast_tagsL':''}}	  
+															},	  
+																			
+															
+									'dddddd':{'refresh_main':{'model_update_method':'next_trc',
+																  'view_method':'ajax_main_page_update',
+																  'view_elem_id_Dic':{'frame3':'','cover':0,'refresh_time':0,'curState':'',
+																  'hard_tags':'','cur_album':0,'cur_track':0,'albumL':'',
+																  'trackL':'','queueL':''}}}}

@@ -1,0 +1,113 @@
+<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0">
+ <tr style="background-color:#CCFFFF" >
+  <th colspan="2" > %(list_grp1_title)s %(album_num)s
+ </tr>
+ <th colspan="7" >
+ <tr style="background-color:#CCFFCC" height="20" >
+  <td width="500">
+   <FORM name='myform_getAlbum' enctype='multipart/form-data'   method='POST'>
+	<SELECT NAME="getAlbum" id="getAlbum">	
+   
+      %(album_list_content)s
+		
+   <INPUT  height="27" width="36" TYPE="button" id="goto_album" title = "Goto Album" name="goto_album" VALUE="Go" onclick="navigation_control_send('goto_album',document.myform_getAlbum.getAlbum.options[document.myform_getAlbum.getAlbum.selectedIndex].value)"> 
+	</SELECT>	
+   </FORM>
+  </td>
+
+  <td>
+   <FORM name='myform_getpTrack' enctype='multipart/form-data'   method='POST'> 	
+    <SELECT NAME="getTrack" id="getTrack">
+      %(track_list_content)s 
+    </SELECT>	
+ 	
+	</div>	
+    
+	<INPUT  height="27" width="36" TYPE="button" id="goto_track" title = "Goto Track" name="goto_track" VALUE="Go" onclick="navigation_control_send('goto_track',document.myform_getpTrack.getTrack.options[document.myform_getpTrack.getTrack.selectedIndex].value)"> 
+	
+   </FORM> 
+  </td>
+  </tr>
+ </table>			
+
+<br>
+
+
+<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0">
+ <tr style="background-color:#CCFFFF" >
+  <th colspan="2" > 
+    %(list_grp2_title)s
+	<SPAN id="lg"></SPAN>  <a href="#" title="Close/Restore WinAmp Panel" id="hide_me"> X/ß </a>
+ </tr>
+ <th colspan="7" >
+ <tr id="winamp_cntrl_block" style="background-color:#CCFFCC" height="20" >
+  <td width="500">
+      <FORM name='myform_Playlist' enctype='multipart/form-data'   method='POST'>	
+	<SELECT NAME="getGroupOfPlayList" size="1" onchange="setOptions_plist(document.myform_Playlist.getPlayList,'lg',this.options[this.selectedIndex].value);">
+	 %(group_list_content)s
+        </SELECT>
+    	</td>	 
+
+       <td>
+         <select name="getPlayList" id="getPlayList" size="1">
+	   %(pl_list_content)s
+	 </SELECT> 
+ 	
+	<INPUT  height="27" width="36" TYPE="button" id="goto_libL" title = "Goto Winamp List" name="goto_libL" VALUE="Go" onclick="navigation_control_send('goto_libL',document.myform_Playlist.getPlayList.options[document.myform_Playlist.getPlayList.selectedIndex].value)"> 
+      </FORM>
+    </td>
+  </tr>
+ </table>			
+<table border="1" bordercolor="#FFCC00" style="background-color:#FFFFCC" width="1000" cellpadding="0" cellspacing="0">
+ <tr style="background-color:#CCFFFF" >
+	<TD width="350"> 
+		<FORM name='myform_getPLQueue' enctype='multipart/form-data'   method='POST'> 	
+		    <SELECT NAME="getPlistQueue" id="getPlistQueue">
+		     %(plist_queue_content)s 
+		    </SELECT>
+		  
+			<INPUT  height="27" width="36" TYPE="button" id="goto_queueL" title = "Goto Queue List" name="goto_queueL" VALUE="Go" onclick="navigation_control_send('goto_queueL',document.myform_getPLQueue.getPlistQueue.options[document.myform_getPLQueue.getPlistQueue.selectedIndex].value)"> 
+	
+	   </FORM>
+	</TD>  
+<TD width="100"> 	
+<FORM name='myform_AllTagL' enctype='multipart/form-data'   method='POST'> 	
+ <SELECT NAME="TagType" id="TagType" onchange="setOptions_tag(document.myform_AllTagL.getTag,'num_tags',this.options[this.selectedIndex].value);">
+ 		<OPTION VALUE="ALL_GRP" > All Groups	
+			<OPTION VALUE="COMPOSITOR" > COMPOSITOR	
+			<OPTION VALUE="SONG" > SONG
+			<OPTION VALUE="BOXSET" > BOXSET
+			<OPTION VALUE="VOLUMESET" > VOLUMESET			                               	
+			<OPTION VALUE="THEMATIC" > THEMATIC
+			<OPTION VALUE="STYLE" > STYLE
+			<OPTION VALUE="SYSTEM" > Technical tags
+ </SELECT>
+ 
+</TD> 	
+<TD width="350"> 
+		
+		    <SELECT NAME="getTag" id="getTag">
+		     %(tagsAllL_content)s 
+		    </SELECT>
+			
+			<INPUT  height="27" width="36" TYPE="button" id="goto_tag" title = "Play selected Tag" name="goto_tag" VALUE="Go" onclick="navigation_control_send('goto_tagL',document.myform_AllTagL.getTag.options[document.myform_AllTagL.getTag.selectedIndex].value)"> 
+			<SPAN id="num_tags"></SPAN>
+	
+	   </FORM>
+	</TD> 	
+		<TD> 	
+	<form name='myform_ArtistNavigate'>
+		Artist:<input type="text" size="30" id="artist_input_field" onkeyup="showResult(this.value)" />
+		 
+		</form>
+		
+	</TD> 	
+	
+  </tr>
+ </table>
+  
+<table border="0" bordercolor="#FFFFFF" style="background-color:#FFFFFF" width="1000" cellpadding="0" cellspacing="0"> 
+<tr>
+<TD width="350"> </TD> 	<TD width="100"> </TD> 	<TD width="350"> </TD> 	<TD ><div class="js-autosuggest-output-container"><div id="livesearch" class="js-autosuggest-output"></div></div> </TD> 	
+</tr>
+</table>

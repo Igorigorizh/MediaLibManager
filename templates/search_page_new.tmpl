@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no", http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="shortcut icon" href="../../image/favicon.ico"/>
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+<script src="../../js/jquery.js"> type="text/javascript" </script>  
+<title>   %(html_title)s   </title>
+
+<SCRIPT  TYPE="text/javascript"> 
+
+<!--
+
+  var proc_mode = 0;
+  var req = createRequestObject();
+  var host = "%(host)s";
+  var action_key = 0;
+  var proc_name = "search";
+ 
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+		stopProgressBar()
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					if (data == 'search_result_frm'){
+					
+						
+							document.getElementById("search_result_frm").innerHTML = my_JSON_object[data];
+							//Base64.decode(my_JSON_object[data])
+					 
+					}
+					else if ( data == 'action_result'){
+						//alert(my_JSON_object)
+						if (my_JSON_object['action_result'] == 2){
+						document.getElementById('action_go').type = "hidden";
+						
+						do_cancell_action()
+							
+						}
+						else if (my_JSON_object['action_result'] == 1){
+							document.getElementById('play_butn').type = "button";
+							document.getElementById('play_butn').style.background='BurlyWood'
+							 
+							document.getElementById('action_result').innerHTML = "Play result succesfuly!";
+							do_cancell_action()
+							}
+							//else {
+							//document.getElementById('action_result').innerHTML = "Changes succesfuly saved!";
+								
+							//}
+						else if (my_JSON_object['action_result'] == 0){
+								document.getElementById('play_butn').type = "hidden";
+								document.getElementById('action_result').innerHTML = "Action failed with!";
+								do_cancell_action()
+							}
+							
+						}
+						
+						
+						
+						
+					else if (data == 'action_key'){
+							action_key = my_JSON_object[data]
+					}
+					
+				} 
+            
+    }
+  }
+  }
+  catch( e ) {
+       //alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+
+function do_cancell_action() {
+	proc_mode = 0
+	
+}
+
+function send_Simple_Form(myForm,proc_name,param){
+ 
+ 
+	selL = new Array();
+	main_artist = "";
+	artist_name = "";
+	search_term = "";
+        ref_artist = "";
+	//alert(myForm.name);
+	//ref_list = myForm.ref_artist_new;
+	json_req = "{" +"\"" + 'form_name' +"\"" + ':' +"\"" + myForm.name + "\"" + ',';
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + param + "\"" + ',';
+	json_req_sel = ""
+ 
+	for (var i = 0; i < myForm.length; i++) {
+        	var temp_el = myForm[i];    
+		
+		if ( temp_el.type == 'select-one'  ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+
+		}	
+
+		if ( temp_el.type == 'checkbox' ){
+			json_req += "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+
+		if ( temp_el.type == 'text' ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+		
+		
+		} 
+ 
+	json_req = json_req.substring(0,json_req.length-1)
+	json_req += "}" 
+
+			
+		return do_send_json_req(json_req);
+	}
+
+function processSelected(proc_name,action_name,mode){
+	
+	selL = new Array();
+	json_req_sel = ""
+    var selForm = document.getElementById('search_result_frm');
+	
+	var checkStatus = true;
+	if ( mode == 'deselected'){
+		checkStatus = false
+		}
+	
+	//alert(selForm.length)
+	
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ',';
+	json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+",";
+	json_req += "\"" + "selL" + "\"" + ':' ;
+	//+ "[";
+
+		
+	$( ".sel_track" ).each( function(i,elem) {
+		
+		if ( elem.checked == true ){
+		json_req_sel += elem.value  + ",";
+	}}) ;
+	
+	
+	
+	//alert(json_req[json_req.length-1])
+	if (json_req_sel[json_req_sel.length-1] == ','){
+       	json_req_sel = json_req_sel.substring(0,json_req_sel.length-1)
+		}
+		
+	json_req_sel = Base64.encode(json_req_sel)	
+	json_req =  json_req + "\""+ json_req_sel + "\"" + "}"
+
+	//alert(json_req)
+	
+	
+ 
+	return do_send_json_req(json_req);;
+
+}
+
+
+function processGetPL(myForm){
+	selL = new Array();
+
+	//alert(myForm.toString())
+	for (var i = 0; i < myForm.length; i++) {
+		
+        	var temp_el = myForm[i];    
+		//alert(temp_el.type.toString())
+		//alert(temp_el.value.toString())
+
+	        if ( temp_el.type == 'select-one' ){
+			selL.push(temp_el.value);
+
+		}	
+	
+	}
+
+	var params = 'name= play_entry' + ' getPL=['+ selL.toString()+ ']' ;	
+	if ( selL.length > 0 ){
+	req.open("POST", 'http://' + host + '/search/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data')
+	req.send(params)
+	//alert(params)
+	}
+	//alert(params)
+	return null;
+
+}
+ 
+
+
+
+
+function set_form_layout() {
+	
+	document.getElementById('play_butn').type = "hidden";
+	document.getElementById('loading').style.visibility="hidden";
+	return null;
+	
+	
+}
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/search/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	//alert(json_req)
+	req.send(json_req)
+	startProgressBar()
+
+	return false;
+
+}
+
+function navigation_control_send(param,indx,indx2) {
+	
+	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+        //req.setRequestHeader("Content-Length", json_req.length);
+        //req.setRequestHeader("Connection", "close");
+	if ( param == "goto_libL") {
+	json_req = "{" +"\"" + "search_process" +"\"" + ':' +"\"" + param + "\"" +','+"\"" + "sel_idL" +"\"" + ':['+"\""+indx.toString()+"\""+"]}";	
+	}	else {
+	json_req = "{" +"\"" + "search_process" +"\"" + ':' +"\"" + param + "\"" +','+"\"" + "sel_idL" +"\"" + ':['+indx.toString()+','+indx2.toString()+"]}";
+	}
+
+	//alert(json_req)
+	
+	  
+	
+
+	return do_send_json_req(json_req);
+
+}  
+function search_req_send(form_id,proc_name,action_name,search_term) {
+	//alert(form_id)
+	selL = new Array();
+    var selForm = document.getElementById(form_id);
+	
+	if ( proc_mode != "use_tag" ) {
+		do_cancell_action();
+		}
+	
+	
+	var srch_rep_mode = 	document.getElementById('srch_rep_mode').value 
+	var srch_rep_mode_str = "\"" + "srch_rep_mode" +"\"" + ':' +"\"" + srch_rep_mode + "\""+","
+	
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+ ","+srch_rep_mode_str;
+	
+	json_req += "\"" + "selL" + "\"" + ':' + "[";
+	
+	
+	
+	var sel_meta_attrL = "";
+	$( ".sel_meta_attr" ).each( function(i,elem) {
+		
+		if ( elem.checked == true ){
+		sel_meta_attrL += "\""+elem.value +"\"" + ",";
+}}) ;
+	json_req += sel_meta_attrL
+	
+	
+	if (json_req[json_req.length-1] == ','){
+       	json_req = json_req.substring(0,json_req.length-1)
+		}
+		
+	json_req += "]}";
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+} 
+
+
+ window.onload = set_form_layout;
+ 
+
+ 
+//--> 
+</SCRIPT>
+
+</head>
+
+<body>
+<div id="pagewidth" >
+ <div id="header">
+ 	%(bookmark_tmpl)s
+ </div>
+
+
+
+<div id="search_block" align="center" > 
+<br>
+<form action="" id="search_req_form" onSubmit="return search_req_send(this.id,proc_name,'search_tracks',this.search_req_text_field.value)"> 
+Track search:
+<input  id="search_req_text_field" name="search_req_text_field"  value="%(search_text)s"   type="text"> 
+Artist: <INPUT class="sel_meta_attr" height="27" width="36" TYPE="checkbox" name="in_artist_search" value="artist" checked> 
+Album: <INPUT  class="sel_meta_attr" height="27" width="36" TYPE="checkbox" name="in_album_search" value="album" checked> 
+Track: <INPUT  class="sel_meta_attr" height="27" width="36" TYPE="checkbox" name="in_track_search" value="title" checked> 
+<input name="do_search"  value="Go" type="button" onclick="search_req_send('search_req_form',proc_name,'search_tracks',this.form.search_req_text_field.value)"> 
+<input type="button" id="play_butn" name="play_selected" value="PlaySelected" onclick="processSelected('search_process','play_search_selectedL','')"> 
+<BR>
+
+<SELECT id='srch_rep_mode' NAME="load_template"> 
+	<OPTION  VALUE= "text_only" > Text Only </option> 
+	<OPTION  VALUE= "tags_navi" >  With Navigation </option> 
+	<OPTION  VALUE= "with_pic" selected> Pictures </option> 
+	<OPTION  VALUE= "with_pic_album" > Simple Album </option> 
+</SELECT> 
+
+<input name="get_cur_plist"  value="Tracks from current list" type="button" onclick="search_req_send('search_req_form',proc_name,'get_tracks_from_cur_plist','get_tracks_from_cur_plist')"> 
+<input type="button" value="SelectDeselect" onClick="setAllOn('search_result_frm')"> <BR>
+<SPAN id="action_name"></SPAN>
+<SPAN id="action_result"></SPAN>
+
+
+</form>
+
+
+
+ </div>
+ 
+
+
+ <p> </p>
+
+	%(search_part_new_tmpl)s
+	
+
+
+	<div id="loading"  align="center"><img src="../../image/ajax-loader.gif" /></div> 
+</div>
+ 
+</body>
+</html>

@@ -1,0 +1,2867 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no", http-equiv="Content-Type" content="text/html; charset=utf8">
+
+<link rel="shortcut icon" href="../../image/favicon.ico"/>
+
+<link rel="stylesheet" href="../../js/css/demos.css" type="text/css" />
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.all.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.base.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.theme.css" type="text/css" />
+
+<link rel="stylesheet" type="text/css" media="all" href="../../css/demoStyles.css" />
+
+
+
+<style type="text/css">
+    #slider { margin-left: 5px; margin-right: 5px; .ui-slider .ui-slider-handle { width: 50px; height: 2px;  }}
+	div.trck-dtl-block { width:390px; }
+	div.player-header { width:940px;  }
+	div.player-catprof { width:200px;  }
+	
+	div.trck-alb_title { width:300px;  }
+	div.pl_cat_sel { width:180px;  }
+	
+	div.text
+	{ white-space:nowrap; overflow:hidden; }
+
+  </style>
+  
+
+  
+  
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+  
+
+<script type="text/javascript" src="../../js/jquery-1.7.1.min.js"></script>
+
+<script src="../../js/main.js"></script>
+
+<script src="../../js/jquery.mousewheel.js"></script>
+
+
+
+
+<script src="../../js/jquery.tmpl.min.js"    type="text/javascript"> </script>
+
+<script src="../../js/knockout-2.2.0.js" type="text/javascript"> </script>
+<script src="../../js/jquery-ui.min.js"></script>
+
+<script src="../../js/jquery.ui.widget.js"  type="text/javascript"> </script>  
+<script src="../../js/jquery.ui.core.js"  type="text/javascript"> </script>  
+<script src="../../js/jquery.ui.position.js"  type="text/javascript"> </script>  
+<script src="../../js/jquery.autocomplete.js"  type="text/javascript"> </script>
+<script src="../../js/jquery.nimble.loader.js" type="text/javascript"> </script>  
+<script src="../../js/jScrollPane.js"		type="text/javascript"> </script>
+<script src="../../js/jquery.json.js"> type="text/javascript" </script> 
+
+
+
+
+<title>   %(html_title)s   </title>
+
+<SCRIPT  TYPE="text/javascript"> 
+
+<!--
+var scr_h = String(screen.availHeight-screen.availHeight/4)+"px"
+var glob_sys
+var static_state
+  //jQuery.noConflict();
+  
+function secondsToTime(secs){
+var hours = Math.floor(secs / (60 * 60));
+   
+    var divisor_for_minutes = secs %% (60 * 60);
+    var minutes = Math.floor(divisor_for_minutes / 60);
+ 
+    var divisor_for_seconds = divisor_for_minutes %% 60;
+    var seconds = Math.ceil(divisor_for_seconds);
+    
+   
+    var obj = {
+        "h": hours,
+        "m": minutes,
+        "s": seconds
+    };
+	
+    return obj;
+
+
+
+}
+
+
+
+
+function set_scroll_position(panel_id,element_numb,delta_offset,from_el_numb,mode){
+	
+		 el_numb = element_numb
+		 popravka= 0
+		 if ( element_numb > 10 ){
+			popravka = element_numb * 3
+			
+		 }
+		//alert(el_numb)
+		//alert(popravka)
+		if ( el_numb > from_el_numb) {
+			if (mode == 'H'){
+				$('#'+panel_id).scrollLeft(delta_offset*(el_numb-from_el_numb))
+			}else if (mode == 'V'){
+				$('#'+panel_id).scrollTop(delta_offset*(el_numb-from_el_numb) + popravka)
+			}
+		}	
+							
+}
+
+function set_scroll_position_vertical(panel_id,element_numb,delta_offset,from_el_numb,do_scroll){
+		el_numb = element_numb
+		//alert(el_numb)
+		if ( el_numb > from_el_numb) {
+		$('#'+panel_id).scrollTop(delta_offset*(el_numb-from_el_numb))
+		}
+	
+	
+	if ( do_scroll ){
+		
+		pos = $('#'+ element_numb).position().top
+		el_numb = Math.round((pos-delta_offset)/delta_offset)
+		//alert(el_numb)
+		//alert(element_Id+':'+pos + ':' +$('#'+ element_Id).position().top)
+		if ( pos > delta_offset*from_el_numb) {
+		
+		$('#'+panel_id).scrollTop(delta_offset*(el_numb-from_el_numb))
+		}
+	}	
+							
+}
+
+
+function set_scroll_position_horizontal(panel_id,element_numb,delta_offset,from_el_numb,do_scroll){
+
+		 el_numb = element_numb
+		//alert(el_numb)
+		if ( el_numb > from_el_numb) {
+		$('#'+panel_id).scrollLeft(delta_offset*(el_numb-from_el_numb))
+		}
+		//alert(pos)
+							
+}
+
+var graf_data = {
+			 nodes: {"delete":{} },
+			 edges: { }
+			 }
+			 
+var proc_mode = 0;
+  var req = createRequestObject();
+  var host = "%(host)s";
+  var url_key	= '/medialib/graf/';
+  var action_key = 0;
+  var gnr_tab_coln = 5;
+  var proc_name = "graf";
+  var srch_block_state = true;
+  var tab_block_state = true;
+  var myGenresArray = {};
+  var temp;
+  var ch_temp;
+  var cur_pressed;
+  
+  
+  
+  var sw_PLAYER_M = new function(){
+	var self = this;
+	
+	self.timer = null;
+	self.timer_refresh = null;
+	self.player_State = ko.observable();
+	self.modelDisplay = ko.observable(false);
+	self.new_pl_list = ko.observable(true);
+	self.album_cover = ko.observable('');
+	self.player_albumL = new ko.observableArray();
+	self.player_trackL = ko.observableArray();
+	self.player_tagL = ko.observableArray();
+	self.player_obj_catDL = ko.observableArray();
+	self.player_art_tplgDL = ko.observableArray();
+	self.player_alb_tplgDL = ko.observableArray();
+	
+	self.cat_albumL = new ko.observableArray();
+	self.cat_artistL = new ko.observableArray();
+	
+	self.player_tagL = ko.observableArray();
+	
+	self.player_rel_cat_selected  = ko.observable('');
+	
+	self.player_adhoc_cat_selected  = ko.observable(0);
+	self.player_adhoc_catprof_selected  = ko.observable(0);
+
+	self.cat_obj_sel_artist = ko.observable(0);
+	self.cat_obj_sel_album = ko.observable(0);
+	
+	self.cat_obj_active = ko.observable('artist');
+	
+	self.cat_prof_selectedDL = ko.computed({
+		read: function() {
+		if (self.modelDisplay()){
+		if (m_vM.catProfileDL_current().length == 0){return;}
+		 else {
+			//_vM.catProfileDL_current()[self.player_adhoc_catprof_selected()]['relCatL'];
+			//self.category_selected('0')
+			self.player_adhoc_cat_selected(0)
+			return m_vM.catProfileDL_current()[self.player_adhoc_catprof_selected()]['relCatL'];};
+		}
+		}, 
+		
+		 owner: this
+	});
+	
+	self.player_adhoc_category = ko.computed({
+//		this.object : {'object':'','obj_name':'','obj_id':''},
+		read: function() {
+			var elem = {'cat_name':'','cat_id':'','cat_key':''};
+			
+				if (self.modelDisplay()){
+				//alert(self.cat_prof_selectedDL())
+				if (m_vM.catProfileDL_current().length == 0){return elem}
+				
+				if  (self.cat_prof_selectedDL().length > 0){
+						elem = self.cat_prof_selectedDL()[self.player_adhoc_cat_selected()];
+						//alert(this.player_adhoc_category().cat_key)
+						if (this.player_adhoc_category().cat_key){
+						if (this.player_adhoc_category().cat_key != elem.cat_key ){
+						navi_categ_control_send('genre',elem.cat_key,'player')
+						}
+						}
+					}
+				}	
+				return {'cat_name':elem.cat_name,'cat_id':elem.cat_id,'cat_key':elem.cat_key};
+		} ,
+		
+		
+		
+		 owner: this
+	
+		}); 
+	
+	self.cat_obj_selected = ko.computed({
+//		this.object : {'object':'','obj_name':'','obj_id':''},
+		read: function() {
+			var elem = {'value':'','key':''};
+			
+			if ( self.cat_obj_active() == 'artist'){
+				if (self.cat_artistL().length > 0){
+						elem = self.cat_artistL()[self.cat_obj_sel_artist()];
+					}
+				return {'object':self.cat_obj_active(),'obj_name':elem.value,'obj_id':elem.key};
+			} else if ( self.cat_obj_active() == 'album'){
+				if (self.cat_albumL().length > 0){
+						elem = self.cat_albumL()[self.cat_obj_sel_album()];
+					}
+				
+				return {'object':self.cat_obj_active(),'obj_name':elem.value,'obj_id':elem.key};
+			} else {
+				return {'object':self.cat_obj_active(),'obj_name':elem.value,'obj_id':elem.key};
+			}
+		},
+		write: function (object,index) {	
+		alert('data write'+':'+index);
+		var elem = 0;
+		if (object == 'artist'){
+			elem = self.cat_artistL()[index];
+		} else if (object == 'album'){
+			elem = self.cat_albumL()[index];
+		}
+		return {'object':object,'obj_name':elem.value,'obj_id':elem.key};
+		},
+		 owner: this
+	
+		}); 
+	
+	
+	self.cat_selected = ko.observable('');
+	
+	self.song_duration = ko.observable(0);
+	self.navi_cur_obj_sel = ko.observable();
+	self.navi_cat_obj_sel = ko.observable();
+	self.cur_track_id = "";
+	self.in_album_pos = 0;
+	self.pl_album_slider_data = false;
+	self.playback_mode =  {0:'Stopped',1:'Playing',3:'Paused'};
+	self.player_track_api = false;
+	
+	self.cur_before_select_color = '';
+	self.horiz_sld_pan_api = false;
+	
+	//albumD: ko.observableArray()
+	
+	self.colorMe = function (key,color) {
+		self.cur_before_select_color = $('#'+key).css("background-color")
+		
+		$('#'+key).css("background-color","Goldenrod")
+		$('#'+key).css("border","3px solid green")
+		//$('#'+key).css("border","10")
+		
+    };
+	
+	self.uncolorMe = function (key) {
+	
+		$('#'+key).css("background-color",self.cur_before_select_color)
+		
+		$('#'+key).css("border","3px solid white")
+		
+		
+    };
+	
+	self.initialize_cat_artistL_albumL = function(artist_albumObj){
+	
+	if ('artistL' in artist_albumObj){
+	if (self.cat_artistL().length > 0  ){
+		self.cat_artistL.removeAll(self.cat_artistL())
+		
+		}
+		self.cat_artistL(artist_albumObj['artistL'])
+		}
+	if ('albumL' in artist_albumObj){	
+	if (self.cat_albumL().length > 0){
+		self.cat_albumL.removeAll(self.cat_albumL())
+		
+		}
+		self.cat_albumL(artist_albumObj['albumL'])
+		
+	}
+	
+	
+	if (self.cat_artistL().length ==0 && self.cat_albumL().length >0){ 
+			if ($( "#tabs" ).tabs('option', 'selected') == '2'){
+				$( "#cattabs" ).tabs({selected:1})
+				
+		} else if ($( "#tabs" ).tabs('option', 'selected') == '3'){
+			$( "#cattabs-nav" ).tabs({selected:1})
+		}
+	}
+	else if (self.cat_artistL().length > 0 && self.cat_albumL().length == 0){ 
+			if ($( "#tabs" ).tabs('option', 'selected') == '2'){
+				$( "#cattabs" ).tabs({selected:0})
+				
+		} else if ($( "#tabs" ).tabs('option', 'selected') == '3'){
+			$( "#cattabs-nav" ).tabs({selected:0})
+		}
+			
+		}
+		
+	};
+	
+	self.destroy_player_data = function(){
+			if (self.player_albumL().length > 0  ){
+					self.player_albumL.removeAll(self.player_albumL())
+					self.player_albumL.valueHasMutated()
+			}
+			
+			if (self.player_trackL().length > 0  ){
+				self.player_trackL.removeAll(self.player_trackL())
+				self.player_trackL.valueHasMutated()
+			}
+			
+			if (self.player_tagL().length > 0  ){
+					self.player_tagL.removeAll(self.player_tagL())
+					self.player_tagL.valueHasMutated()
+			}
+			
+			if (self.player_art_tplgDL().length > 0  ){
+					self.player_art_tplgDL.removeAll(self.player_art_tplgDL())
+					self.player_art_tplgDL.valueHasMutated()
+			}
+			
+			if (self.player_alb_tplgDL().length > 0  ){
+					self.player_alb_tplgDL.removeAll(self.player_alb_tplgDL())
+					self.player_alb_tplgDL.valueHasMutated()
+			}
+			
+			if (self.cat_artistL().length > 0  ){
+				self.cat_artistL.removeAll(self.cat_artistL())
+					self.cat_artistL.valueHasMutated()
+			}
+			
+			if (self.cat_albumL().length > 0){
+				self.cat_albumL.removeAll(self.cat_albumL())
+				self.cat_albumL.valueHasMutated()
+		
+			}
+			
+			
+			
+			clearTimeout(sw_PLAYER_M.timer)
+			self.new_pl_list(true)
+			self.player_State(false)
+			self.player_track_api = false
+			//self.horiz_sld_pan_api.destroy()
+			//self.horiz_sld_pan_api = false
+		
+	};
+	
+	self.initialize_player_albumL = function(albumObjL){
+			
+			if (self.player_albumL().length > 0  ){
+				//alert('before:'+self.player_albumL().length+':'+albumObjL.length)
+				self.player_albumL.removeAll(self.player_albumL())
+				//alert('after:'+self.player_albumL().length)
+				//self.player_albumL.valueHasMutated()
+				
+			}
+		
+		
+		self.player_albumL(albumObjL)
+		//self.player_albumL.valueHasMutated()
+		
+		
+	};
+	
+	self.initialize_player_trackL = function(trackObjL){
+	
+			
+			if (self.player_trackL().length > 0  ){
+	
+				self.player_trackL.removeAll(self.player_trackL())
+			}
+	
+		self.player_trackL(trackObjL)
+		//self.player_trackL.valueHasMutated()
+		
+	};
+	
+	self.initialize_player_obj_catDL = function(catObjD){
+		//self.temp = catObjD
+		if (self.player_obj_catDL()){
+			
+			if (self.player_obj_catDL().length > 0  ){
+					self.player_obj_catDL.removeAll(self.player_obj_catDL())
+			}
+		}
+		//alert(ko.toJSON(tplgObjD.album_p_D))
+		self.player_obj_catDL(catObjD)
+	};	
+	
+	self.initialize_player_tplgDL = function(tplgObjD){
+		//self.temp = tplgObjD.album_p_D
+		if (self.player_art_tplgDL()){
+			
+			if (self.player_art_tplgDL().length > 0  ){
+					self.player_art_tplgDL.removeAll(self.player_art_tplgDL())
+			}
+		}
+		//alert(ko.toJSON(tplgObjD.album_p_D))
+		self.player_art_tplgDL(tplgObjD.artist_p_D)
+		
+		if (self.player_alb_tplgDL()){
+			
+			if (self.player_alb_tplgDL().length > 0  ){
+					self.player_alb_tplgDL.removeAll(self.player_alb_tplgDL())
+			}
+		}
+		
+		self.player_alb_tplgDL(tplgObjD.album_p_D)
+		//self.player_tagL.valueHasMutated()
+		
+	};
+	
+	self.initialize_player_tagsL = function(tagObjL){
+	
+		if (self.player_tagL()){
+			
+			if (self.player_tagL().length > 0  ){
+					self.player_tagL.removeAll(self.player_tagL())
+			}
+		}
+		
+		self.player_tagL(tagObjL)
+		//self.player_tagL.valueHasMutated()
+		
+	};
+	
+	self.setTiming  = function(old_timestamp){
+		
+		 var new_timestamp = old_timestamp-1000;
+		 var time_obj = secondsToTime((old_timestamp/1000)-1)
+		 var time = new Date(new_timestamp);
+		 var hours = time_obj['h']
+		 var minutes = time.getMinutes()+hours*60;
+		 
+		 my_minutes = minutes;
+		 minutes = ((minutes < 10) ? "0" : "") + minutes;
+		 
+		 var seconds = time.getSeconds();
+		 my_seconds = seconds;
+		 
+		 seconds=((seconds < 10) ? "0" : "") + seconds;
+		 var clock = minutes + ":" + seconds
+		 //console.log(clock)
+		 //alert('stop')
+		 
+		 if (m_vM.catProfileDL_current().length > 0) {
+			document.getElementById("refresh_time").innerHTML = clock.toString();	
+			document.getElementById("refresh_time_2").innerHTML = clock.toString();	
+		 }
+		 
+		 $( "#slider" ).slider( "option", "value", (sw_PLAYER_M.player_State().duration_sec - (( old_timestamp/1000 ) - 1)) );
+		 		 
+		 if ((time_obj['h'] == 0) && (time_obj['m'] == 0) && (time_obj['s'] == 0)){
+			clearTimeout(sw_PLAYER_M.timer)
+			return
+		 } else {
+		 
+		 sw_PLAYER_M.timer = setTimeout("sw_PLAYER_M.setTiming(" + new_timestamp + ")",1000); //refresh 
+		 }
+	};
+	
+	self.refreshPlayerCntxt = function (server_respond) {
+		var id = "";
+		var d_title = ""
+		var old_pl_list = 0
+		
+		
+		//alert('in refresh')
+		
+		clearTimeout(self.timer)
+		clearTimeout(self.timer_refresh)
+		self.modelDisplay(false)
+		//alert(self.modelDisplay())
+		self.modelDisplay.valueHasMutated()
+		
+		if (self.player_State()){
+			old_pl_list = self.player_State().pL_CRC32
+		}	
+		
+		self.player_State(JSON.parse(server_respond.player_State))
+		
+		
+		req.abort()
+			
+		
+		do_send_async_stat_req(ko.toJSON(self.player_State()))
+		
+		
+		if (old_pl_list != self.player_State().pL_CRC32){
+			//alert('new list')
+			self.new_pl_list(true)
+		} else {
+			self.new_pl_list(false)
+		}
+		
+		//temp = server_respond
+		
+		if ('trackD' in server_respond){ 
+		
+			trackD = JSON.parse(server_respond.trackD)
+			//alert(albumD)
+			self.initialize_player_trackL(trackD)
+			if (self.player_trackL().length == 0){
+				alert('error []')
+				return
+			}
+		}
+		//alert('tarck')
+		if ('albumD' in server_respond && self.new_pl_list()){ 
+			
+			albumD = JSON.parse(server_respond.albumD)
+			//alert(albumD)
+			self.initialize_player_albumL(albumD)
+		
+		}
+		
+		//alert('album')
+		if ('tagsDL' in server_respond){ 
+			//alert('sss')
+			tagsDL = JSON.parse(server_respond.tagsDL)
+			//alert(albumD)
+			self.initialize_player_tagsL(tagsDL)
+			
+			
+		}
+		
+		if ('obj_categDL' in server_respond){ 
+			//alert('sss')
+			categDL=JSON.parse(server_respond.obj_categDL)
+			//alert(ko.toJSON(categDL))
+			self.initialize_player_obj_catDL(categDL)
+			
+		}
+		
+		if ('tplgDL' in server_respond){ 
+			//alert('sss')
+			tplgDL = JSON.parse(server_respond.tplgDL)
+			//alert(tplgDL)
+			self.initialize_player_tplgDL(tplgDL)
+			
+		}
+		
+		if (self.cat_artistL().length > 0  ){
+				self.cat_artistL.removeAll(self.cat_artistL())
+					self.cat_artistL.valueHasMutated()
+			}
+			
+			if (self.cat_albumL().length > 0){
+				self.cat_albumL.removeAll(self.cat_albumL())
+				self.cat_albumL.valueHasMutated()
+		
+			}
+		
+		d_type = ''
+		album = ''
+		format = ''
+		
+		//alert(self.player_albumL().length)
+		if ( self.player_albumL().length > 0){
+		
+		album_firstFileLPos = self.player_albumL()[self.player_State().cur_album_pos].firstFileLPos
+		self.in_album_pos = self.player_State().pl_pos - album_firstFileLPos
+		
+		
+		if (self.player_albumL()[self.player_State().cur_album_pos].isNSA == true){
+			//alert(self.player_albumL()[self.player_State().cur_album_pos].isNSA)
+			d_type = ' -NSA- '
+			
+		}
+		
+		} else
+		{
+			self.in_album_pos = 0
+		}
+		
+		album = self.player_albumL()[self.player_State().cur_album_pos].album
+		format = self.player_albumL()[self.player_State().cur_album_pos].format
+		self.cur_track_id = 'id'+self.player_State().pl_pos
+	
+		//alert(self.player_trackL()[self.in_album_pos].artist)		
+		d_title = self.playback_mode[self.player_State().playBack_Mode] +':  album:['+album+']  artist:['+self.player_trackL()[self.player_State().cur_track_in_album_pos].artist+']'
+		
+		d_title = d_title+ d_type+ '  ->'+format+'<-'
+		
+		
+		d_title = '<div class="player-header text" style="text-overflow:ellipsis;"><span title="'+d_title+'">'+d_title+'</span></div>'
+		old_name = self.album_cover()
+		new_name = '/images/cover/'+sw_PLAYER_M.player_State().album_CRC32.toString()+'.jpg'
+		if (old_name != new_name){
+		
+		self.album_cover('/images/cover/'+sw_PLAYER_M.player_State().album_CRC32.toString()+'.jpg')
+		self.album_cover.valueHasMutated()
+		}
+		
+		if ( sw_PLAYER_M.player_State().playBack_Mode == 1 ) {
+		
+			var max = $( "#slider" ).slider( "option", "max" );
+			
+			$( "#slider" ).slider( "option", "max", sw_PLAYER_M.player_State().duration_sec );
+			//console.log(sw_PLAYER_M.player_State().duration_sec)
+			self.setTiming((sw_PLAYER_M.player_State().rest_sec+1)*1000)
+			
+		}
+		
+			
+		if ('albumD' in server_respond && self.new_pl_list()){ 
+		self.player_albumL.valueHasMutated()
+		}
+		if ('tagsDL' in server_respond){ 
+		self.player_tagL.valueHasMutated()
+		}
+		
+		if ('tplgDL' in server_respond){ 
+		self.player_art_tplgDL.valueHasMutated()
+		}
+		
+		if ('obj_categDL' in server_respond){ 
+		self.player_obj_catDL.valueHasMutated()
+		}
+		
+		
+		
+		if ('trackD' in server_respond){ 
+		self.player_trackL.valueHasMutated()
+		}
+		
+		if (d_title != "" ){
+			$("#playerDlg" ).dialog( "option", "title", d_title );
+		}	
+		self.modelDisplay(true)
+		self.modelDisplay.valueHasMutated()
+		
+		if (old_pl_list != self.player_State().pL_CRC32){
+
+			set_scroll_position('p_slider_albumL_block',sw_PLAYER_M.player_State().cur_album_pos,100,4,'H')
+			set_scroll_position('p_albumL_block',sw_PLAYER_M.player_State().cur_album_pos,46,3,'V')
+			if ( sw_PLAYER_M.player_obj_catDL().length > 0 ){
+				navi_categ_control_send('genre',sw_PLAYER_M.player_obj_catDL()[0]['cat_key'],'player')
+			}
+		
+		}
+		
+		if (self.new_pl_list()){ 
+			if (sw_PLAYER_M.player_obj_catDL().length > 0){
+			navi_categ_control_send('genre',sw_PLAYER_M.player_obj_catDL()[0]['cat_key'],'player')
+			}
+		}
+		
+		//alert('refrok')
+		
+	};
+  
+  	self.callPlayer = function (dlg_show) {
+		
+		d_title = "test "
+		//Восстановить, когда вновь заработает плеер!!!
+		//respond = do_send_ajax_json_req(url_key,ko.toJSON({'player_process_info':'get_player_process_info','get_player_process_info':'initial'}))
+		//temp = respond
+		//console.log(respond)
+		self.new_pl_list(true)
+		
+		
+		if (!('player_process_info' in respond)){
+			
+			alert('Error at player_process_info server side')
+		} else {
+			//alert('gogogo')
+			self.pl_album_slider_data=false
+			self.refreshPlayerCntxt(respond.player_process_info)
+			if (dlg_show) {
+				$( "#playerDlg" ).dialog('open');
+			}
+			
+	
+			if (sw_PLAYER_M.player_State().list_type_flat){
+				set_scroll_position('player_tracks_panel',sw_PLAYER_M.player_State().pl_pos+1,40,3,'V')
+			} else {
+			set_scroll_position('player_tracks_panel',sw_PLAYER_M.player_State().cur_track_in_album_pos+1,40,3,'V')
+			}
+			set_scroll_position('p_albumL_block',sw_PLAYER_M.player_State().cur_album_pos+1,40,3,'V')
+			set_scroll_position('p_slider_albumL_block',sw_PLAYER_M.player_State().cur_album_pos,100,4,'H')
+			$('#albcovsld'+sw_PLAYER_M.player_State().album_CRC32).toggleClass("zebra2sel")
+	}
+  }
+  };
+  
+  
+  var m_vM = new function(){
+	var self = this;
+    //search_data_process_step_type : ko.observable(),
+	self.myGenreList = ko.observableArray(); // These are the selected folders
+	self.myGenres_isLoaded = ko.observable(false);
+	self.categoryProfile_isLoaded  = ko.observable(false);
+	self.mpdHostDL_isLoaded  = ko.observable(false);
+	self.folderGroups_Items = ko.observableArray(); // all groups list
+	self.cur_cat_selected_index = 1;
+	self.category_type_index_selected = ko.observable(0);
+	self.catProfileDL_current  = ko.observableArray([]);
+	self.mpdHostDL_current  = ko.observableArray([]);
+	self.mpdHostDL_index_selected = ko.observable(0);
+	self.categoryDL  = ko.observableArray([]);
+	
+	//self.cat_prof_selectedDL = ko.observableArray();
+	
+	self.cat_prof_selected  = ko.observable('0');
+	self.category_selected   = ko.observable('');
+	
+	
+	
+	self.category_selected_text = ko.computed({
+		read: function() {
+		if (self.category_selected() == '' ){
+		//alert('mimo:'+self.category_selected());
+		return {'name':'','id':''};}
+		 else {
+			//alert('data read'+':'+self.catProfileDL_current().length);
+			
+			return {'name':self.cat_prof_selectedDL()[self.category_selected()].cat_name,'id':self.catProfileDL_current()[self.cat_prof_selected()].relCatL[self.category_selected()].cat_id}};
+		}, 
+		write: function () {	
+		alert('data write'+':'+self.catProfileDL_current.length)
+		return alert('data'+':'+self.catProfileDL_current.length);
+		},
+		 owner: this
+	});	
+	self.cat_prof_selectedDL = ko.computed({
+		read: function() {
+		if (self.catProfileDL_current().length == 0){return;}
+		 else {
+			self.catProfileDL_current()[self.cat_prof_selected()]['relCatL'];
+			//self.category_selected('0')
+			return self.catProfileDL_current()[self.cat_prof_selected()]['relCatL'];};
+		}, 
+		write: function () {	
+		alert('data write'+':'+self.catProfileDL_current.length)
+		return alert('data'+':'+self.catProfileDL_current.length);
+		},
+		 owner: this
+	});
+	
+	self.artistL = ko.observableArray();
+	self.albumL = ko.observableArray();
+	
+	self.artist_rel_albumL = ko.observableArray();
+	self.album_rel_artistL = ko.observableArray();
+	
+	
+	self.artist_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
+	self.album_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
+	
+	self.cur_before_select_color = '';
+	
+	self.current_selected_srch_view =  ko.observable({'artist':{'status':'selected'},'album':{'status':'deselected'},'song':{'status':'deselected'}});
+	
+	
+	self.setView	= function (view_name) {
+		if (view_name == 'artist'){
+		self.current_selected_srch_view()['artist']['status'] = 'selected'
+		self.current_selected_srch_view()['album']['status'] = 'deselected'
+		self.current_selected_srch_view()['song']['status'] = 'deselected'
+		
+		
+		} else if (view_name == 'album'){
+		self.current_selected_srch_view()['artist']['status'] = 'deselected'
+		self.current_selected_srch_view()['song']['status'] = 'deselected'
+		self.current_selected_srch_view()['album']['status'] = 'selected'
+		
+		
+		} else if (view_name == 'song'){
+		self.current_selected_srch_view()['artist']['status'] = 'deselected'
+		self.current_selected_srch_view()['album']['status'] = 'deselected'
+		self.current_selected_srch_view()['song']['status'] = 'selected'
+		
+		}
+		
+		m_vM.current_selected_srch_view.valueHasMutated();
+		if (view_name == 'song'){
+			alert('song')
+			$("#navi_categ_song_panel").jScrollPane();
+			
+		} else if (view_name == 'artist'){
+				do_scroll = false	
+				if ( self.artist_play_control.key != null){
+					do_scroll = true
+				}	
+					
+				set_scroll_position_vertical('navi_categ_artist_panel',m_vM.artist_play_control.key,30,8,do_scroll)
+				
+			
+			
+			
+		} else if (view_name == 'album'){
+			
+				do_scroll = false	
+				if ( self.album_play_control.key != null){
+					do_scroll = true
+				}	
+				set_scroll_position_vertical('navi_categ_album_panel','albcat'+m_vM.album_play_control.key,30,8,do_scroll)
+				
+			
+			
+			
+		}
+		
+	};
+	
+	self.getActiveView = function (param) {
+		if (self.current_selected_srch_view()['artist']['status'] == 'selected'){
+			if (param == 'state'){
+				return self.current_selected_srch_view()['artist']['proc_state']
+			}
+			return 'artist'
+		}	
+		else if	(self.current_selected_srch_view()['album']['status'] == 'selected'){
+			if (param == 'state'){
+				return self.current_selected_srch_view()['album']['proc_state']
+			}
+			return 'album'
+			}
+		else if	(self.current_selected_srch_view()['song']['status'] == 'selected'){
+			if (param == 'state'){
+				return self.current_selected_srch_view()['song']['proc_state']
+			}
+			return 'song'
+			}	
+	};
+	
+	self.colorMe = function (key,color) {
+		self.cur_before_select_color = $('#'+key).css("background-color")
+		
+		$('#'+key).css("background-color","Goldenrod")
+		$('#'+key).css("border","3px solid red")
+		//$('#'+key).css("border","10")
+		
+		
+		
+    };
+	
+	self.uncolorMe = function (key) {
+		if (self.catProfileDL_current()[self.category_type_index_selected()]["relCatL"]['cat_key'] != key){
+		$('#'+key).css("background-color",m_vM.cur_before_select_color)
+		$('#'+key).css("border","1px solid white")
+		//} else if (self.artist_play_control.key != key){
+		//$('#'+key).css("background-color",m_vM.cur_before_select_color)
+		//$('#'+key).css("border","1px solid white")
+		} 
+		
+		else {
+		$('#'+key).css("border","3px solid green")
+		}
+		
+    };
+	
+	self.selectNavObject_ = function (index,obj_type) {
+		if (obj_type == 'genre'){
+			
+			navi_categ_control_send(obj_type,index)
+			
+			} 
+			else if (obj_type == 'artist'){
+			elem = self.artistL()[index]
+			elem['sel_class'] = 'artist sel'
+			elem['selected'] = true
+			//alert(elem.value)
+			self.artist_play_control.key = elem.key
+			self.artist_play_control()['name'] = elem.value
+			self.artist_play_control.active = true
+			self.artist_play_control.valueHasMutated()
+			
+			self.album_play_control.active = false
+			navi_categ_control_send(obj_type,elem.key)
+			}
+		};		
+	
+	self.selectNavObject = function (index,obj_type) {
+		if (obj_type == 'genre'){
+			elem = self.catProfileDL_current()[self.category_type_index_selected()]["relCatL"][index]
+			elem['sel_class'] = 'genre sel'
+			elem['selected'] = true
+			self.catProfileDL_current()[self.category_type_index_selected()]["relCatL"][index]['selected'] = false
+			self.catProfileDL_current()[self.category_type_index_selected()]["relCatL"][index]['sel_class'] = 'genre normal'
+			//self.category_type_index_selected(index)
+			self.artist_play_control.active = false
+			self.album_play_control.active = false
+			
+			self.artist_play_control({'key':'','name':'','active':false,'object_type':''}) 
+			self.album_play_control({'key':'','name':'','active':false,'object_type':''}) 
+			
+			self.cur_cat_selected_index = index
+			navi_categ_control_send(obj_type,elem['cat_key'])
+			
+			self.catProfileDL_current.valueHasMutated()
+			} 
+			else if (obj_type == 'artist'){
+			elem = self.artistL()[index]
+			elem['sel_class'] = 'artist sel'
+			elem['selected'] = true
+			//alert(elem.value)
+			self.artist_play_control.key = elem.key
+			self.artist_play_control()['name'] = elem.value
+			self.artist_play_control.active = true
+			self.artist_play_control.valueHasMutated()
+			
+			self.album_play_control.active = false
+			navi_categ_control_send(obj_type,elem.key)
+			
+			} 
+			else if (obj_type == 'album'){
+			
+			elem = self.albumL()[index]
+			
+			
+			self.album_play_control.key = elem.key
+			self.album_play_control()['name'] = elem.value
+			self.album_play_control()['object_type'] = elem.object_type
+			self.album_play_control.active = true
+			self.album_play_control.valueHasMutated()
+			
+			
+			
+			//self.artistL()[self.cur_cat_selected_index]['selected'] = false
+			//self.artistL()[self.cur_cat_selected_index]['sel_class'] = 'genre normal'
+			//self.cur_cat_selected_index = index
+			
+			//alert(self.cur_cat_selected_index)
+			if (elem.album_type == ""){
+				if (self.album_rel_artistL().length > 0){
+					self.album_rel_artistL.removeAll(self.album_rel_artistL())
+					self.album_rel_artistL.valueHasMutated()
+				}
+			
+				if (elem.object_type != null){
+				
+				navi_categ_control_send(elem.object_type,elem.key)
+				}else{			
+					navi_categ_control_send(obj_type,elem.key)
+					}
+			}else if	(elem.album_type == "ONE_ARTIST"){
+				if (self.album_rel_artistL().length > 0){
+					self.album_rel_artistL.removeAll(self.album_rel_artistL())
+					self.album_rel_artistL.valueHasMutated()
+				}
+				navi_play_control_send('album',elem.key)
+				navi_categ_control_send(obj_type,elem.key)
+			}
+			//self.artistL.valueHasMutated()
+			}
+			
+			
+			
+	};
+	
+	self.navi_object_play = function (obj_type,id) {
+	if (obj_type == 'genre'){
+			
+			} else if (obj_type == 'artist'){
+			
+			alert(id)
+			
+			}
+	
+	};
+	
+	self.initialize_artistL_albumL = function(artist_albumObj){
+	
+	if ('artistL' in artist_albumObj){
+	if (self.artistL().length > 0  ){
+		self.artistL.removeAll(self.artistL())
+		if (self.artist_rel_albumL().length > 0){
+		self.artist_rel_albumL.removeAll(self.artist_rel_albumL())
+		}
+		}
+		self.artistL(artist_albumObj['artistL'])
+		}
+	if ('albumL' in artist_albumObj){	
+	if (self.albumL().length > 0){
+		self.albumL.removeAll(self.albumL())
+		if (self.album_rel_artistL().length > 0){
+		self.album_rel_artistL.removeAll(self.album_rel_artistL())
+		}
+		}
+		self.albumL(artist_albumObj['albumL'])
+	}
+		
+	
+	
+		
+	};
+	
+	self.initialize_artist_rel_albumL = function(albumObj){
+	if (self.artist_rel_albumL().length > 0){
+		self.artist_rel_albumL.removeAll(self.artist_rel_albumL())
+		}
+		self.artist_rel_albumL(albumObj['albumL'])
+		
+	};
+	
+	self.initialize_album_rel_artistL = function(artistObj){
+	
+	if (self.album_rel_artistL().length > 0){
+		self.album_rel_artistL.removeAll(self.album_rel_artistL())
+		}
+		self.album_rel_artistL(artistObj['artistL'])
+	
+	};
+	
+		
+	self.initialize_mpdHostDL  = function(mpdHostObj){
+		
+			for (a in mpdHostObj){
+		
+				if (mpdHostObj[a]['selected'] == 'X') {
+					//self.mpdHostDL_index_selected(a)
+					m_vM.mpdHostDL_index_selected = ko.observable(a)
+					//console.log("val index_selected_A="+a.toString())
+					//console.log(m_vM.mpdHostDL_index_selected().toString())
+					}
+
+					//m_vM.mpdHostDL_index_selected.valueHasMutated()
+					//console.log("val indexfor="+a.toString())
+				m_vM.mpdHostDL_current.push(mpdHostObj[a])
+			}
+		
+		
+		if (m_vM.mpdHostDL_current().length > 0){
+		m_vM.mpdHostDL_isLoaded(true)
+
+	}
+		
+	
+	};
+	
+	self.initialize_catProfileDL  = function(categoryProfObj){
+		
+		//this.catProfileDL_current(categoryProfObj)
+		//var filtered_catDL = this.catProfileDL_current()[0]['relCatL'];
+		//alert(filtered_catDL.length)
+		//self.cat_prof_selectedDL(filtered_catDL)
+		
+		
+			for (a in categoryProfObj){
+		
+			if (a !='center'){
+			
+			for (b in categoryProfObj[a]['relCatL']){
+				categoryProfObj[a]['relCatL'][b]['selected'] = false
+				categoryProfObj[a]['relCatL'][b]['sel_class'] = 'genre normal'
+			}
+			m_vM.catProfileDL_current.push(categoryProfObj[a])
+			}
+		}
+		
+		if (m_vM.catProfileDL_current().length > 0){
+		m_vM.categoryProfile_isLoaded(true)
+	}
+		
+	
+	};
+	
+	self.initialize_myGenreList = function(genreLobj){
+		
+		for (a in genreLobj){
+		
+			if (a !='center'){
+			genreLobj[a]['selected'] = false
+			genreLobj[a]['sel_class'] = 'genre normal'
+			m_vM.myGenreList.push(genreLobj[a])
+			}
+		}	
+		
+	if (m_vM.myGenreList().length > 0){
+		m_vM.myGenres_isLoaded(true)
+	}	
+		
+	}
+};				 
+
+
+
+
+function handleSliderStop(e, ui)
+{
+ 
+ var value = $( "#slider" ).slider( "option", "value" );
+ 
+ player_control_command('set_song_pos_',value)
+ 
+	 
+}
+
+$(document).ready(function(){
+
+  ko.virtualElements.allowedBindings.text = true;	
+  ko.applyBindings( m_vM,$("#mainWindow")[0]);	
+  ko.applyBindings( sw_PLAYER_M,$("#playerDlg")[0]);	
+  
+  //ko.applyBindings(new m_vM);	
+  //ko.applyBindings(new sw_PLAYER_M);	
+  //ko.applyBindings(sw_PLAYER_M, $("#player_slider_albumL_block")[0]); 
+  
+  
+  	
+		$('.ui-state-default').hover(
+			function(){ $(this).addClass('ui-state-hover'); }, 
+			function(){ $(this).removeClass('ui-state-hover'); }
+		);
+
+		$('.ui-state-default').click(function(){
+			$(this).removeClass('ui-state-hover')
+			//$(this).addClass('ui-state-active')
+			
+			$(this).addClass('ui-state-active');
+			player_control_command(this.id)
+			
+			//$(this).delay(10000)
+			//$(this).removeClass('ui-state-active'); 
+			//setInterval(1000);
+			$(this).toggleClass('ui-state-active');
+
+			cur_pressed = this
+			
+		});
+
+		
+	$("#slider").slider({ animate: true,stop: handleSliderStop });	
+	
+  
+   $("#radiotest").buttonset();
+   $("#playerextra").buttonset();
+   
+
+  
+
+  
+	$(function() {
+		$( "#cattabs" ).tabs({
+			 show: function( event, ui ) {
+			if ($("#playerDlg" ).parents(".ui-dialog").is(":visible")){
+			if (ui.tab.hash == "#cattabs-1"){
+				//alert('warum:'+ui.tab.hash)
+				sw_PLAYER_M.cat_obj_active('artist')
+			 			
+			} else if (ui.tab.hash == "#cattabs-2"){
+			//alert('warum:'+ui.tab.hash)
+			sw_PLAYER_M.cat_obj_active('album')
+			
+			} else if (ui.tab.hash == "#cattabs-3"){
+			//alert('warum:'+ui.tab.hash)
+			sw_PLAYER_M.cat_obj_active('track')
+			}}
+			}
+			
+		});
+		});
+		
+	$(function() {
+		$( "#cattabs-nav" ).tabs({
+			 show: function( event, ui ) {
+			if ($("#playerDlg" ).parents(".ui-dialog").is(":visible")){
+			if (ui.tab.hash == "#cattabs-nav-1"){
+				//alert('warum:'+ui.tab.hash)
+				sw_PLAYER_M.cat_obj_active('artist')
+			 			
+			} else if (ui.tab.hash == "#cattabs-nav-2"){
+			//alert('warum:'+ui.tab.hash)
+			sw_PLAYER_M.cat_obj_active('album')
+			
+			} else if (ui.tab.hash == "#cattabs-nav-3"){
+			//alert('warum:'+ui.tab.hash)
+			sw_PLAYER_M.cat_obj_active('track')
+			}}
+			}
+		});
+		});	
+  
+	$(function() {
+		$( "#tabs" ).tabs({
+			 show: function( event, ui ) {
+			if ($("#playerDlg" ).parents(".ui-dialog").is(":visible")){
+			if (ui.tab.hash == "#tabs-1"){
+					if (sw_PLAYER_M.player_State().list_type_flat){
+				set_scroll_position('player_tracks_panel',sw_PLAYER_M.player_State().pl_pos+1,40,3,'V')
+			} else {
+			//alert('warum:'+ui.tab.hash)
+			set_scroll_position('player_tracks_panel',sw_PLAYER_M.player_State().cur_track_in_album_pos+1,40,3,'V')
+			}
+			
+			} else if (ui.tab.hash == "#tabs-2"){
+			//alert('warum:'+ui.tab.hash)
+			set_scroll_position('p_albumL_block',sw_PLAYER_M.player_State().cur_album_pos+1,40,3,'V')
+			} else if (ui.tab.hash == "#tabs-3"){
+			//alert('warum:'+ui.tab.hash)
+			if ( sw_PLAYER_M.player_obj_catDL().length > 0 ){
+				navi_categ_control_send('genre',sw_PLAYER_M.player_obj_catDL()[0]['cat_key'],'player')
+			} 
+			
+			} else if (ui.tab.hash == "#tabs-4"){
+			//alert('warum:'+ui.tab.hash)
+			if ( sw_PLAYER_M.player_adhoc_category ){
+				navi_categ_control_send('genre',sw_PLAYER_M.player_adhoc_category().cat_key,'player')
+			} 
+			
+			}
+			
+			
+			}
+			}
+			
+			
+			
+		});
+		
+	});
+	
+  		$( "#playerDlg" ).dialog({ modal: true,
+								autoOpen: false,
+								resizable: false,
+								draggable: false,
+								option: {"dialogClass": "jqfontfix"} ,
+								//beforeClose: function(event, ui) { sw_OBJEDIT_M.reset_all_rel_tables(); sw_OBJEDIT_M.navi_dlg_stack.pop()},
+								height: 575, width: 980,position: [110,50],
+								buttons: [
+											{
+														text: "Back to Navigator",
+														click: function() {sw_PLAYER_M.destroy_player_data(),$(this).dialog("close");   }
+											}
+										]
+							}
+							);
+							
+	$("#plobjsel" ).buttonset();	
+	
+	
+	$("#plobjsel :radio").button().click( function() {
+			//alert('puk'); 
+			sw_PLAYER_M.navi_cur_obj_sel(0)})
+		;						
+
+	 $( "#get_obj_artist_album" ).autocomplete({
+			minLength: 2,
+			disabled: false, 
+			source: function( request, response ) {
+				{
+				var object;
+				object = $("#plobjsel :radio:checked").attr('data-obj');
+				
+				
+				//alert(object)
+				};
+				$.ajax({
+					url: 'http://' + host + '/medialib/graf/',type: 'POST',dataType: "json",
+					contentType:'multipart/form-data',
+					data: ko.toJSON({
+						object_data : {'object':object,'search_term':request.term},
+						search_process : 'get_artist_album_autocompl_data'
+						
+					}),
+					success: function( data ) {
+						json_data = data.autocoml_data
+						response( $.map( json_data, function( item ) {	return {value: item.name,id: item.key	}} ))
+					},
+			})},
+			select:	function( event, ui ) {
+				//alert(ui.item.id)
+				temp = ui.item
+				var object;
+				object = $("#plobjsel :radio:checked").attr('data-obj');
+				sw_PLAYER_M.navi_cur_obj_sel({"id":ui.item.id,"object":object,'name':ui.item.label})
+				if (!$( "#navi-preview" ).is(":visible")){
+				 $( "#navi-preview" ).button({
+				icons: {
+					primary: "ui-icon-info"
+				},
+				text: false
+				});	
+				}
+				
+				//json_req = ko.toJSON({"navi_play_process":"navi_play_process","id":ui.item.id,"object":object})
+				//do_send_json_req(json_req);
+				sw_PLAYER_M.callPlayer(false)
+				return
+				
+			}
+		});							
+  
+
+	//$( "#accordion" ).accordion();
+
+ 
+  });
+
+ function load_page(){
+	alert('dfg')	
+	$("#table_block").hide();	
+	//document.getElementById('table_block').style.visibility="hidden";
+	//document.getElementById('loading').style.visibility="hidden";
+} 
+ 
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  
+  try { // à?!
+    // ???? ??-?"complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // ? ????"OK"
+        if (req.status == 200) {
+		stopProgressBar()
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					
+					
+					
+					if (data == 'search_result_frm'){
+							document.getElementById("search_result_frm").innerHTML = Base64.decode(my_JSON_object[data]);
+					}
+					else if ( data =='graf_stat_info'){
+						document.getElementById('graf_stat_info').innerHTML = my_JSON_object[data]
+					}
+					else if ( data == 'navi_cat_data_general'){
+						
+						var pre_str = my_JSON_object[data]
+						
+						album_artistL = JSON.parse(pre_str)
+						if ('proc' in album_artistL){
+							if( album_artistL['proc'] != 'player'){
+								m_vM.initialize_artistL_albumL(album_artistL)
+							}else if(album_artistL['proc'] == 'player'){
+								sw_PLAYER_M.initialize_cat_artistL_albumL(album_artistL)
+							}
+							
+						}
+						
+						
+						}	
+					
+					else if ( data == 'navi_cat_data_artist'){
+						
+						var pre_str = my_JSON_object[data]
+						
+						albumL = JSON.parse(pre_str)
+						m_vM.initialize_artist_rel_albumL(albumL)
+						
+						do_scroll = false	
+						if ( m_vM.artist_play_control.key != null){
+							do_scroll = true
+						}	
+						
+						set_scroll_position_vertical('navi_categ_artist_panel',m_vM.artist_play_control.key,30,8,do_scroll)
+						
+					}	
+					
+					else if ( data == 'navi_cat_data_album'){
+						
+						var pre_str = my_JSON_object[data]
+						
+						artistL_obj = JSON.parse(pre_str)
+						
+						m_vM.initialize_album_rel_artistL(artistL_obj)
+						do_scroll = false	
+						if ( m_vM.album_play_control.key != null){
+							do_scroll = true
+						}	
+						set_scroll_position_vertical('navi_categ_album_panel','albcat'+m_vM.album_play_control.key,30,8,do_scroll)
+					}
+					
+					else if ( data == 'graf_data'){
+						
+						var pre_str = my_JSON_object[data]
+						
+						grf_data = JSON.parse(pre_str)
+						//alert('bi')
+						
+						m_vM.initialize_catProfileDL(grf_data.cat_profD)
+						m_vM.initialize_mpdHostDL(grf_data.mpdHostDL)
+						//alert('ai')
+						//m_vM.initialize_myGenreList(grf_data.nodes)
+						
+						do_cancell_action()
+							
+						}	
+						
+					else if ( data == 'async_respond'){
+						//alert(my_JSON_object['data'].toString())
+						//alert('Ogogo!')
+						if ($("#playerDlg" ).parents(".ui-dialog").is(":visible")){
+							if (my_JSON_object[data] == 'endoflive'){
+								do_send_async_stat_req(ko.toJSON(sw_PLAYER_M.player_State()))
+							} else {
+								if ('pL_CRC32' in my_JSON_object[data]){
+									// ?????? ????? ?????? ? ????????? ?????? ????
+									sw_PLAYER_M.callPlayer(false)
+										
+								} else { do_send_json_req(ko.toJSON({'player_process_info':'merge_client_state','client_state':sw_PLAYER_M.player_State()})) }
+								
+								
+								
+								
+								}
+								}	
+							
+							
+						
+						//alert(ch_temp)
+						
+					}
+					else if ( data == 'player_process_info'){
+						//playerState = JSON.parse(my_JSON_object[data].player_State)
+						//alert('puk')
+						old_album_key = sw_PLAYER_M.player_State().album_CRC32
+						sw_PLAYER_M.refreshPlayerCntxt(my_JSON_object[data])
+						
+						
+						
+						//if ((sw_PLAYER_M.in_album_pos > 2) && ($("#playerDlg" ).parents(".ui-dialog").is(":visible"))){
+						if (($("#playerDlg" ).parents(".ui-dialog").is(":visible"))){
+						
+							//alert('?1 scroll')
+							if (sw_PLAYER_M.player_State().list_type_flat){
+								set_scroll_position('player_tracks_panel',sw_PLAYER_M.player_State().pl_pos+1,40,3,'V')
+							} else {
+							set_scroll_position('player_tracks_panel',sw_PLAYER_M.player_State().cur_track_in_album_pos+1,40,3,'V')
+							}
+							set_scroll_position('p_albumL_block',sw_PLAYER_M.player_State().cur_album_pos+1,40,3,'V')
+							if ($('#albcovsld'+old_album_key).hasClass("zebra2sel")){
+							$('#albcovsld'+old_album_key).toggleClass("zebra2sel")
+							}
+							if(!$('#albcovsld'+sw_PLAYER_M.player_State().album_CRC32).toggleClass("zebra2sel")){
+							$('#albcovsld'+sw_PLAYER_M.player_State().album_CRC32).toggleClass("zebra2sel")
+							}
+							if (sw_PLAYER_M.player_State().album_CRC32 != old_album_key){
+								set_scroll_position('p_slider_albumL_block',sw_PLAYER_M.player_State().cur_album_pos,100,4,'H')
+		
+							}
+						}
+						
+					}	
+					else if ( data == 'action_result'){
+						//alert(my_JSON_object)
+						if (my_JSON_object['action_result'] == 2){
+						document.getElementById('action_go').type = "hidden";
+						
+						do_cancell_action()
+							
+						}
+						else if (my_JSON_object['action_result'] == 1){
+							document.getElementById('play_butn').type = "button";
+							//document.getElementById('play_butn').style.background='BurlyWood'
+							 
+							document.getElementById('action_result').innerHTML = "Play result succesfuly!";
+							do_cancell_action()
+							}
+							//else {
+							//document.getElementById('action_result').innerHTML = "Changes succesfuly saved!";
+								
+							//}
+						else if (my_JSON_object['action_result'] == 0){
+								document.getElementById('play_butn').type = "hidden";
+								document.getElementById('action_result').innerHTML = "Action failed with!";
+								do_cancell_action()
+							}
+							
+						}
+						
+						
+						
+						
+					else if (data == 'action_key'){
+							action_key = my_JSON_object[data]
+					}
+					
+				} 
+				
+			
+            
+    }
+  }
+  }
+  catch( e ) {
+       
+	   if ($("#playerDlg" ).parents(".ui-dialog").is(":visible")){
+		$("#playerDlg").dialog('close')
+		error_message = 'Error debug:'+ 'processReqChange: ' + data + e+'---'+ko.toJSON(sw_PLAYER_M.player_State())+'--- now album.len:'+sw_PLAYER_M.player_albumL().length
+		error_message += ", model state:"+sw_PLAYER_M.modelDisplay()
+		alert(error_message)
+		//sw_PLAYER_M.destroy_player_data()
+		//sw_PLAYER_M.callPlayer(true)
+	   } else {
+	   alert('Error in processReqChange in: ' + data + e + sw_PLAYER_M.modelDisplay());
+	   }
+      //  ??? ??XMLHttpRequest ?irefox ??????????????     // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+
+function do_cancell_action() {
+	proc_mode = 0
+	
+}
+	
+function at_initial_page_load(){
+	$("#graf_block").hide();	
+	$("#search_block").toggle();	
+	//document.getElementById('loading').style.visibility="hidden";
+	action_name = ''
+
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "graf_load_update" +"\"" + ':'+"\""+"navi_musiclib_graf_load"+"\""+ "}";
+	
+	//glob_sys = visMediLibGraf_at_once(graf_data,"#viewport")
+	//glob_sys.stop()
+			 
+	req.onreadystatechange = processReqChange;
+	
+	do_send_json_req(json_req)
+	//Восстановить, когда вновь заработает плеер
+	//static_state=do_send_ajax_json_req(url_key,ko.toJSON({'player_process_info':'get_player_process_info','get_player_process_info':'initial'}))
+	
+			
+	return false;
+	
+
+} 	
+
+function processSelected(proc_name,action_name,mode){
+	
+	selL = new Array();
+    var selForm = document.getElementById('search_result_frm');
+	
+	var checkStatus = true;
+	if ( mode == 'deselected'){
+		checkStatus = false
+		}
+	
+	//alert(selForm.length)
+	
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ',';
+	json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+",";
+	json_req += "\"" + "selL" + "\"" + ':' + "[";
+
+		
+	$( ".sel_track" ).each( function(i,elem) {
+		
+		if ( elem.checked == true ){
+		json_req += elem.value  + ",";
+	}}) ;
+	
+	
+	
+	//alert(json_req[json_req.length-1])
+	if (json_req[json_req.length-1] == ','){
+       	json_req = json_req.substring(0,json_req.length-1)
+		}
+	json_req +=  "]}"
+
+	alert(json_req)
+	
+	
+ 
+	return do_send_json_req(json_req);;
+
+}
+
+
+function processGetPL(myForm){
+	selL = new Array();
+
+	//alert(myForm.toString())
+	for (var i = 0; i < myForm.length; i++) {
+		
+        	var temp_el = myForm[i];    
+		//alert(temp_el.type.toString())
+		//alert(temp_el.value.toString())
+
+	        if ( temp_el.type == 'select-one' ){
+			selL.push(temp_el.value);
+
+		}	
+	
+	}
+
+	var params = 'name= play_entry' + ' getPL=['+ selL.toString()+ ']' ;	
+	if ( selL.length > 0 ){
+	req.open("POST", 'http://' + host + '/search/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data')
+	req.send(params)
+	//alert(params)
+	}
+	//alert(params)
+	return null;
+
+}
+
+function set_form_layout() {
+	
+	document.getElementById('play_butn').type = "hidden";
+	//document.getElementById('loading').style.visibility="hidden";
+	return null;
+	
+	
+}
+
+function do_send_async_stat_req(cur_state){
+	req.open("POST", 'http://' + host + '/medialib/async/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+	req.onreadystatechange = processReqChange;
+	req.send(cur_state)
+	return req;
+
+}
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/graf/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	//alert('do_send_json_req:'+json_req)
+	req.send(json_req)
+	if (m_vM.catProfileDL_current().length > 0) {
+		startProgressBar()
+	}	
+	
+	return false;
+
+}
+
+function navi_categ_control_send(param,indx,proc) {
+
+	json_req = 
+	"{" +"\"" + "navi_categ_process" +"\"" + ':' +"\"" + "navi_categ_process" + "\"" +','	+"\"" + "cat_id" +"\"" + ':'+"\""+indx.toString()+"\""+','	+"\"" + "object" +"\"" + ':'+"\"" + param +"\""+','+"\""+"proc"+"\""+ ':'+"\"" + proc +"\""+"}";	
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+}  
+
+function navi_play_control_send(param,indx,indx2) {
+	var mpd_host = ""
+	if (m_vM.mpdHostDL_current().length > 0){
+		mpd_host = m_vM.mpdHostDL_current()[m_vM.mpdHostDL_index_selected()].key
+	}
+	
+	json_req = 
+	"{" +"\"" + "navi_play_process" +"\"" + ':' +"\"" + "navi_play_process" + "\"" +','	+"\"" + "id" +"\"" + ':'+"\""+indx.toString()+"\""+','	+"\"" + "object" +"\"" + ':'+"\"" + param +"\""+','+"\""+"indx"+"\""+ ':'+"\"" + indx2 +"\""+','+"\""+"mpd_instance"+"\""+ ':'+"\"" + mpd_host +"\""+"}";	
+	return do_send_json_req(json_req);
+
+} 
+
+function navi_play_control_send_(param,indx,indx2) {
+	//alert(param+'#'+indx+'#'+indx2)
+	json_req = 
+	"{" +"\"" + "navi_play_process" +"\"" + ':' +"\"" + "navi_play_process_" + "\"" +','	+"\"" + "id" +"\"" + ':'+"\""+indx.toString()+"\""+','	+"\"" + "object" +"\"" + ':'+"\"" + param +"\""+','+"\""+"indx"+"\""+ ':'+"\"" + indx2 +"\""+"}";	
+	
+	//alert(json_req)
+	
+	return do_send_json_req(json_req);
+}
+
+function do_send_ajax_json_req(loc_url_key,json_data){
+		var response = 'init'
+		//alert(json_data)
+		$.ajax({	url: 'http://' + host + loc_url_key,type: 'POST', dataType: "json", data: json_data,async: false,
+					contentType:'multipart/form-data',
+					error: function( data ) { 
+							
+							alert('Error at data received:'+data.responseText)
+							return -1
+					},
+										
+					success : function( data ) { 
+												response = data
+												//return	response
+												},
+				})
+		return	response
+		
+		}
+function player_control_command(command,value) {
+	//cur_status = sw_PLAYER_M.player_State()
+	//alert(command)
+	if (value){
+		json_req = ko.toJSON({"player_control":command,'123':value}) 
+		json_req = json_req.replace('123',command)
+	} else {
+	json_req = ko.toJSON({"player_control":command}) 
+	}
+	
+	
+	return do_send_json_req(json_req);
+
+} 
+
+function player_navi_control_command(command,value) {
+	
+
+	if (value){
+		json_req = ko.toJSON({"navigation_control":command,'123':value}) 
+		json_req = json_req.replace('123',command)
+	} else {
+	
+	json_req = ko.toJSON({"navigation_control":command,'123':0}) 
+	json_req = json_req.replace('123',command)
+	
+	}
+	
+	//alert(json_req)
+	
+	return do_send_json_req(json_req);
+
+} 
+
+
+function search_req_send(form_id,proc_name,action_name,search_term) {
+	//alert(form_id)
+	selL = new Array();
+	//glob_sys = visMediLibGraf_at_once({nodes: {"delet":{}}, edges: {} })
+	//alert(graf_data.toString())
+	
+	document.getElementById("viewport").width = 1920
+	document.getElementById("viewport").height = 1024
+	
+		
+    var selForm = document.getElementById(form_id);
+	
+	if ( proc_mode != "use_tag" ) {
+		do_cancell_action();
+		}
+	
+	
+	var graf_param = 	document.getElementById('tag_type_filter').value 
+	var srch_rep_mode_str = "\"" + "graf_param_mode" +"\"" + ':' +"\"" + graf_param + "\""+","
+	
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "graf_load_update" +"\"" + ':'+"\""+"tag_graf_load"+"\""+ ","+srch_rep_mode_str;
+	
+	json_req += "\"" + "selL" + "\"" + ':' + "[";
+	
+	
+	
+	var sel_meta_attrL = "";
+	$( ".sel_meta_attr" ).each( function(i,elem) {
+		
+		if ( elem.checked == true ){
+		sel_meta_attrL += "\""+elem.value +"\"" + ",";
+}}) ;
+	json_req += sel_meta_attrL
+	
+	
+	if (json_req[json_req.length-1] == ','){
+       	json_req = json_req.substring(0,json_req.length-1)
+		}
+		
+	json_req += "]}";
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+}
+
+				
+ function setFrameOn() {
+    $(this).css('border-color', 'White')
+	$(this).css('border-width', '3px')
+	
+	
+}
+function setFrameOff(x) {
+    $(this).css('border-color', 'White')
+	$(this).css('border-width', '3px')
+} 
+  
+   
+
+
+ window.onload = set_form_layout;
+ window.onload = at_initial_page_load;
+ sw_PLAYER_M.callPlayer(false)
+
+ 
+//--> 
+</SCRIPT>
+
+</head>
+
+<body>
+<div id="pagewidth" >
+ <div id="header">
+ 	%(bookmark_tmpl)s
+ </div>
+
+<div id="playerDlg" > 
+	<table border="1" bordercolor="#FFCC00" class="ui-widget icon-collection" cellpaddding="0" cellspacing="0" data-bind="visible: sw_PLAYER_M.album_cover().length">
+<tr>
+<td  width="200" >
+
+	<div data-bind='template: "player_Cover"'>
+		
+	</div>				
+   
+ </td>
+ <td  width="200"  >
+ <table>
+	<tr height="20"  align="top">
+	 <td >	
+	 <div width="200" height="200">
+			
+		</div>
+		</td>	
+	</tr>
+	<tr height="60">
+	 <td>	
+	 <div data-bind='visible: sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_tagL().length > 0,template: "player_tagsL_block"' height="280px" > </div>
+	</td>	
+	</tr>
+	
+	<tr height="60"><td>	
+	
+	
+	<div data-bind='visible: (sw_PLAYER_M.modelDisplay() == true) && (sw_PLAYER_M.player_trackL().length >0) &&  (sw_PLAYER_M.player_albumL().length>0),template: "player_dtls_2_block"' height="280px" > </div>
+	</td>
+	</tr>
+	<tr height="20">
+	<td>	
+    Rest time: <span id="refresh_time_2"></span> of <span  data-bind="text: '[time]'" > 	</span>
+	</td>	</tr>
+ </table>
+ </td>
+ 
+
+ <td rowspan="2"  align="top">
+ <div id="tabs"  style="margin-left: 10px; ">
+	<ul >
+		<li><a href="#tabs-1">Tracks</a></li>
+		<li><a href="#tabs-2">Albumes</a></li>
+		<li><a href="#tabs-3">Context</a></li>
+		<li><a href="#tabs-4">Navi</a></li>
+		
+	</ul>
+	<div id="tabs-1" style="padding: 5px" >
+		<div data-bind='visible:  (sw_PLAYER_M.player_trackL().length >0) &&  (sw_PLAYER_M.player_albumL().length>0) ,template: "player_trackL_block"' height="270px"  >
+		
+		</div>
+		
+	</div>
+	<div id="tabs-2" style="padding: 5px">
+		<div data-bind='visible:  sw_PLAYER_M.player_albumL().length >0 ,template: "player_albumL_block"' height="270px" >
+		
+		</div>
+	</div>
+	
+	<div id="tabs-3" style="padding: 5px" >
+		<div style="height:270px; width:500px; overflow-y: scroll;">
+		<ul style="list-style: none; margin:5px; padding: 5px;">   
+		<li style="display:inline;float:left;position:relative;width:180px;">
+		
+		<div data-bind="if: ( sw_PLAYER_M.modelDisplay ) && ( sw_PLAYER_M.player_obj_catDL().length > 0 )">
+			<B><span data-bind="text: 'Category[' + sw_PLAYER_M.player_obj_catDL().length.toString() + ']:' " > </span></B>
+			<div class="text pl_cat_sel" style="text-overflow:ellipsis;" data-bind="if:  sw_PLAYER_M.player_obj_catDL().length == 1">
+				<button id="navi-cat-preview" data-bind="click:function() {navi_categ_control_send('genre',sw_PLAYER_M.player_obj_catDL()[0].cat_key,'player')}" class="ui-button ui-widget _ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false" title=" Preview"><span class="ui-button-icon-primary ui-icon ui-icon-info"></span><span class="ui-button-text"> Preview</span></button>
+				<a href="#" data-bind="text: sw_PLAYER_M.player_obj_catDL()[0].cat_name,attr:{'title':sw_PLAYER_M.player_obj_catDL()[0].cat_name,'id':sw_PLAYER_M.player_obj_catDL()[0].key},click:function() { navi_play_control_send_('categ',sw_PLAYER_M.player_obj_catDL()[0].key,sw_PLAYER_M.player_State().track_CRC32)}"> </a> 	
+				
+			</div>	
+			
+			<div class="text pl_cat_sel" style="text-overflow:ellipsis;" data-bind="if:  sw_PLAYER_M.player_obj_catDL().length > 1">
+				<select  size="4" style="width:180px;" data-bind="foreach:sw_PLAYER_M.player_obj_catDL(),value:sw_PLAYER_M.player_rel_cat_selected">
+					<option data-bind="value:$index,style: {'background-color': 'yellow', 'color': 'black'} " > 	<!--ko text: cat_name--><!--/ko--> </option>
+				</select>	
+				<BR>
+				
+				<button id="navi-cat-preview" data-bind="click:function() {navi_categ_control_send('genre',sw_PLAYER_M.player_obj_catDL()[sw_PLAYER_M.player_rel_cat_selected()].cat_key,'player')}" class="ui-button ui-widget _ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false" title=" Preview"><span class="ui-button-icon-primary ui-icon ui-icon-info"></span><span class="ui-button-text"> Preview</span></button>	
+				<a href="#" data-bind="text: sw_PLAYER_M.player_obj_catDL()[sw_PLAYER_M.player_rel_cat_selected()].cat_name,attr:{'title':sw_PLAYER_M.player_obj_catDL()[sw_PLAYER_M.player_rel_cat_selected()].cat_name,'id':sw_PLAYER_M.player_obj_catDL()[sw_PLAYER_M.player_rel_cat_selected()].key},click:function() { navi_play_control_send_('categ',sw_PLAYER_M.player_obj_catDL()[sw_PLAYER_M.player_rel_cat_selected()].key,sw_PLAYER_M.player_State().track_CRC32)}"> </a> 	
+				
+			
+			</div>	
+			
+			
+		</div>
+		
+
+		<div data-bind=' visible: (sw_PLAYER_M.player_trackL().length  > 0) ,template: "player_context_block"' height="260px" >
+			
+		</div>
+		
+		<div data-bind="if: sw_PLAYER_M.modelDisplay">
+	    Albums:<span data-bind="text: sw_PLAYER_M.player_albumL().length"></span>
+	    TracksPL:<span data-bind="text: sw_PLAYER_M.player_State().list_length"></span>
+		</div>
+		</li>
+		
+		<li style="display:inline;float:left;position:relative;width:280px;">
+			<div id="cattabs"  style="margin-left: 10px; ">
+					<ul >
+						<li><a href="#cattabs-1">Artists</a></li>
+						<li><a href="#cattabs-2">Albumes</a></li>
+						<li><a href="#cattabs-3">Tracks</a></li>
+						
+					</ul>
+					
+					<div id="cattabs-1" style="height:185px;">
+						<div data-bind="visible: sw_PLAYER_M.cat_artistL().length >  0" > 
+						<div data-bind="visible: sw_PLAYER_M.player_obj_catDL().length >  0" > 
+						 <span data-bind="text: sw_PLAYER_M.cat_obj_selected().obj_name + ':'+ sw_PLAYER_M.cat_artistL().length"> </span>
+						 </div>
+						 <select  size="12" style="width:240px;" data-bind="foreach:sw_PLAYER_M.cat_artistL,value:sw_PLAYER_M.cat_obj_sel_artist">
+								<option data-bind="value:$index,style: {'background-color': 'lightgreen', 'color': 'black'} " > 	<!--ko text: value--><!--/ko--> </option>
+						 </select>	
+						 </div>
+				  </div>
+				  <div id="cattabs-2" style="height:185px;">
+						<div data-bind="visible: sw_PLAYER_M.cat_albumL().length >  0" > 
+							<span data-bind="text:sw_PLAYER_M.cat_obj_selected().obj_name + ':'+ sw_PLAYER_M.cat_albumL().length"> </span>
+						 <select  size="12" style="width:240px;" data-bind="foreach:sw_PLAYER_M.cat_albumL,value:sw_PLAYER_M.cat_obj_sel_album">
+								<option data-bind="value:$index,style: {'background-color': 'orange', 'color': 'black'} " > 	<!--ko text: value--><!--/ko--> </option>
+						 </select>	
+						 </div>
+				  </div>
+				  <div id="cattabs-3" style="height:185px;">
+
+				  </div>
+				  
+				  Selected: <a href="#" data-bind="text: sw_PLAYER_M.cat_obj_selected().obj_name,attr:{'id':sw_PLAYER_M.cat_obj_selected().obj_id},click:function() { navi_play_control_send_(sw_PLAYER_M.cat_obj_selected().object,sw_PLAYER_M.cat_obj_selected().obj_id,0)}"> </a> 	
+				  <BR>
+					
+					</div>
+		</li>
+		
+		</ul>
+		
+	</div>
+		
+	</div>
+			
+		<div id="tabs-4" style="padding: 5px; width:500px; height:270px" >
+		 <div style="height:270px; width:500px; margin: 0;overflow-y: scroll; overflow-x: hidden;">	
+			<table>
+		<tr>
+		<td>
+		   
+		<div id="plobjsel" >
+			
+			<input type="radio" id="plobjsel1" data-obj="artist" name="radio1" checked="checked"> <label for="plobjsel1">Artist</label>
+			<input type="radio" id="plobjsel2" data-obj="album"  name="radio1" > <label for="plobjsel2">Album</label>
+			<input type="radio" id="plobjsel3" data-obj="tag" 	 name="radio1" > <label for="plobjsel3">Tag</label>
+		</div>
+		</td>
+		<td>
+		<div class="ui-widget"  >
+			
+				<input id="get_obj_artist_album" />
+		</div>
+		</td>
+		<td>
+			<div data-bind="if: sw_PLAYER_M.navi_cur_obj_sel()" >
+			<button ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false" data-bind="attr:{title: 'play:' + sw_PLAYER_M.navi_cur_obj_sel().name}">
+						<span class="ui-icon ui-icon-play" data-bind="click:function() {navi_play_control_send_(sw_PLAYER_M.navi_cur_obj_sel().object,sw_PLAYER_M.navi_cur_obj_sel().id)}" style="margin: 0px;"></span>
+					</button>
+					
+			<div>		
+		</td>
+		<td>
+		<div data-bind="if: sw_PLAYER_M.navi_cur_obj_sel()" >
+		<button id="navi-preview" data-bind="click:function() {navi_play_control_send_(sw_PLAYER_M.navi_cur_obj_sel().object,sw_PLAYER_M.navi_cur_obj_sel().id)}" 
+		class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false" title=" Preview">
+		<span class="ui-button-icon-primary ui-icon ui-icon-info"></span><span class="ui-button-text"> Preview</span></button>
+		</div>
+		</td>
+		</tr>
+		</table>
+		
+		<BR>
+		<div data-bind="if: false" >
+			Selected: <b><span data-bind="text: sw_PLAYER_M.navi_cur_obj_sel().object"> </span></b> <a href="#" data-bind="text: sw_PLAYER_M.navi_cur_obj_sel().name,click:function() {navi_play_control_send_(sw_PLAYER_M.navi_cur_obj_sel().object,sw_PLAYER_M.navi_cur_obj_sel().id)} "> </a>
+			
+			<button id="navi-preview" data-bind="click:function() {navi_play_control_send_(sw_PLAYER_M.navi_cur_obj_sel().object,sw_PLAYER_M.navi_cur_obj_sel().id)}" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false" title=" Preview"><span class="ui-button-icon-primary ui-icon ui-icon-info"></span><span class="ui-button-text"> Preview</span></button>
+		
+		</div>
+		
+		
+		<div data-bind="visible: m_vM.catProfileDL_current().length > 0" >
+		 
+		<ul style="list-style: none; margin:0; padding: 5px;">   
+		<li style="display:inline;float:left;position:relative;width:200px;">
+		<select  class="player-catprof" style="text-overflow:ellipsis;width:200px;" size="5" data-bind="foreach:m_vM.catProfileDL_current,value:sw_PLAYER_M.player_adhoc_catprof_selected">
+				<option  data-bind="attr: {title: type_name}, value: $index" > 	<!--ko text: type_name--><!--/ko--> </option>
+				
+		 </select>	
+		 
+		 <div data-bind="visible: m_vM.catProfileDL_current().length > 0" > 
+		 <select  size="5" style="width:200px;" data-bind="foreach:sw_PLAYER_M.cat_prof_selectedDL,value:sw_PLAYER_M.player_adhoc_cat_selected">
+				<option data-bind="value:$index,style: {'background-color': JSON.parse(color_set)['background-color'], 'color': JSON.parse(color_set)['color']} " > 	<!--ko text: cat_name--><!--/ko--> </option>
+		 </select>	
+		 </div> 
+		 
+		 <div data-bind="visible: (m_vM.category_selected_text().id != '' )" > 
+			Selected category: <b><span data-bind="text: m_vM.category_selected_text().id"> </span></b> <a href="#" data-bind="text:  m_vM.category_selected_text().name,click:function() {navi_play_control_send_('categ',m_vM.category_selected_text().id)} "> </a>	
+			<button id="navi-cat-preview" data-bind="click:function() {navi_categ_control_send('genre',m_vM.category_selected_text().id,'player')}" class="ui-button ui-widget _ui-state-default ui-corner-all ui-button-icon-only" role="button" aria-disabled="false" title=" Preview"><span class="ui-button-icon-primary ui-icon ui-icon-info"></span><span class="ui-button-text"> Preview</span></button>
+																		
+		</div> 
+		 </li>
+		 <li style="display:inline;float:left;position:relative;width:270px;">
+		
+			<div id="cattabs-nav"  style="margin-left: 10px; ">
+					<ul >
+						<li><a href="#cattabs-nav-1">Artists</a></li>
+						<li><a href="#cattabs-nav-2">Albumes</a></li>
+						<li><a href="#cattabs-nav-3">Tracks</a></li>
+						
+					</ul>
+					
+					<div id="cattabs-nav-1" style="height:145px;">
+						<div data-bind="visible: sw_PLAYER_M.cat_artistL().length >  0" > 
+						<div data-bind="visible: sw_PLAYER_M.player_obj_catDL().length >  0" > 
+						 in <span data-bind="text:sw_PLAYER_M.player_adhoc_category().cat_name + ':'+ sw_PLAYER_M.cat_artistL().length"> </span>
+						 </div>
+						 <select  size="10" style="width:240px;" data-bind="foreach:sw_PLAYER_M.cat_artistL,value:sw_PLAYER_M.cat_obj_sel_artist">
+								<option data-bind="value:$index,style: {'background-color': 'lightgreen', 'color': 'black'} " > 	<!--ko text: value--><!--/ko--> </option>
+						 </select>	
+						 </div>
+				  </div>
+				  <div id="cattabs-nav-2" style="height:145px;">
+						<div data-bind="visible: sw_PLAYER_M.cat_albumL().length >  0" > 
+							in <span data-bind="text:sw_PLAYER_M.player_adhoc_category().cat_name + ':'+ sw_PLAYER_M.cat_albumL().length"> </span>
+						 <select  size="10" style="width:240px;" data-bind="foreach:sw_PLAYER_M.cat_albumL,value:sw_PLAYER_M.cat_obj_sel_album">
+								<option data-bind="value:$index,style: {'background-color': 'orange', 'color': 'black'} " > 	<!--ko text: value--><!--/ko--> </option>
+						 </select>	
+						 </div>
+				  </div>
+				  <div id="cattabs-nav-3" style="height:145px;">
+
+				  </div>
+				  
+				  Selected: <a href="#" data-bind="text: sw_PLAYER_M.cat_obj_selected().obj_name,attr:{'id':sw_PLAYER_M.cat_obj_selected().obj_id},click:function() { navi_play_control_send_(sw_PLAYER_M.cat_obj_selected().object,sw_PLAYER_M.cat_obj_selected().obj_id,0)}"> </a> 	
+				  <BR>
+					
+					</div>
+		</li>
+		
+		</UL>
+		</div>
+		
+		</div>
+	</div>
+	
+</div>
+ 
+ </td>
+ 
+ </tr>
+
+<tr >
+	<td  colspan="2">
+		
+				
+	<table border="1" bordercolor="Green" width="400" >	
+		<tr > 
+			<td  colspan="5" >
+				
+				<div data-bind=' visible: sw_PLAYER_M.modelDisplay() && (sw_PLAYER_M.player_trackL().length  > 0) && (sw_PLAYER_M.player_albumL().length > 0), template: "album_details_tmpl" '> </div>	
+				
+			</td>
+		</tr>
+		
+		<tr >		
+		<tr > 
+			<td  colspan="5" >
+				<BR>
+				<div id="slider"  ></div>
+				<BR>
+			</td>
+		</tr>
+		
+		<tr  >		
+		<td align="center"   >	
+			<div id="prev_trc_" class="ui-state-default ui-corner-all" title="Previous track"><span class="ui-icon ui-icon-seek-first" }"></span></div>
+		</td>	
+
+		
+		<td align="center">	
+			<div id="stop_" class="ui-state-default ui-corner-all" title="Stop"><span class="ui-icon ui-icon-stop" ></span></div>
+		</td>		
+		<td align="center">	
+			<div id="pause_" class="ui-state-default ui-corner-all" title="Pause"><span class="ui-icon ui-icon-pause" ></span></div>
+		</td>	
+		
+		<td align="center">
+			<div  id="play_" class="ui-state-default ui-corner-all" title="Play"><span  class="ui-icon ui-icon-play">
+				
+			</span></div>
+		</td>	
+		<td align="center">	
+			<div id="next_trc_" class="ui-state-default ui-corner-all" title="Next track"><span class="ui-icon ui-icon-seek-end"  ></span></div>
+		</td>		
+		
+		</tr>		
+		
+		</table>	
+		
+	</td>	
+	</tr>		
+	<tr>
+	<td colspan="5" width="1000", height="120px" align="center">
+	
+	
+	<div>
+	<div  id="p_slider_albumL_block"  style="height: auto; max-height: 130px; width:930px; overflow-y:hidden; overflow-x:scroll; background: #ccc" > 
+	
+	
+		
+		
+		<ul data-bind="foreach: sw_PLAYER_M.player_albumL, style:{width:(100*(sw_PLAYER_M.player_albumL().length+0.5))+'px',height:'110px','list-style': 'none', margin:'0'}"">
+			
+			<li  style="display:inline;float:left;position:relative; padding:10px;"  data-bind="title:album,attr:{'id':'albcovsld'+album_key},click:function() { player_navi_control_command('goto_album_',firstFileLPos)}"> 
+			<span style="padding-bottom: 16px;width:100px;">
+			
+			<img data-bind="attr:{src: '/images/100_cover/'+album_key, title:album}" name="cover" class="cover_srch" height="80" width="80">
+			
+			</span>
+			</li>
+		 
+		
+		</ul>
+		<BR><BR>
+		
+		
+	
+	
+		</div>
+	
+	</div>
+	
+	
+	<!-- <div data-bind='visible: sw_PLAYER_M.new_pl_list(), template: "player_slider_albumL_block"'> albums</div> --->
+	<!-- <div data-bind='visible: sw_PLAYER_M.new_pl_list() != true, template: "player_slider_albumL_block_subst"'> albums</div> --->
+	</td>
+	
+	</tr>
+	
+ </table>
+</div>
+
+<script type="text/html" id="player_Cover">
+	<img data-bind="attr:{src:  sw_PLAYER_M.album_cover()  }" name="cover" height="200" width="200"> 
+</script>	
+
+
+<script type="text/html" id="player_dtls_2_block">
+
+<BR>
+{{if   sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_albumL().length > 0 && sw_PLAYER_M.player_trackL().length  > 0}}
+ {{if sw_PLAYER_M.player_State().list_type_flat}}	
+  
+  {{if sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].isNSA}}
+	Type: Various <BR>
+ {{/if}}
+	Format: <B> <span data-bind="text: sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].format"></span> </B>
+	Bitrate: <B> <span data-bind="text: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].bitrate"></span> </B><BR>
+  {{else}}		
+  
+  {{if sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].isNSA}}
+	Album type: <B>Various Artists</B><BR>
+ {{/if}}
+	Format: <B> <span data-bind="text: sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].format"></span> </B>
+	Bitrate: <B> <span data-bind="text: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].bitrate"></span> </B><BR>
+  {{/if}}
+  
+  
+  {{/if}}
+  
+
+	
+</script>	
+
+<script type="text/html" id="player_tagsL_block">
+
+	{{if  sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_tagL().length > 0}}
+		{{each(i, tag) sw_PLAYER_M.player_tagL()}}   
+			<BR><span data-bind="text:tag.tag_type+':'"></span>
+			{{each(j, tagitem) tag.item}}   
+				
+				<a href="#" data-bind="text: tagitem.tagName,attr:{'id':tagitem.tagId},click:function() { navi_play_control_send_('tag',tagitem.tagId,sw_PLAYER_M.player_State().track_CRC32)}"> </a> 	
+			{{/each}}
+			
+			{{/each}}
+	{{/if}}	
+
+	
+</script>	
+
+
+
+
+
+<script type="text/html" id="album_details_tmpl">
+
+{{if  sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_albumL().length > 0 && sw_PLAYER_M.player_trackL().length  > 0}}
+ {{if sw_PLAYER_M.player_State().list_type_flat}}	
+  <div  class="text trck-dtl-block" style="text-overflow:ellipsis;">
+  Track: <B><span data-bind="attr:{title: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].track},text: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].track"></span> </B><BR>
+  </div>
+  <div  class="text trck-dtl-block" style="text-overflow:ellipsis;">
+  <span>Album:</span> <B><a href="#" data-bind="attr:{'id':'albd'+sw_PLAYER_M.player_State().album_CRC32,'title': sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].album}, click:function() { navi_play_control_send_('album',sw_PLAYER_M.player_State().album_CRC32,sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].track_key)}"><span data-bind="text: sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].album"></span></a> </B><BR>
+  </div>
+ 
+  
+  <div  class="text trck-dtl-block" style="text-overflow:ellipsis;">
+  Artist: <B> <a href="#"  data-bind="attr:{'id':'artd'+sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].artist_key,'title': sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].artist}, click:function() { navi_play_control_send_('artist',sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].artist_key,sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].track_key)}"><span  data-bind="text: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().pl_pos].artist " > 	</span></a> </B><BR>
+ </div>	
+  
+    {{else}}		
+	<div  class="text trck-dtl-block" style="text-overflow:ellipsis;">	
+	Track: <B><span data-bind="attr:{'title':sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].track},text: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].track"></span> </B><BR>
+   </div>
+	 
+  <div  class="text trck-dtl-block" style="text-overflow:ellipsis;">
+	<span>Album:</span> <B><a href="#" data-bind="attr:{'id':'albd'+sw_PLAYER_M.player_State().album_CRC32,'title':sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].album}, click:function() { navi_play_control_send_('album',sw_PLAYER_M.player_State().album_CRC32,sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].track_key)}"><span data-bind="text: sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].album"></span></a> </B>
+	
+	
+	<BR>
+   </div>
+  
+  <div  class="text trck-dtl-block" style="text-overflow:ellipsis;">	
+  Artist: <B> <a href="#" data-bind="attr:{'id':'artd'+sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].artist_key,'title':sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].artist}, click:function() { navi_play_control_send_('artist',sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].artist_key,sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].track_key)}"><span  data-bind="text: sw_PLAYER_M.player_trackL()[sw_PLAYER_M.player_State().cur_track_in_album_pos].artist " > 	</span></a> </B><BR>
+  </div>
+  
+ {{/if}} 
+ {{/if}}		
+</script>	 
+ 
+<script type="text/html" id="player_trackL_block">
+		{{if sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_albumL().length > 0 && sw_PLAYER_M.player_trackL().length  > 0}}
+		<div >
+				
+		<div id='player_tracks_panel' style=" height:270px; width:500px; margin: 0;overflow-y: auto; overflow-x: hidden;" >
+		
+		<ul id="id_trackL_block" style="list-style: none; margin:0; padding: 5px;">
+		{{if !sw_PLAYER_M.player_State().list_type_flat}}
+		{{each(i, item) sw_PLAYER_M.player_trackL()}}    
+			
+			{{if item.track_key == sw_PLAYER_M.player_State().track_CRC32}}
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'class': 'zebra2sel','id':'id'+item.lPos}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'id'+item.lPos,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'id'+item.lPos ) } }">
+			{{else ((i %% 2) == 0)}} 	
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'class': 'zebra1','id':'id'+item.lPos}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'id'+item.lPos,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'id'+item.lPos ) } }">
+				
+			{{else}} 	
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'id':'id'+item.lPos}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'id'+item.lPos,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'id'+item.lPos ) } }">
+			{{/if}}		
+			
+				
+				{{if sw_PLAYER_M.player_albumL()[sw_PLAYER_M.player_State().cur_album_pos].isNSA}}
+				<ul style="list-style: none; padding: 10px;" >
+				<li  style="display:inline;float:left;position:relative;width:170px;">
+					<div  data-bind="text: item.in_alb_pos+'.'+item.track  " > 	</div>
+				
+				</li>
+				<li  style="display:inline;float:left;position:relative;width:150px;">
+					
+					<a href="#" data-bind="attr:{'id':'artp'+item.artist_key}, click:function() { navi_play_control_send_('artist',item.artist_key,item.track_key)}"><span  data-bind="text: item.artist  " > 	</span></a>
+				
+				</li>
+				{{else}} 	
+					<ul style="list-style: none; padding: 10px;" >
+				<li  style="display:inline;float:left;position:relative;width:300px;">
+					<div  data-bind="text: item.in_alb_pos+'.'+item.track  " > 	</div>
+				
+				</li>
+				
+				{{/if}}		
+				
+				<li  style="display:inline; float:left; margin-left: 10px; width:50px;">
+				
+					<div  data-bind="text: '['+item.track_time+']'" > 	</div>
+				
+				</li>		
+				
+				<li  style="display:inline;float:right; width:30px; ">
+				
+					<div class="ui-state-default ui-corner-all" title="Play track" ">
+						<span class="ui-icon ui-icon-play" data-bind="click:function() { player_navi_control_command('goto_track_',item.lPos)}" style="margin: 0px;"></span>
+					</div>
+				
+				</li>		
+			</ul>	
+			
+			
+		</li>
+		
+			
+		{{/each}}
+		{{else}} 	
+			
+			
+			{{each(j, item) sw_PLAYER_M.player_trackL()}} 
+			{{if item.track_key == sw_PLAYER_M.player_State().track_CRC32}}
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'class': 'zebra2sel','id':'id'+item.lPos}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'id'+item.lPos,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'id'+item.lPos ) } }">
+			{{else ((j %% 2) == 0)}} 	
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'class': 'zebra1','id':'id'+item.lPos}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'id'+item.lPos,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'id'+item.lPos ) } }">
+				
+			{{else}} 	
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'id':'id'+item.lPos}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'id'+item.lPos,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'id'+item.lPos ) } }">
+			{{/if}}		
+			
+			<ul style="list-style: none; padding: 10px;" >
+				<li  style="display:inline;float:left;position:relative;width:170px;">
+					<div  data-bind="text: (j+1)+'.'+item.track  " > 	</div>
+				
+				</li>
+				
+				<li  style="display:inline;float:left;position:relative;width:150px;">
+					
+					<a href="#" data-bind="attr:{'id':'artp'+item.artist_key}, click:function() { navi_play_control_send_('artist',item.artist_key,item.track_key)}"><span  data-bind="text: item.artist  " > 	</span></a>
+				
+				</li>
+				
+				<li  style="display:inline; float:left; margin-left: 10px; width:50px;">
+				
+					<div  data-bind="text: '['+item.track_time+']'" > 	</div>
+				
+				</li>		
+				
+				<li  style="display:inline;float:right; width:30px; ">
+				
+					<div class="ui-state-default ui-corner-all" title="Play track" ">
+						<span class="ui-icon ui-icon-play" data-bind="click:function() { player_navi_control_command('goto_track_',item.lPos)}" style="margin: 0px;"></span>
+					</div>
+				
+				</li>		
+			</ul>	
+			
+			
+		</li>
+		
+				{{/each}}
+			
+		
+		
+		{{/if}}	
+		<li  style="display:outline; height: 40px;"  ></li>		
+		</ul>
+		</div>	
+		</div>
+		{{/if}}	
+	
+	
+	
+</script>
+
+<script type="text/html" id="player_context_block">
+	<div style=" height:130px; width:200px; " >
+	
+	{{if  sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_art_tplgDL().length > 0}}
+		<BR><BR><B><span> Topology artist:</span></B>
+		{{each(i, tag) sw_PLAYER_M.player_art_tplgDL()}}   
+			<BR><span data-bind="text:tag.rel_type+':'"></span>
+			
+				
+			<a href="#" data-bind="text: tag.artist,attr:{'id':tag.key},click:function() { navi_play_control_send_('artist',tag.key,sw_PLAYER_M.player_State().track_CRC32)}"> </a> 	
+			
+			
+			{{/each}}
+	{{/if}}	
+	
+	{{if  sw_PLAYER_M.modelDisplay() && sw_PLAYER_M.player_alb_tplgDL().length > 0}}
+		<BR><BR><B><span> Topology album:</span></B>
+		{{each(i, tag) sw_PLAYER_M.player_alb_tplgDL()}}   
+			<BR><span data-bind="text:tag.rel_type+':'"></span>
+			
+				
+			<a href="#" data-bind="text: tag.album,attr:{'id':tag.key},click:function() { navi_play_control_send_('album',tag.key,sw_PLAYER_M.player_State().track_CRC32)}"> </a> 	
+			
+			
+			{{/each}}
+			
+	{{/if}}	
+	
+
+	
+  </div>	
+</script>
+
+<script type="text/html" id="player_navigate_block">
+	<div style=" height:250px; width:500px; " >
+	
+</script>
+
+<script type="text/html" id="player_albumL_block">
+	<div id='p_albumL_block' style=" height:270px; width:500px; margin: 0;overflow-y: scroll; overflow-x: hidden;" >
+	{{if sw_PLAYER_M.player_albumL().length > 0}}
+	<ul style="list-style: none; margin:0; padding: 5px;">
+	{{each(i, item) sw_PLAYER_M.player_albumL()}}  
+			
+			{{if item.album_key == sw_PLAYER_M.player_State().album_CRC32}}
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'class': 'zebra2sel','id':'albld'+item.album_key}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'albld'+item.album_key,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'albld'+item.album_key ) } }">
+			{{else ((i %% 2) == 0)}} 	
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'class': 'zebra1','id':'albld'+item.album_key}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'albld'+item.album_key,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'albld'+item.album_key ) } }">
+				
+			{{else}} 	
+				<li  style="display:outline; height: 40px;" data-bind="attr:{'id':'albld'+item.album_key}, event: { mouseover: function(){sw_PLAYER_M.colorMe( 'albld'+item.album_key,'LightBlue' ) }, mouseout: function() { sw_PLAYER_M.uncolorMe( 'albld'+item.album_key ) } }">
+			{{/if}}		
+			
+		<ul style="list-style: none; padding: 10px;" >	
+	
+				
+			<li data-bind="attr:{'title': item.album} " style="display:inline;float:left;position:relative;width:250x;" >
+					<div class="trck-alb_title text" style="text-overflow:ellipsis; margin-bottom: 6px;"  ><span data-bind="text: (i+1)+'.'+item.album "> <span></div>
+				</li>
+			{{if item.isNSA }}	
+			<li  style="display:inline;float:left;position:relative;width:50x;" >
+					<div  data-bind="text: '  VA' " style="margin-bottom: 6px;  "> </div>
+			</li>	
+			{{else}}
+			<li  style="display:inline;float:left;position:relative;width:50x;" >
+				
+			</li>	
+			{{/if}}	
+			
+			<li  style="display:inline;float:right; width:30px; ">
+				
+					<div class="ui-state-default ui-corner-all" title="Play album" ">
+						<span class="ui-icon ui-icon-play" data-bind="click:function() { player_navi_control_command('goto_album_',item.firstFileLPos)}" style="margin: 0px;"></span>
+					</div>
+				
+				</li>
+		</ul>
+	</li>		
+	{{/each}}
+	<li  style="display:outline; height: 40px;"  ></li>		
+	</ul>
+		{{/if}}		
+	</div>	
+</script>
+
+<!--
+<script type="text/html" id="player_slider_albumL_block_subst">	
+	{{if sw_PLAYER_M.new_pl_list() != true }} 
+	<div style=" height:150px; width:750px; margin: 5px 5px 5px 10px;overflow-x: auto;" >
+	 {{html sw_PLAYER_M.pl_album_slider_data.html()}}
+	 </div>
+	
+	{{/if}}		
+</script>
+
+-->
+
+
+<div id="mainWindow">
+<table align="center">
+<tr>
+<td align="left">
+
+</td>
+
+<td align="right">
+Category:
+</td>
+
+<td align="left">
+ <div style=" width:320px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="categ_type"  >
+		
+<div style="overflow: auto;" data-bind="visible: m_vM.catProfileDL_current().length > 0" >
+		 
+		<ul style="list-style: none; margin:0; padding: 5px;">   
+		<li style="display:inline;float:left;position:relative;width:200px;">
+		
+		<select  name= "category_type" class="player-catprof" style="text-overflow:ellipsis;width:300px;" size="1" data-bind="foreach:m_vM.catProfileDL_current,value:m_vM.category_type_index_selected">
+				<option  data-bind="attr: {title: type_name}, value: $index" > 	<!--ko text: type_name--><!--/ko--> </option>
+				
+		 </select>		
+		
+
+</td>
+
+<td align="right" width="72">
+<input height="50" width="70" type="button" id="player" title="Player" name="Player" value="<------ Player ------>"  data-bind="click:function() { sw_PLAYER_M.callPlayer(true)}" ">
+</td>
+
+<td align="right" width="20">
+
+
+
+</td>
+
+		<td align="left"  >	
+				
+		<select  name= "mpd_hosts"  style="text-overflow:ellipsis;width:120px;" size="1" data-bind="foreach:m_vM.mpdHostDL_current,value:mpdHostDL_index_selected">
+				<option  data-bind="attr: {title: key}, value: $index" > 	<!--ko text: key--><!--/ko--> </option>
+				
+		 </select>		
+
+		</td>	
+		<td align="right" width="20">
+
+
+
+</td>
+		<td style="min-width: 180px;" align="center" width="180px" height="20px"  >	
+				 
+		<input height="27" width="36" type="button" id="prev_trc_" title="Prev" name="prev" value="<<"  onclick ="player_control_command(this.id)" ">
+		<input height="27" width="36" type="button" id="stop_" title="Stop" name="stop" value="&#9632;"  onclick ="player_control_command(this.id)" ">
+		<input height="27" width="36" type="button" id="play_" title="Play" name="play" value="&#x25B6;"  onclick ="player_control_command(this.id)" ">
+		<input height="27" width="36" type="button" id="pause_" title="Pause" name="pause" value="||"  onclick ="player_control_command(this.id)" ">
+		<input height="27" width="36" type="button" id="next_trc_" title="Next" name="next" value=">>"  onclick ="player_control_command(this.id)" ">
+		
+		
+		</td>	
+		
+
+
+</tr>
+
+</table>
+
+<div id="table_block" align="center" >
+<table>
+<tr>
+<td width="700" valign="top">
+<table  data-bind="visible: categoryProfile_isLoaded">
+        
+        <tbody data-bind='template: "myGenresTemplate"'></tbody>
+    </table>
+</td>
+<td width="300" valign="top">
+
+ <ul class="css-menu-2">
+<li> <a data-bind="attr:{class: current_selected_srch_view()['artist']['status']},click:function() { m_vM.setView('artist')}"  href="#">Artist</a></li>
+<li><a  data-bind="attr:{class: current_selected_srch_view()['album']['status']},click:function() { m_vM.setView('album')}" href="#">Album</a></li>
+<li><a  data-bind="attr:{class: current_selected_srch_view()['song']['status']},click:function() { m_vM.setView('song')}" href="#">Song</a></li>
+
+</ul>
+	<div id="radiotest" style="font-size:62.5%%;">
+	<input type="radio" id="radio1" name="radio" /><label for="radio1">Choice 1</label>
+	<input type="radio" id="radio2" name="radio" checked="checked" /><label for="radio2">Choice 2</label>
+	<input type="radio" id="radio3" name="radio" /><label for="radio3">Choice 3</label>
+</div>
+	<div  style=" width:440px" data-bind='template: "artistL_block"'> 	</div>
+	
+	<div data-bind='template: "songL_block"'>	 </div>
+	
+	<div data-bind='template: "albumL_block"'>
+	
+
+	</div>	
+
+</td>	
+<td width="200" align="center">
+
+<div width="200"  height="600"   >
+
+
+<input  height="100" align="center" width="100" type="image" src="../../image/music-buttons-3.jpg" id="player_ex" onmouseover="sw_PLAYER_M.colorMe('player_ex','white')"; onmouseout="sw_PLAYER_M.uncolorMe('player_ex','white')"; style="background-color: rgb(245, 245, 220); border: 1px solid white;"; title="Player" name="Player" data-bind="click:function() { sw_PLAYER_M.callPlayer(true)}";  border="0"> 
+
+
+<input height="64" width="64" align="center" type="image" src="../../image/play-64.png" id="play_ex" onmouseover="sw_PLAYER_M.colorMe('play_ex','white')"; onmouseout="sw_PLAYER_M.uncolorMe('play_ex','white')"; style="background-color: rgb(255, 255, 255); border: 1px solid white;"; title="Play" name="play" value="&#9632;"  onclick ="player_control_command('play_')"; border="0">  
+
+
+<input height="64" width="64" align="center" type="image" src="../../image/stop-64.png" id="stop_ex" onmouseover="sw_PLAYER_M.colorMe('stop_ex','white')"; onmouseout="sw_PLAYER_M.uncolorMe('stop_ex','white')"; style="background-color: rgb(255, 255, 255); border: 1px solid white;"; title="Stop" name="stop" value="&#9632;"  onclick ="player_control_command('stop_')";   border="0"> 
+
+ 
+ </div>
+</td>	
+</tr>	
+</table>
+
+</div>
+<script type="text/html" id="myGenresTemplate">
+	
+	{{if categoryProfile_isLoaded}}    
+	<tr>
+	<th colspan=5 style="background-color: #CCFFCC;" > List of music styles </th>
+	</tr>
+	<tr style='height:70px'>
+	
+		{{each(i, genre) m_vM.catProfileDL_current()[m_vM.category_type_index_selected()]['relCatL']}}    
+			{{if ( i %% gnr_tab_coln == 0) && (i != 0)}}    
+				</tr>
+				<tr style='height:70px'>
+			{{/if}}	
+			<td align="center"  data-bind="'class':sel_class,'style': {'background-color': JSON.parse(color_set)['background-color']},attr:{'id':cat_key}, event: { mouseover: function() { colorMe( cat_key,'LightBlue' ) }, mouseout: function() { uncolorMe( cat_key ) } },click: function() { m_vM.selectNavObject(i,'genre')}" >
+			<div style='width:110px'>
+			{{if ( genre.descr)}}    
+				<span  data-bind="text: descr, style: {color: JSON.parse(color_set)['color']}"></span>
+			{{/if}}	
+			
+			{{if ( !genre.descr) && ( genre.cat_name)}}    
+				<span  data-bind="text: cat_name, style: {color: JSON.parse(color_set)['color']}"></span>
+			{{/if}}	
+			
+			</div> 
+			</td>
+		
+		{{/each}}
+	</tr>	
+	{{/if}}	
+</script>	
+	
+	<div id="loading"  align="center"><img src="../../image/ajax-loader.gif" /></div> 
+</div> 
+
+<script type="text/html" id="artistL_block">	
+
+	 {{if m_vM.artistL().length > 0 && m_vM.getActiveView() == 'artist'}}	
+	 <table> 
+	 <tr style=" background-color: lightGrey">
+	 <td>
+	 <B> Artists in: </B>
+	<a data-bind="click:function() { navi_play_control_send('genre',catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_key)}"  href="#">
+		<span style="color:Green;" data-bind="visible: m_vM.artistL().length > 0 , text: catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_key"></span></a>
+	<BR>
+	</td>
+	<td style="width:230px;" align="central">
+	<B> <span  data-bind="visible: m_vM.artistL().length > 0 , text: artist_rel_albumL().length + ' Albumes of:'"> </span> </B>
+	<a style="width:229px;"  data-bind="click:function() { navi_play_control_send('artist',artist_play_control.key)}"  href="#"><span style="color:Red;" data-bind="visible: artist_play_control.active, text: artist_play_control()['name']"></span></a>
+	<BR>
+	</td>
+	</tr>
+	
+	 <tr>
+	<td>
+	
+	<div class="holder" style=" overflow: auto; ">	
+	 <div style=" height:60vh; width:195px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_artist_panel"  >
+		<div  style="overflow: auto;">	 
+		<ul style="list-style: none; ;  height: auto; width: 180px; padding: 2px 2px 2px 2px; overflow: auto; "  >
+		 
+		
+		 {{each(i, item) m_vM.artistL()}}    
+			
+			<div style="overflow: auto;">	 
+			<li style="display: outline,width:200px; margin:1px 1px 1px 1px; padding: 2px 2px 2px 2px; overflow: auto;  " data-bind=" click:function() { selectNavObject( i , 'artist' ) },attr:{'class': item.even_odd,'id':item.key}, event: { mouseover: function() { colorMe( item.key,'LightBlue' ) }, mouseout: function() { uncolorMe( item.key ) } }" >
+			
+			
+			<span data-bind="text: num + '.' + value "></span>
+			
+			
+			</li>	
+			</div>	 
+			
+			
+		 {{/each}}
+		 
+		
+		</ul>
+		</div>	 
+		</div>	
+		</div>	
+			
+		<BR><BR>
+		
+		</td>	
+		<td>	
+		
+		{{if m_vM.artist_rel_albumL().length > 0}}
+		<div style=" height:60vh; width:230px;margin:1px 0 1px 0;overflow-y: scroll;overflow-x: hidden;" >
+		<ul style="list-style: none; overflow: auto;">
+		 {{each(i, item) m_vM.artist_rel_albumL()}}    
+		
+			<li style="display: inline,width:130px;" >
+			<a data-bind="click:function() { navi_play_control_send('album',item.key)} "  href="#">
+			<img data-bind="attr:{src: '/images/100_cover/'+item.key, title:item.album}" name="cover" class="cover_srch" height="80" width="80">
+			<BR>
+			<span data-bind="attr:{class: color},text: album "></span>
+			</a>
+			
+			</li>	
+		
+		 {{/each}}
+		 
+		</ul>
+		</div>
+		<BR><BR>
+		<a data-bind="click:function() { navi_play_control_send('album',album_play_control.key)}"  href="#"><span style="color:Green;" data-bind="visible: album_play_control.active, text: album_play_control()['name']"></span></a>
+		{{/if}}		
+		</td>	
+		
+		<tr>	
+		</table>	
+		
+		{{/if}}		
+		
+		
+	 </script>
+
+
+	<script type="text/html" id="albumL_block">	
+	 {{if albumL().length > 0 && getActiveView() == 'album'}}	
+	 <table> 
+	 
+	<tr style=" background-color: lightGrey">
+	 <td>
+	  <B> Albumes in: </B>
+		<a data-bind="click:function() { navi_play_control_send('genre',catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_id)}"  href="#">
+		<span style="color:Green;" data-bind="visible: artistL().length > 0 , text: catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_key"></span></a>
+	 
+	</td>
+	<td style="width:230px;" align="central">
+	<B> Artists of: </B>
+	<a data-bind="click:function() { navi_play_control_send('album',album_play_control.key)}"  href="#"><span style="color:Green;" data-bind="visible: album_play_control.active && !album_play_control().object_type, text: album_play_control()['name']"></span></a>
+	
+	
+	</td>
+	</tr>
+	 
+	 
+	 <tr>
+	<td>		
+	 
+	 
+	 <div class="holder" style=" overflow: auto; ">	
+	 <div style=" height:60vh; width:230px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_album_panel"  >
+		<div  style="overflow: auto;">	
+	 
+	 
+		<ul style="list-style: none; overflow: auto; padding: 10px 10px 10px 10px">
+		 
+		
+		 {{each(i, item) m_vM.albumL()}}    
+			
+			
+			<li style="display: inline,width:130px;" data-bind="attr:{id: 'albcat'+item.key}" >
+			<a data-bind="click:function() { selectNavObject( i , 'album')} "  href="#">
+			<img data-bind="attr:{src: '/images/100_cover/'+item.key,  title:item.value}" name="cover" class="cover_srch" height="80" width="80">
+			<BR>
+			<span data-bind="text: item.value "></span>
+			</a>
+			
+			</li>
+			
+			
+		 {{/each}}
+		 
+		
+		</ul>
+		</div>
+		</div>
+		</div>
+		
+		</td>	
+		<td>	
+		
+		{{if m_vM.album_rel_artistL().length > 0}}
+		<div style=" height:60vh; width:230px;margin:1px 0 1px 0;overflow-y: scroll;overflow-x: hidden;" >
+		<ul style="list-style: none; overflow: auto;">
+		 {{each(i, item) m_vM.album_rel_artistL()}}    
+		
+			<li style="display: outline,width:200px;" data-bind="click:function() { navi_play_control_send('artist',item.key) },attr:{'id':item.key}, event: { mouseover: function() { colorMe( item.key,'LightBlue' ) }, mouseout: function() { uncolorMe( item.key ) } }" >
+				<span data-bind="text: value "></span>
+			</li>	
+			
+		
+		
+		 {{/each}}
+		 
+		</ul>
+		</div>
+		
+		{{/if}}		
+		</td>	
+		
+		<tr>	
+		</table>	
+		{{/if}}		
+		
+		
+	 </script>
+
+	<script type="text/html" id="songL_block">	
+	
+	
+	
+	  {{if m_vM.getActiveView() == 'song'}}	
+	  
+			
+	  
+	 <table> 
+	 
+	<tr style=" background-color: lightGrey">
+	 <td>
+	  <B> Song in: </B>
+		<a data-bind="click:function() { navi_play_control_send('genre',catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_id)}"  href="#">
+		
+	 
+	</td>
+	<td >
+	<B> Artists of: </B>
+	<a data-bind="click:function() { navi_play_control_send('album',album_play_control.key)}"  href="#"><span style="color:Green;" data-bind="visible: album_play_control.active && !album_play_control().object_type, text: album_play_control()['name']"></span></a>
+	
+	
+	</td>
+	</tr>
+	 
+	 
+	 <tr>
+	<td>		
+	 	 
+	 <div style=" height:60vh; width: 185px; ">	
+	 <h3>#pane1 (default)</h3>
+
+	 <div id="navi_categ_song_panel" class="scroll-pane" >
+	 
+		</div>	
+		</div>	
+	 
+	</td>
+	</tr>
+	
+	</table>	
+	{{/if}}		
+		
+	 </script>	
+</div>
+</body>
+</html>

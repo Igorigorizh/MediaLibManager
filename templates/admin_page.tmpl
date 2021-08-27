@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no", http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="shortcut icon" href="../../image/favicon.ico"/>
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<link rel="stylesheet" type="text/css" media="all" href="../../css/demoStyles.css" />
+<script src="../../js/jquery.js"> type="text/javascript" </script>  
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+<script src="../../js/jquery.nimble.loader.js" type="text/javascript"> </script> 
+<title>   $html_title   </title>
+
+<SCRIPT  TYPE="text/javascript"> 
+
+<!--
+
+  var proc_mode = 0;
+  var req = createRequestObject();
+  var host = "$host";
+  var action_key = 0;
+  var proc_name = "do_admin";
+  
+  function fill_links(){
+	 document.getElementById("debug").innerHTML = "<a target='_blank' href="+ 'http://' + host + '/medialib/debug/' +">  debug</a>"
+	 document.getElementById("log").innerHTML = "<a target='_blank' href="+ 'http://' + host + '/medialib/log/' +">   log</a>"
+	 document.getElementById("mstat").innerHTML = "<a target='_blank' href="+ 'http://' + host + '/medialib/mstat/' +">   system status</a>"
+	 document.getElementById("restart_res").innerHTML= "-"
+	 $$("#show_loader").nimbleLoader("hide");
+  }
+  
+  function processReqChange()
+{
+  var my_JSON_object = {};	
+  
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+		
+        if (req.status == 200) {
+		$$("#show_loader").nimbleLoader("hide");
+		message = "-"
+		
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+		
+					
+					if (data == 'action_result'){
+						if (my_JSON_object[data] == '1'){ 
+							message = my_JSON_object['message']	
+							document.getElementById("restart_res").innerHTML= message;	
+						
+						} else {
+						message = my_JSON_object['message']
+						document.getElementById("restart_res").innerHTML= message;
+						}
+						
+				
+					}
+				
+
+				} 
+            
+    }
+  }
+  }
+  catch( e ) {
+       alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+} 
+  
+ function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/admin/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	return false;
+} 
+
+function send_Simple_Form(myForm,proc_name,param){
+ 
+	document.getElementById("restart_res").innerHTML= "";
+	
+	selL = new Array();
+	main_artist = "";
+	artist_name = "";
+	search_term = "";
+        ref_artist = "";
+	//alert(myForm.name);
+	//ref_list = myForm.ref_artist_new;
+	json_req = "{" +"\"" + 'form_name' +"\"" + ':' +"\"" + myForm.name + "\"" + ',';
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + param + "\"" + ',';
+	
+	json_req += "\"" + "selL" + "\"" + ':' + "[";
+
+	for (var i = 0; i < myForm.length; i++) {
+	        var temp_el = myForm[i];    
+	        if ( temp_el.type == 'checkbox' ){
+                	if ( temp_el.checked == true){
+				json_req += "\"" + temp_el.name +"\"" +  ",";
+
+		}	
+	}
+	}
+	
+	//alert(json_req[json_req.length-1])
+	if (json_req[json_req.length-1] == ','){
+       	json_req = json_req.substring(0,json_req.length-1)
+		}
+	json_req +=  "],"
+	
+	
+ 
+	for (var i = 0; i < myForm.length; i++) {
+        	var temp_el = myForm[i];    
+		
+		if ( temp_el.type == 'select-one'  ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+
+		}	
+
+		
+
+		if ( temp_el.type == 'text' ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+		
+		
+		} 
+ 
+	json_req = json_req.substring(0,json_req.length-1)
+	json_req += "}" 
+		$$("#show_loader").nimbleLoader("show");
+			
+		return do_send_json_req(json_req);
+	}
+	
+	function text_req_send(proc_name,action_name,text_line) {
+	//alert(param)
+		
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "text_line" +"\"" + ':'+"\""+text_line+"\""+"}";
+
+	return do_send_json_req(json_req);
+
+} 
+ 	
+ //window.onload = stopProgressBar;	
+ window.onload = fill_links;
+//--> 
+</SCRIPT>	
+
+</head>
+<body>
+<script>
+function getAvailSize() {
+    alert("Available Screen Width: " + screen.availWidth + ", Height: " + screen.availHeight);
+}
+</script>
+ 
+<button type="button" onclick="getAvailSize();">Get Available Size</button>
+<div id="pagewidth" >
+
+$bookmark_tmpl
+
+<br>
+ <div align="left"> 
+
+<TR> 
+ <TD>
+	
+   <FORM action="" onSubmit="return  text_req_send(proc_name,'get_picture',this.get_picture.value)" > 
+	 Picture URL: <input autocomplete="off" id="get_picture" name="get_picture"   size="100"  value="$pic_get_text"   type="text"> 	
+      
+   </FORM>
+  </TD> 
+</TR> 
+ 
+   <BR> <BR> 
+   <FORM METHOD="POST" enctype='multipart/form-data' size="70"  > 
+    <fieldset>
+	<legend>Radio detailes:</legend>
+	 Radio Stream URL: <input autocomplete="off" id="radio_URL" name="radio_URL"   size="70"  value="Put Radio URL"   type="text"> <br>
+	 Station Name: <input autocomplete="off" id="radio_name" name="radio_name"   size="70"  value="Name Radio"   type="text"> 	<SELECT NAME="existed_stations"> <option value ="NO" selected> --> New not existed <-- </option>	
+		"$radio_stations_exist_l"
+		</SELECT> 
+		
+	<br>	
+	<input name="get_radio" value="Submit" type="button" onclick="send_Simple_Form(this.form,proc_name,'get_radio')">	
+	</fieldset>
+   </FORM>
+   
+      <FORM METHOD="POST" enctype='multipart/form-data' size="70"  > 
+    <fieldset>
+	<legend>MPD instance:</legend>
+	 	 MPD instance name: <SELECT NAME="mpd_instance"> <option value ="NO" selected> --> New selection <-- </option>
+		"$mpd_instance_l"
+		</SELECT> 
+		
+	<br>	
+	<input name="select_mpd" value="Select" type="button" onclick="send_Simple_Form(this.form,proc_name,'set_mpd_instance')">	
+	</fieldset>
+   </FORM>
+ 
+ <BR> <BR> 
+   <FORM METHOD="POST" enctype='multipart/form-data' size="70"  > 
+    <fieldset>
+	<legend>Restart or Shutdown server:</legend>
+	 Restart-Shutdown: <input autocomplete="off" id="restart" name="restart_pswrd"   size="70"  value="Enter restart/shoutdown passwrd"   type="text"> <br>
+	 <input name="restart_server" value="Restart" type="button" onclick="send_Simple_Form(this.form,proc_name,'restart_srv')">	
+	 <input name="shutdown_server" value="Shutdown" type="button" onclick="send_Simple_Form(this.form,proc_name,'shutdown_srv')">
+	<div id="restart_res"  align="center"></div> 	 
+	 
+	</fieldset>
+   </FORM>
+
+<BR> <BR> 
+
+<fieldset>
+<legend>Debugging, Status, loging:</legend>
+<table>
+<tr>
+<td>
+<FORM METHOD="POST" enctype='multipart/form-data' > 
+		Set debug level:  <SELECT NAME="set_log_level"> 
+					<option value ="NO" selected>No Action</option>
+					<option value ="DEBUG">DEBUG</option>
+					<option value ="INFO">INFO</option>
+					<option value ="WARNING">WARNING</option>
+					<option value ="ERROR">ERROR</option>
+					<option value ="CRITICAL">CRITICAL</option>
+	 			</SELECT> 
+		<BR>
+</td>
+<td width="170" align="center">
+<span style="color:Red;background-color:MediumSpringGreen"id="debug">  debug </span>
+</td>	
+	
+<td width="70" >
+<span style="color:Red;background-color:Yellow"id="log">  log  </span>
+</td>	
+
+<td width="170">
+<span style="color:Red;background-color:Orange"id="mstat">  system status  </span>
+</td>
+
+</tr>
+</table>		
+</fieldset>
+<BR>
+<fieldset>
+	<legend>Refresh server settings:</legend>
+<div id="show_loader"> 
+ <BR>
+      		Refresh Server <INPUT  height="27" width="36" TYPE="checkbox" name="refresh_server" VALUE="REFRESH SERVER"> 
+		<BR>
+		Refresh Basis CFG <INPUT  height="27" width="36" TYPE="checkbox" name="refresh_config" VALUE="REFRESH SERVER"> 
+		<BR>
+		Refresh Command Routing  <INPUT  height="27" width="36" TYPE="checkbox" name="refresh_routing" VALUE="REFRESH SERVER"> 
+		<BR>
+		Refresh DbIndexes<INPUT  height="27" width="36" TYPE="checkbox" name="refresh_dbid" VALUE="REFRESH SERVER">
+		<BR>
+      		Refresh List Context <INPUT  height="27" width="36" TYPE="checkbox" name="refresh_list" VALUE="REFRESH SERVER"> 
+		<BR>
+
+		Load Templates from:  <SELECT NAME="load_template"> 
+					$template_select_list
+	 			</SELECT> 
+				<input name="reload_templ" value="Reload" type="button" onclick="send_Simple_Form(this.form,proc_name,'reload_templ')">
+		<BR>
+		
+	
+		<input name="commit_admin" value="Go" type="button" onclick="send_Simple_Form(this.form,proc_name,'admin')">	
+		
+         </FORM>
+		 
+		
+
+</div>
+</fieldset>
+
+<BR>
+<fieldset>
+	<legend>Task schedule:</legend>
+		Delete missing from  Lib <BR><INPUT  height="27" width="36" TYPE="button" name="del_missing_lib" VALUE="Submit" onclick= "text_req_send(proc_name,'task_schedule','del_missing_lib')"> 
+		<BR><BR>
+		
+		Update Lib (via Scheduler only TRACK table) <BR><INPUT  height="27" width="36" TYPE="button" name="update_lib" VALUE="Submit" onclick="text_req_send(proc_name,'task_schedule','update_lib')"> 
+		<BR><BR>
+		
+		Update Lib (from Current playing folder via Scheduler only TRACK table) <BR><INPUT  height="27" width="36" TYPE="button" name="update_lib_cur_dir" VALUE="Submit" onclick="text_req_send(proc_name,'task_schedule','update_lib_cur_dir')"> 
+		<BR><BR>	
+		Build Lib folder tree buffer <BR> 
+		<INPUT  height="27" width="36" TYPE="button" name="ml_folder_tree_all" VALUE="Generate" onclick="text_req_send(proc_name,'task_schedule','generate_ml_folder_tree_all')"> 
+		<INPUT  height="27" width="36" TYPE="button" name="ml_folder_tree_all" VALUE="Download to Lib" onclick="text_req_send(proc_name,'task_schedule','download_ml_folder_tree_all')"> 
+</fieldset>		
+		
+
+</body>

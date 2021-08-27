@@ -1,0 +1,2667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf8">
+
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<link rel="stylesheet" type="text/css" media="all" href="../../css/demoStyles.css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.all.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.base.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/jquery.ui.theme.css" type="text/css" />
+<link rel="stylesheet" href="../../js/css/images/" type="text/css" />
+
+
+
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+
+<script type="text/javascript" src="../../js/jquery-1.7.1.min.js"></script>
+
+<script src="../../js/jquery.tmpl.min.js"    type="text/javascript"> </script>
+
+
+<script src="../../js/knockout-2.2.0.js" type="text/javascript"> </script>
+
+
+<script src="../../js/jquery-ui.min.js"></script>
+
+<script src="../../js/jquery.ui.widget.js"  type="text/javascript"> </script>  
+<script src="../../js/jquery.ui.core.js"  type="text/javascript"> </script>  
+<script src="../../js/jquery.ui.position.js"  type="text/javascript"> </script>  
+<script src="../../js/jquery.autocomplete.js"  type="text/javascript"> </script>
+<script src="../../js/jquery.nimble.loader.js" type="text/javascript"> </script>  
+
+
+
+<title>   %(html_title)s   </title>
+
+<SCRIPT  TYPE="text/javascript"> 
+
+<!--
+
+  //jQuery.noConflict();
+	
+ var availableObjeList = ['gogo','mogogo'];	
+  var url_key	= '/medialib/report/';
+  var proc_mode = 0;
+  var req = createRequestObject();
+  var host = "%(host)s";
+  var action_key = 0;
+  var proc_name = "artists_maintain";
+  var autocompl_response = []
+  var folder = ''	
+  var search_artist_dataD_list = new Array();
+  var process_data = {'data_initial_load':{'descr':'Initial Data load','color':'lightBlue','proc_key':'initial_load'},'data_categ':{'descr':'Objects Categorization','color':'Yellow','proc_key':'categ'},'data_from_db':{'descr':'Data ready for processing','color':'Orange','proc_key':'ready_for_'},'albumes_cmpl':{'descr':'Albumes component load','color':'LightGreen','proc_key':'ready_for_'}};;
+  var search_NSA_albumD_list = new Array();
+  var folder_dataD_list  = new Array();
+  var tmp_obj;
+ // var dummy_item = {'colorcl':'','key':0,'checked':false,'selected':false,'expanded':false,'vosible':false,'is_in_db':false,'pos_num':0,'process_type':'','obj_type':'','artist':'','index':0,main}
+  
+  
+  
+  var folderD = {};
+
+  var artistTEdDDL = [{'key':"ARTIST_VIRT",'value':'ARTIST'},{'key':"COMPOSITOR",'value':'COMPOSITOR'},{'key':"ATHOR_TEXT",'value':'Text Writer'},{'key':"RADER",'value':'Text Reader'}];
+  var albumTEdDDL = [{'key':"ALBUM_VIRT",'value':'ALBUM'},{'key':"BOX",'value':'Box Set'},{'key':"SERIA",'value':'Seria'},{'key':"DBL_DISC",'value':'Double disc'}];
+  var init_OBJEDIT_struct = new Object({'active_obj':'','object_data':{'object_name':'','object_descr':'','object_search_list':'','object_type':'','object':'','objectD':{}}});
+  var dlgRouter = {'album':'#editalbumdlg','artist':'#editartistdlg'}
+  var artist_rel_type_DDL = [{'key':'same_artist'},{'key':'play_together'},{'key':'play_music_of'}]
+  var album_rel_type_DDL = [{'key':'DBL_DISC'},{'key':'BOX'},{'key':'SERIA'},{'key':'ALBUM_VIRT'}]
+  // EDIT DIALOG SUBMODEL	START
+  
+ //var sw_TEST_M = {koka: ko.observable(),initialize_test_model : function(){alert('goga')}};
+
+  	var   alb_cmpl_M	= {
+	album_cmpl_init_dataL :new ko.observableArray(),
+  };
+  
+var sw_OBJEDIT_M = new function(){
+	var self = this;
+	
+	self.object_selector = ko.observable('artist');		
+	
+	self.ddl_sub_model = ko.computed({
+		read: function() {
+		if ((albumTEdDDL.length > 0) && (artistTEdDDL.length > 0)){
+			//alert('read:'+albumTEdDDL.length);
+			return {'artist':artistTEdDDL,'album':albumTEdDDL,'active_obj':self.object_selector()};
+		} else {
+			alert('andef')
+			return {}
+			
+		}},
+		write: function () {	
+		alert('data write'+':');
+		return {};
+		},
+		 owner: this
+		}); 
+		
+	self.ddl_obj_sel_key = ko.observable('artist');		
+	
+	
+	
+	
+	self.base_obj_struct =  ko.observable(new Object(init_OBJEDIT_struct));
+	self.sw_OBJEDIT_name =  ko.observable('');
+	self.main =  ko.observable('');
+	self.search_terms = ko.observable('');
+	self.sw_OBJEDIT_srch_terms =  ko.observable('');
+	
+	self.tb_assign_selected =  ko.observable();
+	
+	self.navi_dlg_stack =  ko.observableArray([{'object': '','key': '','name':  ''},{'object': '','key': '','name': ''}]);
+		
+	//tb_assign_selected=  ko.dependentObservable({
+	//	read=  function() { return this.ddl_obj_sel_key},
+	//	write=  function (value) {
+	//		if (this.tb_assign_selected){
+	//			this.tb_assign_selected.object_type = this.ddl_obj_sel_key
+	//		}
+	//		},
+	//	owner=  this
+	//	}),
+	
+	self.assgn_artist_rel_tbl = new ko.observableArray();
+	self.assgn_album_rel_tbl = new ko.observableArray();
+	self.assgn_album_from_rel_tbl = new ko.observableArray();
+	self.assgn_artists_all_relLD = new ko.observableArray();
+	self.assgn_artists_main_to_relLD = new ko.observableArray();
+	self.assgn_artists_from_main_relLD = new ko.observableArray();
+	self.assgn_artist_inAlb_tbl = new ko.observableArray();
+	self.assgn_albume_forArt_tbl = new ko.observableArray();
+	
+	self.reset_all_rel_tables =  function(){
+			$("#get_obj_artist_album_editdlg_alb").val("")
+			this.tb_assign_selected(false)
+			self.object_selector('artist')
+			
+			//alert(this.ddl_obj_sel_key())
+			
+			//self.object_selector('artist')
+			
+			this.tb_assign_selected.valueHasMutated()
+			
+			//self.object_selector('artist')
+			
+			
+			
+			if 	(this.assgn_album_from_rel_tbl() != null){
+				if (this.assgn_album_from_rel_tbl().length > 0){
+					this.assgn_album_from_rel_tbl.removeAll(this.assgn_album_from_rel_tbl())
+					this.assgn_album_from_rel_tbl.valueHasMutated()
+				}
+			}
+			
+			if 	(this.assgn_artist_rel_tbl() != null){
+				if (this.assgn_artist_rel_tbl().length > 0){
+					this.assgn_artist_rel_tbl.removeAll(this.assgn_artist_rel_tbl())
+					this.assgn_artist_rel_tbl.valueHasMutated()
+				}
+			}
+			
+			if 	(this.assgn_artists_main_to_relLD() != null){
+				if (this.assgn_artists_main_to_relLD().length > 0){
+					this.assgn_artists_main_to_relLD.removeAll(this.assgn_artists_main_to_relLD())
+					this.assgn_artists_main_to_relLD.valueHasMutated()
+				}
+			}
+			
+			if 	(this.assgn_artists_from_main_relLD() != null){
+				if (this.assgn_artists_from_main_relLD().length > 0){
+					this.assgn_artists_from_main_relLD.removeAll(this.assgn_artists_from_main_relLD())
+					this.assgn_artists_from_main_relLD.valueHasMutated()
+				}
+			}
+			
+			if (this.assgn_album_rel_tbl() != null){
+				if (this.assgn_album_rel_tbl().length > 0){
+					this.assgn_album_rel_tbl.removeAll(this.assgn_album_rel_tbl())
+					this.assgn_album_rel_tbl.valueHasMutated()
+				}	
+			}
+			
+			if (this.assgn_artists_all_relLD() != null){
+				if (this.assgn_artists_all_relLD().length > 0){
+					this.assgn_artists_all_relLD.removeAll(this.assgn_artists_all_relLD())
+					this.assgn_artists_all_relLD.valueHasMutated()
+				}	
+			}
+			
+				
+			
+			if (this.assgn_albume_forArt_tbl() != null){
+				if (this.assgn_albume_forArt_tbl().length > 0){
+					this.assgn_albume_forArt_tbl.removeAll(this.assgn_albume_forArt_tbl())
+					this.assgn_albume_forArt_tbl.valueHasMutated()
+					}	
+				}
+			
+			if (this.assgn_artist_inAlb_tbl() != null){
+				if (this.assgn_artist_inAlb_tbl().length > 0){
+					this.assgn_artist_inAlb_tbl.removeAll(this.assgn_artist_inAlb_tbl())
+					this.assgn_artist_inAlb_tbl.valueHasMutated()
+					}	
+				}
+	
+	return true												
+	};												
+	
+	self.save_object_attrs =  function(){
+		
+		var object = this.base_obj_struct().active_obj
+		action = "maintain_object_attrs"
+		if (object == "artist"){
+			key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.artist_crc32
+			json_data = ko.toJSON({'alb_art_attrs_struct': {'artist_key': key.toString(), 'main': this.main,'search_terms': this.search_terms },'123': action})
+		}	else if (object == "album"){
+			key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.album_crc32
+			json_data = ko.toJSON({'alb_art_attrs_struct': {'album_key': key.toString(), 'main': this.main,'search_terms': this.search_terms,'relis': '','label': '' },'123': action})
+		}	
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		
+		if ( !('maintain_object_attrs' in response)){
+			
+			alert('Error at object maintain server side')
+		}
+	};
+	self.save_artist_from_to_relation =  function(ref_tbl_item,relation){
+		//alert(ko.toJSON(ref_tbl_item))
+		
+		var mode = ''
+		var ref_object = ''
+		
+		if (ref_tbl_item.checked && (ref_tbl_item.colorcl == "newasgn")){	
+			mode = "create"
+		} else if (!ref_tbl_item.checked && (ref_tbl_item.colorcl != "newasgn")){	
+			mode = "delete"
+		} else {
+			alert('error mode')
+		}
+		
+		
+		if (relation != "ART_MAIN_TO_REL"){
+			key = ref_tbl_item.key
+			ref_key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.artist_crc32
+		} else if  (relation != "ART_MAIN_FROM_REL"){
+			key = sw_OBJEDIT_M.base_obj_struct().object_data.objectD.artist_crc32	
+			ref_key = ref_tbl_item.key
+		}
+		
+		action = "maintain_single_artist_rel"
+		json_data = ko.toJSON({'alb_art_relation_struct': {'artist_key':  key.toString() ,'ref_artist_key': ref_key.toString(),'relation': relation,'rel_type': ref_tbl_item.rel_type,'mode': mode },'123': action})
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		
+		if ( !('maintain_single_artist_album_rel' in response)){
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain server side')
+		}
+		if (response.maintain_single_artist_album_rel != 'error') {
+				if (mode == 'create'){	ref_tbl_item.colorcl = "artist saved"
+				} else if(mode == 'delete'){ ref_tbl_item.colorcl = "artist tb_save remove"	}
+		} else {
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain')
+		}
+		
+		if (relation == "ART_MAIN_TO_REL"){
+			this.assgn_artists_main_to_relLD.valueHasMutated()
+	
+		} else if (relation == "ART_MAIN_FROM_REL") {
+			this.assgn_artists_from_main_relLD.valueHasMutated()	
+		} 
+		};
+		
+		
+	self.check_album2artist_rel =  function(album_key){
+		//alert(album_key)
+			action = "check_album2artist_rel"
+		json_data = ko.toJSON({'album_key': album_key,'123': action})
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		
+		if ( !('object_edit_data' in response)){
+			
+			alert('Error at relation check server side')
+		} else {
+			if (response.object_edit_data.artist_album_relLD.length > 0)
+				for ( var i =0; i < response.object_edit_data.artist_album_relLD.length;i++ ) {
+					item = response.object_edit_data.artist_album_relLD[i]
+					//alert(ko.toJSON(item))
+					this.assgn_artist_inAlb_tbl.unshift(item)
+				}
+		}
+		
+		
+	};
+
+	self.save_artist_album_relation =  function(ref_tbl_item,relation){
+		//alert(ko.toJSON(ref_tbl_item))
+		
+		var mode = ''
+		var ref_object = ''
+		key = this.base_obj_struct().object_data.objectD.path_crc32
+		ref_key = ref_tbl_item.key
+		parent_object = sw_OBJEDIT_M.base_obj_struct().object_data.object
+		if ('artist' in ref_tbl_item){
+			ref_object = 'artist'
+		} else if ('album' in ref_tbl_item){
+			ref_object = 'album'
+		}
+		
+		rel_type = '' 
+		local_relation = relation
+		if ((relation != "ART_IN_ALB_REL") || (relation != "ALB_OF_ART_REL")){
+			rel_type = ref_tbl_item.rel_type
+		}
+		
+		if ((relation == "ART_IN_ALB_REL") || (relation == "ALB_OF_ART_REL")){
+			rel_type = "ART_ALB_REL"
+			local_relation = "ART_ALB_REL"
+		}
+		
+			
+		if (ref_tbl_item.checked && (ref_tbl_item.colorcl == "newasgn")){	
+			mode = "create"
+		} else if (!ref_tbl_item.checked && (ref_tbl_item.colorcl != "newasgn")){	
+			mode = "delete"
+		}
+		
+		//'ART_ALB_REL_ROLE' last edded 10.12.12
+		if ((relation == "ART_ALB_REL_ROLE") && (mode == "create")){
+			rel_type = sw_OBJEDIT_M.tb_assign_selected().object_type
+			//alert(ko.toJSON(ref_tbl_item))
+		}
+		
+		if ((parent_object == "album") && (ref_object == 'artist')){
+			action = "maintain_single_artist_album"
+			json_data = ko.toJSON({'object': parent_object,'alb_art_relation_struct': {'album_key': key.toString(),'artist_key': ref_key.toString(),'relation': local_relation,'rel_type': rel_type,'mode': mode },'123': action})
+		}
+		
+		if ((parent_object == "album") && (ref_object == 'album')){
+			action = "maintain_single_album_rel"
+			json_data = ko.toJSON({'object': parent_object,'alb_art_relation_struct': {'album_key': key.toString(),'ref_album_key': ref_key.toString(),'relation': local_relation,'rel_type': rel_type,'mode': mode },'123': action})
+		}
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		if ( !('maintain_single_artist_album' in response)){
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain server side')
+		}
+		if (response.maintain_single_artist_album != 'error') {
+				if (mode == 'create'){	ref_tbl_item.colorcl = "artist saved"
+				} else if(mode == 'delete'){ ref_tbl_item.colorcl = "album tb_save remove"	}
+		} else {
+			ref_tbl_item.colorcl = "album error"
+			alert('Error at relation maintain')
+		}
+		
+		if (relation == "ART_IN_ALB_REL"){
+			this.assgn_artist_inAlb_tbl.valueHasMutated()
+	
+		} else if (relation == "ART_ALB_REL_ROLE") {
+			this.assgn_artist_rel_tbl.valueHasMutated()	
+		} else if (relation == "ALB_REL_ROLE") {
+			this.assgn_album_rel_tbl.valueHasMutated()	
+		}	
+	};
+	
+	
+	
+	self.initialize_sw_OBJEDIT_model =  function(object,key){
+		var name = ''
+		json_data = ko.toJSON({'object': object,'key': key.toString(), '123': 'get_object_edit_data'})
+		json_data = json_data.replace('123',proc_name)
+					
+		this_self = this
+		// Get Data				
+		//alert('http://' + host + '/medialib/report/')	
+		$.ajax({	url:  'http://' + host + '/medialib/report/',type:  'POST', dataType:  'json', data:  json_data,async:  false,
+					error:  function( data ) { 
+							
+							alert('Error at data received= '+data.responseText)
+							this_self.base_obj_struct({'object_data': {'object': ''}})
+							this_self.base_obj_struct.valueHasMutated()
+					},
+										
+					success:  function( data ) { 
+												//alert('first')
+												
+												if (!('object_edit_data' in data)){
+													alert('No object data received')
+													this_self.base_obj_struct({'object_data': {'object': ''}})
+													this_self.base_obj_struct.valueHasMutated()
+													return
+												}
+												response = data.object_edit_data;
+												if ( 'artist' in data.object_edit_data){
+													this_self.sw_OBJEDIT_name(response.artist); 
+													this_self.main(response.artistD.main); 
+													this_self.search_terms(response.artistD.search_term)
+													this_self.base_obj_struct().object_data.object_name = response.artist;
+													this_self.base_obj_struct().object_data.object = 'artist';
+													this_self.base_obj_struct().active_obj='artist';
+													this_self.base_obj_struct().object_data.objectD = response.artistD;
+													//--this_self.ddl_sub_model().album.push({key: 'ALB_OF_ART_REL',value: 'Album for Artist relation'});
+													
+													this_self.base_obj_struct().object_data.object_type = response.object_type;
+													
+													// 1.
+													if (this_self.assgn_albume_forArt_tbl() != null){
+														if (this_self.assgn_albume_forArt_tbl().length > 0){	
+															this_self.assgn_albume_forArt_tbl.removeAll(this_self.assgn_albume_forArt_tbl())
+															this_self.assgn_albume_forArt_tbl(response.album_for_artist_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_albume_forArt_tbl(response.album_for_artist_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_albume_forArt_tbl(response.album_for_artist_relLD)
+														}
+													
+																
+														
+													// 2.
+													if (this_self.assgn_artists_all_relLD() != null){
+														if (this_self.assgn_artists_all_relLD().length > 0){	
+															this_self.assgn_artists_all_relLD.removeAll(this_self.assgn_artists_all_relLD())
+															this_self.assgn_artists_all_relLD(response.artists_all_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_artists_all_relLD(response.artists_all_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_artists_all_relLD(response.artists_all_relLD)
+														}
+													
+													// 3.
+													if (this_self.assgn_artists_main_to_relLD() != null){
+														if (this_self.assgn_artists_main_to_relLD().length > 0){	
+															this_self.assgn_artists_main_to_relLD.removeAll(this_self.assgn_artists_main_to_relLD())
+															this_self.assgn_artists_main_to_relLD(response.artists_main_to_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_artists_main_to_relLD(response.artists_main_to_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_artists_main_to_relLD(response.artists_main_to_relLD)
+														}	
+														
+													// 4.
+													if (this_self.assgn_artists_from_main_relLD() != null){
+														if (this_self.assgn_artists_from_main_relLD().length > 0){	
+															this_self.assgn_artists_from_main_relLD.removeAll(this_self.assgn_artists_from_main_relLD())
+															this_self.assgn_artists_from_main_relLD(response.artists_from_main_relLD)
+														} else {
+															//alert('len = 0 in art rel')
+																
+															this_self.assgn_artists_from_main_relLD(response.artists_from_main_relLD)
+														}
+														} else {
+															//alert('null artist')
+															this_self.assgn_artists_from_main_relLD(response.artists_from_main_relLD)
+														}
+
+													
+													
+													
+												}	
+												else if ('album' in data.object_edit_data){
+													//--this_self.ddl_sub_model().artist.push({key: 'ART_IN_ALB_REL',value: 'Artist in Album relation'})
+													//--this_self.ddl_sub_model.valueHasMutated()
+													
+													this_self.sw_OBJEDIT_name(response.album); 
+													this_self.main(response.albumD.main); 
+													this_self.search_terms(response.albumD.search_term)
+													this_self.base_obj_struct().object_data.object_name = response.album;
+													this_self.base_obj_struct().object_data.object = 'album';
+													this_self.base_obj_struct().active_obj='album';
+													this_self.base_obj_struct().object_data.format_type = response.albumD.format_type
+													
+													this_self.base_obj_struct().object_data.objectD = response.albumD;
+													this_self.base_obj_struct().object_data.object_type = response.object_type;
+													
+													if (this_self.assgn_album_rel_tbl() != null){
+													if (this_self.assgn_album_rel_tbl().length > 0){	
+														this_self.assgn_album_rel_tbl.removeAll(this_self.assgn_album_rel_tbl())
+														this_self.assgn_album_rel_tbl(response.album_relLD)
+													} else {
+														this_self.assgn_album_rel_tbl(response.album_relLD)
+													}
+													} else {
+														this_self.assgn_album_rel_tbl(response.album_relLD)
+													}
+													
+													if (this_self.assgn_artist_inAlb_tbl() != null){
+													if (this_self.assgn_artist_inAlb_tbl().length > 0){
+														this_self.assgn_artist_inAlb_tbl.removeAll(this_self.assgn_artist_inAlb_tbl())
+														this_self.assgn_artist_inAlb_tbl(response.artist_album_relLD)
+																						
+													} else {
+														//alert('len = 0 in art albl rel')
+														this_self.assgn_artist_inAlb_tbl(response.artist_album_relLD)
+													}
+													} else {
+														//alert('null in art albl rel')
+														this_self.assgn_artist_inAlb_tbl(response.artist_album_relLD)
+													}	
+													
+													if (this_self.assgn_artist_rel_tbl() != null){
+													if (this_self.assgn_artist_rel_tbl().length > 0){	
+														this_self.assgn_artist_rel_tbl.removeAll(this_self.assgn_artist_rel_tbl())
+														this_self.assgn_artist_rel_tbl(response.artist_relLD)
+													} else {
+														//alert('len = 0 in art rel')
+														this_self.assgn_artist_rel_tbl(response.artist_relLD)
+													}
+													} else {
+														//alert('null artist')
+														this_self.assgn_artist_rel_tbl(response.artist_relLD)
+													}		
+													
+													//1.
+													if (this_self.assgn_album_from_rel_tbl() != null){
+													if (this_self.assgn_album_from_rel_tbl().length > 0){	
+														this_self.assgn_album_from_rel_tbl.removeAll(this_self.assgn_album_from_rel_tbl())
+														this_self.assgn_album_from_rel_tbl(response.album_from_relLD)
+													} else {
+														this_self.assgn_album_from_rel_tbl(response.album_from_relLD)
+													}
+													} else {
+														this_self.assgn_album_from_rel_tbl(response.album_from_relLD)
+													} 
+													
+													
+												} else {
+													alert('No object data received')
+													this.base_obj_struct({'object_data': {'object': ''}})
+												}
+												this_self.base_obj_struct.valueHasMutated()
+												
+												//this_self.assgn_artist_inAlb_tbl.valueHasMutated()
+												this_self.sw_OBJEDIT_name.valueHasMutated()
+												
+												
+												},
+				})
+				
+		
+	};
+	
+
+	
+	self.map_artist_album_req_eddlg_data=  function (obj_type,key) {
+	
+			if ( ( this.object_tbcreate_data_name() !='' ) && ( this.object_tbcreate_data_search_list() !='' )){
+		this.artist_album_sub_model().object_data.object_name = this.object_tbcreate_data_name()
+		this.artist_album_sub_model().object_data.object_descr = this.object_tbcreate_data_descr()
+		this.artist_album_sub_model().object_data.object_search_list = this.object_tbcreate_data_search_list()
+		this.artist_album_sub_model().object_data.object_type = this.object_tbcreate_data_objtype
+		this.artist_album_sub_model().object_data.object = this.artist_album_sub_model()['active_obj']
+		} else {
+			alert ('Object data is empty (name ore description)')
+		}
+	};
+	
+		self.assign_rel_object=  function (){
+		//processSimpleRequest(proc_name,'assign_object_editdlg_rel_data','','')
+		this.tb_assign_selected().object_data.rel_type = this.ddl_obj_sel_key()
+		this.tb_assign_selected().object_data.colorcl='newasgn'
+		this.tb_assign_selected().object_data.checked=false
+		this.tb_assign_selected().object_type = this.ddl_obj_sel_key()
+		
+		//alert(ko.toJSON(this.tb_assign_selected()))
+		
+		this.tb_assign_selected.valueHasMutated()
+		if (this.ddl_obj_sel_key() == "ART_IN_ALB_REL"){
+			if ((this_self.assgn_artist_inAlb_tbl() != null) && (this_self.assgn_artist_inAlb_tbl().length != 0)){
+				if (this.tb_assign_selected().object_data.key != this.assgn_artist_inAlb_tbl()[0].key){
+				this.assgn_artist_inAlb_tbl.unshift(this.tb_assign_selected().object_data)
+				}
+			} else {
+				this.assgn_artist_inAlb_tbl([this.tb_assign_selected().object_data])
+				}	
+			} else if (this.ddl_obj_sel_key() == "ALB_OF_ART_REL"){
+				alert(ko.toJSON(this.tb_assign_selected()))
+				if ((this_self.assgn_albume_forArt_tbl() != null) && (this_self.assgn_albume_forArt_tbl().lenght != 0)){
+					if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_albume_forArt_tbl()[0].key){
+					this.assgn_albume_forArt_tbl.unshift(this.tb_assign_selected().object_data)
+					}
+			} else {
+				this.assgn_albume_forArt_tbl([this.tb_assign_selected().object_data])
+			}		
+		} else if  (this.ddl_sub_model().active_obj == 'artist'){
+			if (this.assgn_artist_rel_tbl()  != null ){
+				if (this.assgn_artist_rel_tbl().length > 0){
+				
+				if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_artist_rel_tbl()[0].key){
+				
+				this.assgn_artist_rel_tbl.unshift(this.tb_assign_selected().object_data)
+				}
+				}else {this.assgn_artist_rel_tbl.unshift(this.tb_assign_selected().object_data)}
+				}  else {
+				this.assgn_artist_rel_tbl([this.tb_assign_selected().object_data])
+			}
+			
+			if (this.assgn_artists_main_to_relLD()  != null ){
+				if (this.assgn_artists_main_to_relLD().length > 0){
+				
+				if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_artists_main_to_relLD()[0].key){
+				
+				this.assgn_artists_main_to_relLD.unshift(this.tb_assign_selected().object_data)
+				}
+				}else {this.assgn_artists_main_to_relLD.unshift(this.tb_assign_selected().object_data)
+					}
+			} else {
+				this.assgn_artists_main_to_relLD([this.tb_assign_selected().object_data])
+			}
+			
+			
+		} else if  (this.ddl_sub_model().active_obj == 'album'){
+			if (this.assgn_album_rel_tbl() != null){
+				if (this.assgn_album_rel_tbl().length > 0){
+				if (sw_OBJEDIT_M.tb_assign_selected().object_data.key != this.assgn_album_rel_tbl()[0].key){
+				this.assgn_album_rel_tbl.unshift(this.tb_assign_selected().object_data)
+				} 
+				}else {this.assgn_album_rel_tbl.unshift(this.tb_assign_selected().object_data)}
+			} else {
+					this.assgn_album_rel_tbl([this.tb_assign_selected().object_data])
+			}
+		}
+		
+		
+	};
+	
+	self.jump_to_object =  function(object,key,mode){
+		var old_object = this.base_obj_struct().object_data.object	
+	
+		this.reset_all_rel_tables();
+		this.initialize_sw_OBJEDIT_model(object,key) 
+	 
+	 
+		format_type = ""
+		if (object == "album"){
+				format_type = " 	format =  ["+this.base_obj_struct().object_data.format_type+"]"
+			}	
+	 var d_title = this.base_obj_struct().object_data.object+' =  '+ this.sw_OBJEDIT_name() +'	 type=  ['+this.base_obj_struct().object_data.object_type+']'+format_type;
+	 
+	//if ( object != old_object){
+	//	stack_elem = this.navi_dlg_stack.pop()
+		//alert(ko.toJSON(stack_elem))
+	//	 $( dlgRouter[old_object] ).dialog('close');		
+	 //   this.navi_dlg_stack.push(stack_elem)	 
+	//	  $( dlgRouter[object] ).dialog('open');
+		  
+		 
+	//} else {
+	
+	//}
+	 
+	 
+	 
+	
+	$( "#editalbumdlg" ).dialog( "option", "title", d_title );
+	if (mode == 'back'){
+		this.navi_dlg_stack.pop()
+	} else {
+		this.navi_dlg_stack.push({'object': object,'key': key,'name': this.sw_OBJEDIT_name()})
+	}
+	
+	
+	
+	};
+	
+	self.editAAElem=  function (obj_type,key,mode) {
+		if (mode == 'color'){
+		$('#'+key).css("background-color","Pink")
+		}
+		
+		this.initialize_sw_OBJEDIT_model(obj_type,key)
+		this.base_obj_struct.valueHasMutated()
+		this.sw_OBJEDIT_name.valueHasMutated()
+		
+		//alert( 'AAedit   '+this.sw_OBJEDIT_name())
+		
+		this.navi_dlg_stack.push({'object': obj_type,'key': key,'name': this.sw_OBJEDIT_name()})
+		format_type = ""
+		if (obj_type == "album"){
+			format_type = ".....format =  ["+this.base_obj_struct().object_data.format_type+"]"
+		}	
+		var d_title = this.base_obj_struct().object_data.object+' =  '+ this.sw_OBJEDIT_name() +'.....type =   '+this.base_obj_struct().object_data.object_type + format_type;
+		$( "#editalbumdlg" ).dialog( "option", "title", d_title );
+			
+		$( "#editalbumdlg" ).dialog('open');
+		
+		
+	}
+  };
+  
+  // EDIT DIALOG SUBMODEL------<END
+  
+  // MAIN View Model	START ------<
+  var m_vM =  new function(){
+	var self = this;
+    //search_data_process_step_type : ko.observable(),
+	
+	self.album_cmpl_init_dataL  = new ko.observableArray();
+	
+	self.selectedFolders = ko.observableArray(); // These are the selected folders
+	self.folderGroups_Items = ko.observableArray(); // all groups list
+	
+	self.catType_Items = ko.observableArray(); // all groups list
+	
+	self.folder_filter_toggle =  ko.observable(false); // toggler folder mode
+	self.folder_filter_enable =  ko.observable(true);
+	self.initial_data_load =  ko.observable(false);
+	self.albumes_cmpl = ko.observable(false);
+	self.edit_field =  ko.observable(false);
+	self.curent_selected_Group = ko.observable({'key':'','isOn':false,'index':-1});
+	self.currrent_categ_key = '';
+	self.curent_process_indicator = ko.observable({'descr':'','color':'Blue','proc_key':'undef'});
+	
+	self.artist_checked_all_toggle = ko.observable(true);
+	
+	self.album_checked_all_toggle = ko.observable(true);
+	
+		
+	self.create_object_selector = ko.observable('artist');		
+	
+	self.artist_album_sub_model = ko.computed({
+		read: function() {
+		if ((albumTEdDDL.length > 0) && (artistTEdDDL.length > 0)){
+			//alert('read:'+albumTEdDDL.length);
+			return {'artist':artistTEdDDL,'album':albumTEdDDL,'active_obj':self.create_object_selector(),'object_data':{'object_name':'','object_descr':'','object_search_list':'','object_type':'','object':''}};
+		} else {
+			alert('andef')
+			return {}
+			
+		}},
+		write: function () {	
+		alert('data write'+':');
+		return {};
+		},
+		 owner: this
+		}); 
+	
+	
+	self.categoryProfileDL  = ko.observableArray([]);
+	
+	self.cat_prof_selected  = ko.observable('0');
+	self.category_selected   = ko.observable('0');
+	
+	self.cat_prof_selectedDL = ko.computed({
+		read: function() {
+		if (self.categoryProfileDL().length == 0){return '';}
+		 else {
+			//alert('cat_prof_selectedDL koko');
+			self.categoryProfileDL()[self.cat_prof_selected()]['relCatL'];
+			//self.category_selected('0')
+			return self.categoryProfileDL()[self.cat_prof_selected()]['relCatL'];};
+		}, 
+		write: function () {	
+		//alert('data write'+':'+self.categoryProfileDL.length)
+		return alert('data'+':'+self.categoryProfileDL.length);
+		},
+		 owner: this
+	});
+	
+	//self.add_to_categ_submodel   = ko.observable({'active':false,'key':'','mode':''} );
+	
+	self.add_to_categ_submodel = ko.computed({
+		read: function() {
+			if ( self.cat_prof_selectedDL() != '' ) {
+			//alert(self.cat_prof_selectedDL().length);
+			var cat_id = self.cat_prof_selectedDL()[self.category_selected()].cat_id;
+			var cat_key = self.cat_prof_selectedDL()[self.category_selected()].cat_key;
+			var status = false;
+			if (cat_id != ''){
+				status = true;
+				return {'active':status,'key':cat_key,'id':cat_id,'mode':''};
+			} else {
+				return {'active':false,'id':'','key':'','mode':''} ;
+			}
+			} else {
+			return {'active':false,'id':'','key':'','mode':''}}
+			},
+			
+			write: function(mode) {
+				alert(mode)
+				self.add_to_categ_submodel().mode = mode;
+				//self.add_to_categ_submodel.valueHasMutated()
+				return self.add_to_categ_submodel();
+
+			},
+			owner: this	
+			});
+	
+			
+	
+	self.initialize_catProfileDL  = function(categoryProfObj){
+			this.categoryProfileDL(categoryProfObj)
+		};
+	
+	
+	
+	
+	
+	self.object_tbcreate_data_name = ko.observable('');
+	self.object_tbcreate_data_descr = ko.observable('');
+	self.object_tbcreate_data_search_list = ko.observable('');
+	self.object_tbcreate_data_objtype = ko.observable('');
+	
+	self.test = ko.observable({'object_name':'','object_descr':'','object_search_list':''});		
+	self.search_object_selector = ko.observable('artist');		
+	
+			
+	
+	self.search_artist_data_isLoaded = ko.observable(false);
+	self.current_selected_srch_view= ko.observable({'artist':{'status':'selected','proc_state':'initial','vldt_key':'','cur_page':1},'album':{'status':'deselected','proc_state':'initial','vldt_key':'','cur_page':1}});
+	
+	self.cur_before_select_color = '';
+	self.cur_object_sel_index = '';
+	
+	self.search_artist_data = new ko.observableArray();
+	
+	self.search_NSA_album_data  = new ko.observableArray();
+	
+	
+	self.map_artist_album_tbcreate_data = function () {
+		if ( ( self.object_tbcreate_data_name() !='' ) && ( self.object_tbcreate_data_search_list() !='' )){
+		self.artist_album_sub_model().object_data.object_name = self.object_tbcreate_data_name()
+		self.artist_album_sub_model().object_data.object_descr = self.object_tbcreate_data_descr()
+		self.artist_album_sub_model().object_data.object_search_list = self.object_tbcreate_data_search_list()
+		self.artist_album_sub_model().object_data.object_type = self.object_tbcreate_data_objtype
+		self.artist_album_sub_model().object_data.object = self.artist_album_sub_model()['active_obj']
+		} else {
+			alert ('Object data is empty (name ore description)')
+		}
+	};	
+	
+	self.test_func = function (param) {
+		alert(param)
+	};
+	
+	self.SaveAlbumCmpl = function(item){
+	
+		if (item.checked != true) {
+			alert('Album compilation name is not selected:'+'['+item.prop_clast_name+']')
+			return
+		}
+		
+		
+		
+		
+		
+		action = "maintain_album_component"
+		
+		json_data = ko.toJSON({'alb_cmpl_struct':{'cmpnt_index':item.index,'parent_album_name':item.prop_clast_name,'cmpnt_key':item.cmpnt_key,'rel_type':item.rel_type,'clast_contentLD':item.clast_contentLD },'123':action})
+		
+		json_data = json_data.replace('123',proc_name)
+		
+		//alert(ko.toJSON(item))
+		
+		response = do_send_ajax_json_req(url_key,json_data)
+		//alert(ko.toJSON(response.maintain_album_component))
+		
+		if ( !('maintain_album_component' in response)){
+			
+			alert('Error at maintain_album_component server side')
+		} else {
+			if ((response.maintain_album_component.cmpnt_index == item.index) && (response.maintain_album_component.cmpnt_key == item.cmpnt_key)){
+				if (response.maintain_album_component.result) {
+					self.album_cmpl_init_dataL()[item.index-1].colorcl = "artist tb_save"	
+				} else {
+					self.album_cmpl_init_dataL()[item.index-1].colorcl = "album error"						
+				}
+				
+				self.album_cmpl_init_dataL.valueHasMutated()
+			}
+		}
+	
+	};
+	self.decline_save_artist_album = function () {
+		self.current_selected_srch_view[getActiveView()]['proc_state'] = 'cancelled'
+	
+		
+		self.search_artist_data_isLoaded(false)
+		self.search_artist_data_isLoaded.valueHasMutated()
+		
+		self.search_artist_data.removeAll(self.search_artist_data())
+		search_artist_dataD_list = []
+		self.search_artist_data(search_artist_dataD_list)
+		
+		self.current_selected_srch_view.valueHasMutated()
+		
+		processSelected(proc_name,'artist_album_maintain_check','init_edited_get_back')
+		
+		//m_vM.search_artist_data.splice(1, m_vM.search_artist_data().length-1)
+		
+    };
+	
+	self.getActiveView = function (param) {
+		if (self.current_selected_srch_view()['artist']['status'] == 'selected'){
+			if (param == 'state'){
+				return self.current_selected_srch_view()['artist']['proc_state']
+			}
+			return 'artist'
+		}	
+		else if	(self.current_selected_srch_view()['album']['status'] == 'selected'){
+			if (param == 'state'){
+				return self.current_selected_srch_view()['album']['proc_state']
+			}
+			return 'album'
+			}
+	};
+	self.colorMe = function (key,color) {
+		//if  ( key == cur_object_sel_index ){
+		//	return
+		//}
+		self.cur_before_select_color = $('#'+key).css("background-color")
+		self.cur_object_sel_index = key
+		$('#'+key).css("background-color","Pink")
+		
+    },
+	
+	
+	
+	self.use_categ = function (mode) {
+		
+		self.add_to_categ_submodel(mode);
+		return false
+    };
+	
+	self.uncolorMe = function (key) {
+		$('#'+key).css("background-color",self.cur_before_select_color)
+		self.cur_object_sel_index = ''
+    };
+	
+	self.getArtistAlbumStructChecked = function (){
+		
+		 var struct_mapped = ko.utils.arrayMap(this.search_artist_data(), function(item) {
+		 //alert(item.artist)
+		 var album_map = ko.utils.arrayMap(item.albumL, function(album) {
+			//alert(album.album)
+			return {'key':album.key,'checked':album.checked,'process_type':album.process_type}
+			//'visible':album.visible
+		 });
+        return {'key':item['key'],'checked':item['checked'],'expanded':item['expanded'],'albumL':album_map,'process_type':item['process_type']};
+    });
+	return struct_mapped;
+		
+	};
+	
+	
+	self.get_NSA_AlbumStructChecked = function (){
+		
+		 var struct_mapped = ko.utils.arrayMap(this.search_NSA_album_data(), function(item) {
+		 //alert(item.artist)
+		 var artist_map = ko.utils.arrayMap(item.artistL, function(artist) {
+			//alert(album.album)
+			return {'key':artist.key,'checked':artist.checked,'process_type':artist.process_type}
+			//,'visible':artist.visible
+		 });
+        return {'key':item['key'],'checked':item['checked'],'expanded':item['expanded'],'artistL':artist_map,'process_type':item['process_type']};
+    });
+	return struct_mapped;
+		
+	};
+	
+	self.setView	= function (view_name) {
+		if (view_name == 'artist'){
+		this.current_selected_srch_view()['artist']['status'] = 'selected'
+		this.current_selected_srch_view()['album']['status'] = 'deselected'
+		} else if (view_name == 'album'){
+		this.current_selected_srch_view()['artist']['status'] = 'deselected'
+		this.current_selected_srch_view()['album']['status'] = 'selected'
+		}
+		
+		self.current_selected_srch_view.valueHasMutated();
+	};
+	
+	self.getFolderKey = function (index,item) {
+		self.currrent_categ_key = item.key
+		if (!self.folder_filter_toggle()){
+			return
+		}
+		
+		if (self.curent_selected_Group['key'] == item['key']){
+			if (self.curent_selected_Group().isOn == false){
+				self.curent_selected_Group().isOn = true
+				self.curent_selected_Group['index'] = index
+				self.addItem(item)
+			}else{
+				self.curent_selected_Group().isOn = false
+				self.removeSelected()
+			}
+		
+		} else {
+			self.curent_selected_Group['key'] = item['key']
+			//self.curent_selected_Group['isOn'] = true
+			self.curent_selected_Group().isOn = true
+			self.curent_selected_Group()['index'] = index
+			self.addItem(item)
+		}
+		
+		self.curent_selected_Group.valueHasMutated();
+	},
+	
+	
+	self.expandArtistAlbum = function (index,obj_type) {
+		if (obj_type == 'artist'){
+			elem = self.search_artist_data()[index]
+			obj_sublist_key = 'albumL'
+			} else if (obj_type == 'album'){
+			elem = self.search_NSA_album_data()[index]	
+			obj_sublist_key = 'artistL'
+			//alert(obj_sublist_key)
+			}
+		if (elem['expanded']){
+			
+			for (i in elem[obj_sublist_key]){
+			elem[obj_sublist_key][i].visible = false;
+			}
+        	if (obj_type == 'artist'){
+				self.search_artist_data.valueHasMutated();
+			} else if (obj_type == 'album'){
+				self.search_NSA_album_data.valueHasMutated();
+			}		
+			elem['expanded'] = false
+		} else	{
+			pos = 0
+			
+			
+			for (i in elem[obj_sublist_key]){
+			elem[obj_sublist_key][i].visible = true;
+			}
+		
+		if (obj_type == 'artist'){
+			self.search_artist_data.valueHasMutated();
+		} else if (obj_type == 'album'){
+			self.search_NSA_album_data.valueHasMutated();
+		}		
+			
+			elem['expanded'] = true
+		}
+		//alert(elem['key']+elem['expanded'])
+			
+	};
+	
+	
+	
+	self.create_object_sel = function(value){
+		//alert(value)
+		if (self.artist_album_sub_model()['active_obj'] == value) {
+			return 
+			}
+		self.artist_album_sub_model()['active_obj'] = value
+		self.artist_album_sub_model.valueHasMutated()
+		self.object_tbcreate_data_name('')
+		self.object_tbcreate_data_descr('')
+		self.object_tbcreate_data_search_list('')
+		self.object_tbcreate_data_objtype('')
+		
+		//alert(self.artist_album_sub_model()['active_obj'])
+		return 
+	};
+	
+	
+	self.initialize_folder_items = function(folder_filter_keyD){
+		
+		self.folderGroups_Items(folder_dataD_list)
+		
+		if (folder_filter_keyD['folder_filter_key'] != ''){
+			
+			self.folder_filter_toggle(true)
+			
+			self.curent_selected_Group().isOn = true
+			index = folder_filter_keyD['selected_index']
+			
+			if (index != -1){
+				self.curent_selected_Group()['index'] = index
+				
+				item = self.folderGroups_Items()[index]
+				
+				self.curent_selected_Group['key'] = folder_filter_keyD['folder_filter_key']
+				//alert(self.curent_selected_Group['key'])
+			
+				self.addItem(item)
+				
+				self.selectedFolders.valueHasMutated();
+				self.curent_selected_Group.valueHasMutated();
+			}	
+		}
+	};
+	self.add_NSA_albumItem = function (action_type) {
+		
+		//alert(search_NSA_albumD_list[0]['album'])
+		self.search_NSA_album_data(search_NSA_albumD_list)
+		
+		self.current_selected_srch_view()['album']['proc_state'] = action_type
+		//alert(search_NSA_albumD_list[0]['album'])
+		//alert('add_NSA_albumItem-OK')
+		return	
+	};
+	self.add_searchItem = function (action_type) {
+	
+		if (self.album_cmpl_init_dataL().length > 0){
+			self.album_cmpl_init_dataL.removeAll(self.album_cmpl_init_dataL())
+		}
+		
+		//alert('action_type:--' + action_type)
+		if (!self.search_artist_data_isLoaded()){
+			//alert("zagruzka"+self.search_artist_data_isLoaded())	
+			self.current_selected_srch_view()['artist']['proc_state'] = action_type
+			
+			//alert(action_type)
+			
+			
+			if (search_artist_dataD_list.length == 0){
+				self.search_artist_data_isLoaded(false)
+				self.search_artist_data_isLoaded.valueHasMutated()
+				self.search_artist_data.removeAll(self.search_artist_data())
+				self.search_NSA_album_data.removeAll(self.search_NSA_album_data())
+				search_artist_dataD_list = []
+				search_NSA_albumD_list = []
+				
+				
+				
+			} else {
+				self.search_artist_data_isLoaded(true)
+				self.search_artist_data_isLoaded.valueHasMutated()
+			}
+			
+			
+			//alert('in initial')
+			
+			self.current_selected_srch_view.valueHasMutated()					
+			
+			self.search_artist_data(search_artist_dataD_list)
+			self.search_NSA_album_data (search_NSA_albumD_list)
+			
+			return
+		} else {
+		//alert("zagruzka"+self.search_artist_data_isLoaded())
+		if (self.search_artist_data().length > 0){
+			
+			self.current_selected_srch_view()['artist']['proc_state'] = action_type
+			if (search_artist_dataD_list.length == 0){
+				//alert ("in artist_dataD_list=0")
+				self.search_artist_data_isLoaded(false)
+				self.search_artist_data_isLoaded.valueHasMutated()
+				self.search_artist_data.removeAll(self.search_artist_data())
+				self.search_NSA_album_data.removeAll(self.search_NSA_album_data())
+				search_artist_dataD_list = []
+				search_NSA_albumD_list = []
+				
+				
+			}
+			
+			
+			
+			//alert('in somthing search_artist_dataD_list+'+self.search_artist_data_isLoaded())
+			self.search_artist_data(search_artist_dataD_list)
+			//alert('in somthing search_NSA_albumD_list')
+			self.search_NSA_album_data(search_NSA_albumD_list)
+		//alert('before mutated')	
+		self.current_selected_srch_view.valueHasMutated()					
+		}	
+		}
+		
+		return	
+	};
+	
+	self.do_cancell_categ_action = function () {
+		
+		if (self.add_to_categ_submodel().mode == 'update'){
+			
+			self.search_artist_data.removeAll(self.search_artist_data())
+			self.search_NSA_album_data.removeAll(self.search_NSA_album_data())
+			self.search_artist_data_isLoaded(false)
+			
+		}	
+		
+		if (self.getActiveView('state') =='initial'){
+			self.add_to_categ_submodel({'active':false,'key':'','mode':''})
+		} else if (self.getActiveView('state') =='tb_save' && self.curent_process_indicator().proc_key == 'categ'){
+		processSelected(proc_name,'artist_album_maintain_categ_restore_init_edit','restore_init_edited')	
+		}	
+		
+		
+		
+		
+	};
+	
+	self.removeSelected = function () {
+        self.selectedFolders.removeAll(self.selectedFolders());
+        self.selectedFolders([]); // Clear selection
+		self.selectedFolders.valueHasMutated();
+    };
+	self.addItem = function (item) {
+		//alert(key)
+		self.removeSelected()
+		if ( item.ref_folderL.length == 0){
+			return
+		}
+		for (i in item.ref_folderL){
+			self.selectedFolders.push({'key':i.toString(),'folder': item.ref_folderL[i].toString()}); 
+			}
+		return	
+	};
+};	
+
+m_vM.FolderFilters = ko.dependentObservable( {
+	read: function () {
+		if (m_vM.curent_selected_Group['isOn'] == true){
+        return ""; 
+		}
+    },
+	owner:	m_vM
+}, m_vM);
+
+m_vM.albumes_cmpl.subscribe(function() {
+	if (this.initial_data_load()){
+		this.initial_data_load(false)
+		this.initial_data_load.valueHasMutated()
+	}
+}, m_vM);
+
+m_vM.initial_data_load.subscribe(function() {
+	if (this.albumes_cmpl()){
+		this.albumes_cmpl(false)
+		this.albumes_cmpl.valueHasMutated()
+	}
+}, m_vM);
+
+m_vM.artist_checked_all_toggle.subscribe(function(newValue) {
+	if (this.current_selected_srch_view()['artist']['status'] == 'selected'){
+		ko.utils.arrayForEach(this.search_artist_data(), function(artist) {
+		if (!artist['is_in_db'] ){
+			artist['checked'] = newValue; 
+		}
+		})
+		m_vM.search_artist_data.valueHasMutated()
+		}
+		
+		if (this.current_selected_srch_view()['album']['status'] == "selected"){
+		$(this.search_NSA_album_data()).each( function(index,elem) {
+					$(elem['artistL']).each( function(index_a,artist) {
+						//alert(elem.artist+':'+album.album+':'+newValue)
+						if (!artist['is_in_db'] ){
+						artist["checked"] = newValue;
+						}
+						
+					})
+				})
+			
+		
+		m_vM.search_NSA_album_data.valueHasMutated()
+		}
+		
+		
+		
+		
+	}, m_vM);
+
+m_vM.album_checked_all_toggle.subscribe(function(newValue) {
+	
+	if (this.current_selected_srch_view()["artist"]['status'] == 'selected'){
+		$(this.search_artist_data()).each( function(index,elem) {
+					$(elem['albumL']).each( function(index_a,album) {
+						//alert(elem.artist+':'+album.album+':'+newValue)
+						if (!album['is_in_db'] ){
+						album["checked"] = newValue;
+						}
+						
+					})
+				})
+			
+		
+		m_vM.search_artist_data.valueHasMutated()
+		}
+		
+		if (this.current_selected_srch_view()["album"]['status'] == 'selected'){
+		
+		ko.utils.arrayForEach(this.search_NSA_album_data(), function(album) {
+		if (!album['is_in_db']){
+			album['checked'] = newValue; 
+		}
+		})
+		m_vM.search_NSA_album_data.valueHasMutated()
+		}
+	}, m_vM); 
+
+
+	
+m_vM.folder_filter_toggle.subscribe(function(newValue) {
+		//alert(m_vM.folder_filter_toggle())
+		if (!m_vM.folder_filter_toggle())	{
+			m_vM.curent_selected_Group().isOn = false
+			m_vM.removeSelected()
+			m_vM.curent_selected_Group.valueHasMutated()
+		} else {
+			m_vM.curent_selected_Group().isOn = true
+			
+			index = m_vM.curent_selected_Group()['index']
+			if (index != -1){
+			
+			item = m_vM.folderGroups_Items()[index]
+			
+			m_vM.addItem(item)
+			}
+			m_vM.curent_selected_Group.valueHasMutated()
+			}
+		//m_vM.search_artist_data.valueHasMutated()
+		},
+		m_vM); 	
+	
+  
+  var myLoadingParams = {
+  loaderClass        : "loading_bar",
+  needRelativeParent : false
+}
+$.fn.nimbleLoader.setSettings(myLoadingParams);
+  
+  $.ajaxSetup({
+  contentType: 'multipart/form-data'
+});
+  
+ function getAvailableObjeList(request){
+	//alert(request)
+	processSimpleRequest('search_process','get_artist_album_autocompl_data','',request)
+	//return [{'label':'1 gogo','value':'gogo','id':'1'},{'label':'2 moko','value':'moko','id':2},{'label':'3 koko','value':'koko','id':'3'}]
+	//return [{'value':'gogo','id':'1'},{'value':'moko','id':2},{'value':'koko','id':'3'}]
+} 
+$(document).ready(function(){
+  
+  ko.virtualElements.allowedBindings.text = true;	
+  ko.applyBindings(sw_OBJEDIT_M,$("#editDlgs")[0]);	
+  ko.applyBindings(m_vM,$("#mainWindow")[0]);	
+  //ko.applyBindings(alb_cmpl_M,$("#mainWindow")[0]);	
+  //ko.applyBindings(sw_TEST_M);
+  
+  $("#hide_me").click(function(){
+    $("#search_req_text_mass").toggle("slow");
+		
+  });
+  
+    $( "#search_req_text_field" ).autocomplete({
+			minLength: 2,
+			source: function( request, response ) {
+				
+				$.ajax({
+					url: 'http://' + host + '/medialib/report/',type: 'POST',dataType: "json",
+					
+					data: ko.toJSON({
+						object_data : {'object':m_vM.search_object_selector(),'search_term':request.term},
+						search_process : 'get_artist_album_autocompl_data'
+						
+					}),
+					success: function( data ) {
+						json_data = data.autocoml_data
+						response( $.map( json_data, function( item ) {	return {value: item.name,id: item.key	}} ))
+					},
+			})},
+			select:	function( event, ui ) {
+				//alert(ui.item.id)
+			}
+		});
+  
+  $( "#get_obj_artist_album" ).autocomplete({
+			minLength: 2,
+			source: function( request, response ) {
+				
+				$.ajax({
+					url: 'http://' + host + '/medialib/report/',type: 'POST',dataType: "json",
+					
+					data: ko.toJSON({
+						object_data : {'object':m_vM.artist_album_sub_model()['active_obj'],'search_term':request.term},
+						search_process : 'get_artist_album_autocompl_data'
+						
+					}),
+					success: function( data ) {
+						json_data = data.autocoml_data
+						response( $.map( json_data, function( item ) {	return {value: item.name,id: item.key	}} ))
+					},
+			})},
+			select:	function( event, ui ) {
+				alert(ui.item.id)
+			}
+		});
+		
+	$( "#get_obj_artist_album_editdlg_alb" ).autocomplete({
+			minLength: 2,
+			source: function( request, response ) {
+				
+				$.ajax({
+					url: 'http://' + host + '/medialib/report/',type: 'POST',dataType: "json",
+					
+					data: ko.toJSON({
+						object_data : {'object': sw_OBJEDIT_M.ddl_sub_model()['active_obj'],'search_term':request.term,'base_object':sw_OBJEDIT_M.base_obj_struct().object_data.object,'base_object_type':sw_OBJEDIT_M.base_obj_struct().object_data.object_type},
+						search_process : 'get_artist_album_autocompl_data'
+						
+					}),
+					success: function( data ) {
+						json_data = data.autocoml_data
+						response( $.map( json_data, function( item ) {	return {value: item.name,id: item.key}} ))
+					},
+			})},
+			select:	function( event, ui ) {
+				
+				if ( sw_OBJEDIT_M.ddl_obj_sel_key() == "ART_IN_ALB_REL"){
+					sw_OBJEDIT_M.tb_assign_selected({'object_type':sw_OBJEDIT_M.ddl_obj_sel_key(),'object':sw_OBJEDIT_M.ddl_sub_model().active_obj,'object_data':{'artist':ui.item.value,'key':ui.item.id,'checked':false,'main':'','colorcl':'newasgn','rel_type':sw_OBJEDIT_M.ddl_obj_sel_key(),'artist_song_num':1}})
+				}else if ( sw_OBJEDIT_M.ddl_obj_sel_key() == "ALB_OF_ART_REL"){
+					sw_OBJEDIT_M.tb_assign_selected({'object_type':sw_OBJEDIT_M.ddl_obj_sel_key(),'object':sw_OBJEDIT_M.ddl_sub_model().active_obj,'object_data':{'album':ui.item.value,'key':ui.item.id,'checked':false,'main':'','colorcl':'newasgn','rel_type':sw_OBJEDIT_M.ddl_obj_sel_key(),'album_song_num ':1}})	
+				} else if (sw_OBJEDIT_M.ddl_sub_model().active_obj == "artist"){
+					sw_OBJEDIT_M.tb_assign_selected({'object_type':sw_OBJEDIT_M.ddl_obj_sel_key(),'object':sw_OBJEDIT_M.ddl_sub_model().active_obj,'object_data':{'artist':ui.item.value,'key':ui.item.id,'checked':false,'main':'','colorcl':'newasgn','rel_type':sw_OBJEDIT_M.ddl_obj_sel_key()}})
+				}else if (sw_OBJEDIT_M.ddl_sub_model().active_obj == "album"){
+					sw_OBJEDIT_M.tb_assign_selected({'object_type':sw_OBJEDIT_M.ddl_obj_sel_key(),'object':sw_OBJEDIT_M.ddl_sub_model().active_obj,'object_data':{'album':ui.item.value,'key':ui.item.id,'checked':false,'main':'','colorcl':'newasgn','object_type':sw_OBJEDIT_M.ddl_obj_sel_key()}})
+				}	
+				
+				sw_OBJEDIT_M.tb_assign_selected.valueHasMutated()
+				
+				
+				//alert(sw_OBJEDIT_M.tb_assign_selected().object_name)
+			}
+		});
+  
+  $( "#editartistdlg" ).dialog({ modal: true,
+								autoOpen: false,
+								resizable: false,
+								draggable: false,
+								option: {"dialogClass": "jqfontfix"} ,
+								
+								height: 330, width: 830,position: [100,300],
+								beforeClose: function(event, ui) { sw_OBJEDIT_M.reset_all_rel_tables(); sw_OBJEDIT_M.navi_dlg_stack.pop()},
+								buttons: [
+											{
+														text: "Ok",
+														click: function() { $(this).dialog("close");   }
+											}
+										]
+							}
+							);
+							
+	$( "#editalbumdlg" ).dialog({ modal: true,
+								autoOpen: false,
+								resizable: false,
+								draggable: false,
+								option: {"dialogClass": "jqfontfix"} ,
+								beforeClose: function(event, ui) { sw_OBJEDIT_M.reset_all_rel_tables(); sw_OBJEDIT_M.navi_dlg_stack.pop()},
+								height: 500, width: 900,position: [50,50],
+								buttons: [
+											{
+														text: "Ok",
+														click: function() { $(this).dialog("close");   }
+											}
+										]
+							}
+							);						
+  
+  
+  });
+
+ function load_page(){
+	$("#search_req_text_mass").toggle();	
+	//document.getElementById('loading').style.visibility="hidden";
+	
+	var url_cur = 'http://' + host + '/medialib/report/'
+	
+	//json_req = {proc_name:"artist_page_data","folder_data":""}
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + "artist_page_data" + "\"" +','+"\"" + "folder_data" +"\"" + ':'+"\""+"\""+"}";
+	do_send_json_req(json_req)
+	//$.post(url_cur, json_req,processReqChange(),'xml');
+	 
+ } 
+ 
+
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+		$("#show_loader").nimbleLoader("hide");
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					if (data == 'search_result_frm'){
+					
+						if (my_JSON_object[data] != null){
+							document.getElementById("search_result_frm").innerHTML = Base64.decode(my_JSON_object[data]);
+												   }
+					 
+					}
+					
+					else if (data == 'artist_search_vars'){
+						document.getElementById("livesearch").innerHTML=my_JSON_object[data];
+						document.getElementById("livesearch").style.border="1px solid #A5ACB2";
+						
+					}
+					
+					
+					else if (data == 'category_data'){
+						category_dataD_list = JSON.parse(my_JSON_object[data])
+						m_vM.initialize_catProfileDL(category_dataD_list)
+					}	
+					
+					else if (data == 'folder_data'){
+						folder_dataD_list = JSON.parse(my_JSON_object[data])
+						
+						//m_vM.initialize_catProfileDL(grf_data.cat_profD)
+						
+						
+						folder_filter_key = ''
+						if ('folder_filter_keyD' in my_JSON_object){
+							folder_filter_keyD = my_JSON_object['folder_filter_keyD']
+						}
+						m_vM.initialize_folder_items(folder_filter_keyD)
+						
+					}
+					
+					else if (data == 'autocoml_data'){
+						autocompl_response = my_JSON_object[data]
+					}
+					
+					else if (data == 'album_NSA_view'){
+						
+						search_NSA_albumD_list =JSON.parse(my_JSON_object[data]['dataD'])
+						//alert(search_NSA_albumD_list[0])
+						
+						proc_state = 'no_srch_action'
+						if ('proc_state' in my_JSON_object[data]){
+							proc_state = my_JSON_object[data]['proc_state']
+							}
+							
+						
+							
+						try{
+						
+						m_vM.add_NSA_albumItem(proc_state)
+						//alert(proc_state)
+						}
+						catch ( e ) {
+							alert ('Error: at add_NSA_albumItem:  '+e)
+						}
+						
+					}
+					else if (data == 'albumes_cmpl_clast_view'){
+						$("#show_loader").nimbleLoader("hide");
+						//alb_cmpl_M =JSON.parse(Base64.decode(my_JSON_object[data]['dataD']))
+						//varD = JSON.parse(Base64.decode(my_JSON_object[data]['dataD']))
+						//alert(ko.toJSON(varD))
+						if (m_vM.search_artist_data().length > 0){
+						m_vM.search_artist_data.removeAll(m_vM.search_artist_data())
+						}
+						if (m_vM.search_NSA_album_data().length > 0){
+						m_vM.search_NSA_album_data.removeAll(m_vM.search_NSA_album_data())
+						}
+						
+						m_vM.album_cmpl_init_dataL(JSON.parse(Base64.decode(my_JSON_object[data]['dataD'])))
+						m_vM.album_cmpl_init_dataL.valueHasMutated()
+						
+						
+						
+					}	
+					
+					else if (data == 'active_view'){
+						$("#show_loader").nimbleLoader("hide");
+						if (my_JSON_object[data] != ''){
+								m_vM.setView(my_JSON_object[data])
+								//m_vM.current_selected_srch_view['artist']['status']='selected'
+								//m_vM.current_selected_srch_view['album']['status'] ='deselected'
+						}
+					}
+					
+					
+					else if (data == 'proc_type'){
+						//alert(my_JSON_object[data])
+						if (my_JSON_object[data] == 'data_initial_load'){
+							m_vM.initial_data_load(true)
+							m_vM.edit_field(false)
+							m_vM.curent_process_indicator(process_data[my_JSON_object[data]])
+						} else if (my_JSON_object[data] == 'data_categ'){
+							m_vM.folder_filter_toggle(false)
+							m_vM.initial_data_load(false)
+							m_vM.edit_field(false)
+							m_vM.curent_process_indicator(process_data[my_JSON_object[data]])
+							
+						} else if (my_JSON_object[data] == 'data_from_db'){
+							m_vM.folder_filter_toggle(false)
+							m_vM.initial_data_load(false)
+							m_vM.edit_field(true)
+							m_vM.curent_process_indicator(process_data[my_JSON_object[data]])
+						} else if (my_JSON_object[data] == 'albumes_cmpl'){
+							//m_vM.folder_filter_toggle(false)
+							
+							m_vM.initial_data_load(false)
+							m_vM.edit_field(false)
+							m_vM.curent_process_indicator(process_data[my_JSON_object[data]])
+						}
+						
+						
+						
+					}
+					
+					else if (data == 'artist_view'){
+						
+						search_artist_dataD_list =JSON.parse(my_JSON_object[data]['dataD'])
+						proc_state = 'no_srch_action'
+						if ('proc_state' in my_JSON_object[data]){
+							proc_state = my_JSON_object[data]['proc_state']
+						}
+						
+						
+						
+						try{
+						m_vM.add_searchItem(proc_state)
+						}
+						catch ( e ) {
+							alert ('Error: at add_searchItem:  '+e)
+							}
+						
+					}
+					
+					else if ( data == 'action_result'){
+						//alert(my_JSON_object)
+						if (my_JSON_object['action_result'] == 2){
+							document.getElementById('action_name').innerHTML = "Changes can be saved in:";
+							document.getElementById('action_go').type = "hidden";
+							document.getElementById('save_button').type = "button";
+						}
+						else if (my_JSON_object['action_result'] == 1){
+							document.getElementById('action_result').innerHTML = "Changes succesfuly saved!";
+							document.getElementById('action_go').type = "hidden";
+							document.getElementById('save_button').type = "hidden";
+							do_cancell_action()
+						}
+						}
+					else if (data == 'action_key'){
+							action_key = my_JSON_object[data]
+					}
+						
+					
+					
+				} 
+            
+    }
+  }
+  }
+  catch( e ) {
+       alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+
+
+
+
+function openEditForm(params) {
+ url = 'http://%(host_name)s/edit_artist/?q=' + params
+ document.getElementById(params).style.color="#FE6F5E";	
+ fenster=window.open(url,"_blank","width=900,height=250,status=no,scrollbars=no,resizable=no,modal=yes");
+ fenster.focus();
+ return false;
+}
+
+function search_req_send(proc_name,action_name,search_term,search_list) {
+	
+	//alert(search_list)
+	if (action_name != "search_artist"){
+	if  (m_vM.initial_data_load()){
+		action_name = "search_artist_data"
+	} else if  (m_vM.albumes_cmpl()){
+		action_name = "get_albumes_cmpl_clast"
+	}
+	else{
+		action_name = "search_artist_db"
+	}
+	}
+	
+	json_req = "{"
+	new_only = ''
+	if (action_name == "search_artist_data"){
+	json_req = json_req + "\"" + 'idl_param' +"\"" + ':' +"\"" + $("#IDLPARAM").val() + "\"" +','
+	}
+	if (m_vM.curent_selected_Group().isOn){
+	//alert(m_vM.curent_selected_Group().isOn)
+	json_req = json_req +"\"" + 'srch_folder_key' +"\"" + ':' +"\"" + m_vM.curent_selected_Group['key'] + "\"" +','
+	}
+	
+	json_req = json_req + "\"" + 'object' +"\"" + ':' +"\"" + m_vM.search_object_selector() + "\"" +','
+	
+	if (search_list != ""){
+	json_req = json_req +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_list+"\""+"}";
+	}else{ 
+	json_req = json_req +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+"}";
+	}
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+} 
+
+	function do_send_ajax_json_req(loc_url_key,json_data){
+		var response = ''
+		$.ajax({	url: 'http://' + host + loc_url_key,type: 'POST', dataType: "json", data: json_data,async: false,
+					contentType:'multipart/form-data',
+					error: function( data ) { 
+							
+							alert('Error at data received:'+data.responseText)
+							return -1
+					},
+										
+					success: function( data ) { 
+												response = data
+												
+												},
+				})
+		return	response
+		
+		}		
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/report/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	//alert(json_req)
+	req.send(json_req)
+	//startProgressBar()
+	
+	return false;
+
+}
+	
+
+function do_cancell_action() {
+
+	m_vM.folder_filter_enable(true);
+
+	//document.getElementById('use_tag').disabled=false;
+	document.getElementById('groupList').disabled=false;
+	document.getElementById('get_tag_artists').disabled=false;
+	//document.getElementById('tag_type_filter').disabled=false;
+	document.getElementById('delete_empty_tag').disabled=false;
+	
+	
+	document.getElementById('action_cancell').type = "hidden"
+	document.getElementById('save_button').type = "hidden"
+	document.getElementById('action_name').innerHTML = ""
+	
+	
+	document.getElementById('action_go').type = "hidden"
+	
+	proc_mode = 0
+	
+}
+	
+
+function processSelected(proc_name,action_name,mode){
+	//alert(action_name)
+	var struct_name
+	var artist_albumJson = '[]'
+	if (m_vM.current_selected_srch_view()["artist"]['status'] == 'selected'){
+		struct_name = 'artistDataD'
+		if (mode != 'restore_init_edited'){
+			//alert('do json:'+mode)
+			artist_albumJson = ko.toJSON(m_vM.getArtistAlbumStructChecked())
+		}
+	} else if (m_vM.current_selected_srch_view()["album"]['status'] == 'selected'){
+		struct_name = 'album_NSA_DataD'
+		if (mode != 'restore_init_edited'){
+		artist_albumJson = ko.toJSON(m_vM.get_NSA_AlbumStructChecked())
+		}
+	}
+	selL = new Array();
+	var checkStatus = true;
+	if ( mode == 'deselected'){
+		checkStatus = false
+		}
+	cat_id = m_vM.categoryProfileDL()[m_vM.cat_prof_selected()].relCatL[m_vM.category_selected()].cat_id
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ','+"\""+"group_list"+"\""+":"+"\""+m_vM.add_to_categ_submodel().key +"\""+",";
+	json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+','+"\""+"categ_id"+"\""+":"+"\""+cat_id +"\"" + ","+"\"" + struct_name + "\"" + ':' + artist_albumJson +"}";
+	
+	//console.log(json_req)
+ 	return do_send_json_req(json_req);
+}	
+
+function processSimpleRequest(proc_name,action_name,mode,param_1){
+	//alert(action_name)
+	var struct_name = 'object_data'
+	var objectJson = ''
+	
+	if (action_name == 'create_object'){
+		//m_vM.artist_album_sub_model.valueHasMutated()
+		
+		objectJson = ko.toJSON(m_vM.artist_album_sub_model().object_data)
+		//alert(objectJson)
+	}
+	
+	if (action_name == 'get_artist_album_autocompl_data'){
+	object_data = {'object':m_vM.artist_album_sub_model()['active_obj'],'search_term':param_1}
+	
+	objectJson = ko.toJSON(object_data)
+	}
+
+	//alert(objectJson)
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ',';
+	json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+","+"\"" + struct_name + "\"" + ':' + objectJson +"}";
+	
+	//console.log(json_req)
+ 	return do_send_json_req(json_req);
+}
+
+function send_Simple_Form(myForm,proc_name,param){
+ 
+ 
+	selL = new Array();
+	main_artist = "";
+	artist_name = "";
+	search_term = "";
+        ref_artist = "";
+	//alert(myForm.name);
+	//ref_list = myForm.ref_artist_new;
+	//json_req = "{" +"\"" + 'form_name' +"\"" + ':' +"\"" + myForm.name + "\"" + ',';
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + param + "\"" + ',';
+ 
+	for (var i = 0; i < myForm.length; i++) {
+        	var temp_el = myForm[i];    
+		
+		if ( temp_el.type == 'select-one'  ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+
+		}	
+
+		if ( temp_el.type == 'checkbox' ){
+			json_req += "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+
+		if ( temp_el.type == 'text' ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+		
+		
+		} 
+ 
+	json_req = json_req.substring(0,json_req.length-1)
+	json_req += "}" 
+	JSON_object = JSON.parse( json_req)
+	if (JSON_object['group_list']==""){
+	alert("Select Style from the list")
+		return;	
+	}else{
+		//alert(json_req)
+		return do_send_json_req(json_req);
+	}
+	}
+	
+function showResult(search_term)
+{
+if (search_term.length==0)
+  { 
+  document.getElementById("livesearch").innerHTML="";
+  document.getElementById("livesearch").style.border="0px";
+  return;
+  }
+	json_req = "{" +"\"" + 'search_process' +"\"" + ':' +"\"" + 'get_artist_meta_buf_live_search_variants' + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+"}";
+  do_send_json_req(json_req)
+}	
+
+function send_save_confirm(proc_name,action_name,param) {
+		
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "action_key" +"\"" + ':' +"\"" + param + "\"" + ',' +"\""+"tag_id"+"\""+":"+"\""+document.getElementById('tag_id').value.toString()+"\""+"}";
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+} 
+
+ window.onload = load_page;
+  
+//--> 
+
+
+</SCRIPT>
+
+</head>
+
+<body>
+<div id="pagewidth" >
+
+
+
+ <div id="header">
+ 	%(bookmark_tmpl)s
+ </div>
+
+<br>
+
+		 
+
+<div id="editDlgs" >
+<div id="editartistdlg" >
+		
+		<div data-bind="visible: sw_OBJEDIT_M.navi_dlg_stack().length > 3">
+		
+		<b> back to: </b> <a href="#" data-bind="text: sw_OBJEDIT_M.navi_dlg_stack()[sw_OBJEDIT_M.navi_dlg_stack().length-2].name, click: function() { sw_OBJEDIT_M.jump_to_object(sw_OBJEDIT_M.navi_dlg_stack()[sw_OBJEDIT_M.navi_dlg_stack().length-2].object,sw_OBJEDIT_M.navi_dlg_stack()[sw_OBJEDIT_M.navi_dlg_stack().length-2].key,'back') }"> </a>
+		
+		</div>
+
+		</fieldset> 
+</div>
+		
+
+<div id="editalbumdlg" >
+
+		
+		<table>
+		<tr style="vertical-align:top">
+		<td >
+		
+		
+		<fieldset> 
+		<legend> <a href="#" data-bind="text: sw_OBJEDIT_M.base_obj_struct().active_obj, attr:{title:sw_OBJEDIT_M.base_obj_struct().object_data.objectD.path}"></a> properties:</legend> 
+		
+		Create Date: <span  data-bind="text: sw_OBJEDIT_M.base_obj_struct().object_data.objectD.add_date"> </span>
+		<BR>Search terms:	<input  data-bind="value: sw_OBJEDIT_M.search_terms" /> 
+		
+			
+		<BR>Main: <input  type="CHECKBOX" data-bind="checked: sw_OBJEDIT_M.main">
+		
+		
+		
+		<BR>Release:<input autocomplete="off" id="tag_descr_field" name="tag_descr_field"  value="" type="text">
+		
+		<button data-bind="click:function() {sw_OBJEDIT_M.save_object_attrs() }"> Save</button>		
+		
+		</fieldset> 
+		</td>
+		<td>
+		 
+		<fieldset>
+		<legend>Object Assignment:
+			<B>
+			 <input type="radio"  value="artist" data-bind="checked: sw_OBJEDIT_M.object_selector" /> Artist
+			 <input type="radio"  value="album" data-bind="checked: sw_OBJEDIT_M.object_selector" /> Album
+			 </B>
+		</legend>	 
+		
+			
+		
+		
+			<table>
+			
+			
+			<tr>
+			<td style="width:120px">
+
+            <div data-bind="visible: sw_OBJEDIT_M.ddl_sub_model">
+		<select  size="1" style="width:116px" data-bind="foreach:sw_OBJEDIT_M.ddl_sub_model()[sw_OBJEDIT_M.ddl_sub_model().active_obj], value:sw_OBJEDIT_M.ddl_obj_sel_key">
+				<option width="116px" data-bind="value: value" > 	<!--ko text: value--><!--/ko--> </option>
+				
+		 </select>	
+		 </div>			
+
+			</td>
+			
+			<td style="width:300px">
+			<div class="ui-widget">
+				<label for="get_obj_artist_album_editdlg_alb">Get Object: </label>
+			<input id="get_obj_artist_album_editdlg_alb" />
+			</div>
+			</td>
+			<td>
+			
+			<button data-bind="enable: ( sw_OBJEDIT_M.tb_assign_selected() ),click:function() {sw_OBJEDIT_M.assign_rel_object() }"> Assign</button>	
+			<button data-bind="visible: ( sw_OBJEDIT_M.base_obj_struct().object_data.object == 'album' ),click:function() {sw_OBJEDIT_M.check_album2artist_rel(sw_OBJEDIT_M.base_obj_struct().object_data.objectD.path_crc32) }"> Chck2ArtRel</button>	
+			</td>
+			
+			
+			</tr>
+			
+			
+			</table>
+		</fieldset>
+		</td>
+		</tr>
+		<tr>
+		
+		<td >
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "album"), template: "sw_EDITAlb_rel_alb_to_in_role"'></div>
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "artist"), template: "sw_EDITAlb_rel_art_to_in_role"'></div>
+			
+		</td '>
+		<td>
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "album" ), template: "sw_EDITAlb_rel_art_in_alb"'></div>
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "artist" ), template: "sw_EDITAlb_rel_alb_of_art"'></div>
+	
+		</td>
+		</tr>
+		
+		<tr>
+		<td>
+		
+			
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "album"), template: "sw_EDITAlb_rel_alb_from_in_role"'></div>
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "artist"), template: "sw_EDITAlb_rel_art_from_in_role"'></div>
+
+		</td>
+		<td>
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "album"),template: "sw_EDITAlb_rel_art_in_role"'></div>
+			<div data-bind='visible: (sw_OBJEDIT_M.base_obj_struct().active_obj == "artist"),template: "sw_EDITAlb_rel_all_artists_in_role"'></div>
+			
+		</td>
+		</tr>
+		</table>
+			<BR>	<BR>
+		<div data-bind="visible: sw_OBJEDIT_M.navi_dlg_stack().length > 3">
+		
+		<b> back to: </b> <a href="#" data-bind="text: sw_OBJEDIT_M.navi_dlg_stack()[sw_OBJEDIT_M.navi_dlg_stack().length-2].name, click: function() { sw_OBJEDIT_M.jump_to_object(sw_OBJEDIT_M.navi_dlg_stack()[sw_OBJEDIT_M.navi_dlg_stack().length-2].object,sw_OBJEDIT_M.navi_dlg_stack()[sw_OBJEDIT_M.navi_dlg_stack().length-2].key,'back') }"> </a>
+		<BR>
+		</div>
+		
+		
+		
+	<script type="text/html" id="sw_EDITAlb_rel_art_in_alb">
+		<fieldset> 
+		<legend><B title="??????? ??????? ??????? ?? ????????? ????? ??????-??????" data-bind="text:'Artists in the album:['+sw_OBJEDIT_M.assgn_artist_inAlb_tbl().length+']' "> </B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		{{if sw_OBJEDIT_M.assgn_artist_inAlb_tbl().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_artist_inAlb_tbl()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" > <a href="#" data-bind="text: artist, click: function() { sw_OBJEDIT_M.jump_to_object('artist',key) }"> </a>  </td>
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td data-bind="click: function() { }"> <span data-bind="text: artist_song_num"></span>  </td>
+				
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() { sw_OBJEDIT_M.save_artist_album_relation(item,'ART_IN_ALB_REL') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		
+		</table>
+		</div>
+		</fieldset> 
+		
+		</script>
+		
+	<script type="text/html" id="sw_EDITAlb_rel_alb_of_art">
+		<fieldset> 
+		<legend><B title="??????? ??????? ??????? ?? ??????????? ?????????? ??????-??????" data-bind="text:'Albums of the artist:['+sw_OBJEDIT_M.assgn_albume_forArt_tbl().length+']'"> </B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		{{if sw_OBJEDIT_M.assgn_albume_forArt_tbl().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_albume_forArt_tbl()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" > <a href="#" data-bind="text: album, click: function() { sw_OBJEDIT_M.jump_to_object('album',key) }"> </a>  </td>
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td data-bind="click: function() { }"> <span data-bind="text: album_song_num"></span>  </td>
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() { sw_OBJEDIT_M.save_artist_album_relation(item,'ALB_OF_ART_REL') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		
+		</table>
+		</div>
+		</fieldset> 
+		
+		</script>	
+		
+	<script type="text/html" id="sw_EDITAlb_rel_art_in_role">
+		<fieldset> 
+		<legend><B title="????????? ? ?????? ???????? ??????? (?????? ? ???? ???????????, ????????), ??? ????? ?????????? ?? ????????? ????? ??????-??????">Related Artists in role:</B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		{{if sw_OBJEDIT_M.assgn_artist_rel_tbl().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_artist_rel_tbl()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" data-bind="click: function() { }"> <a href="#" data-bind="text: artist, click: function() { sw_OBJEDIT_M.jump_to_object('artist',key) }"> </a>  </td>
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td align="left" data-bind="click: function() { }"> <span data-bind="text: rel_type"></span>  </td>
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() { sw_OBJEDIT_M.save_artist_album_relation(item,'ART_ALB_REL_ROLE') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		</table>
+		</div>
+		</fieldset> 
+		
+		</script>	
+		
+		
+	<script type="text/html" id="sw_EDITAlb_rel_art_from_in_role">
+		<fieldset> 
+		<legend><B title="Relation: artist-artist from parent(main) to child. ?????? ???? ??????????? ??????? ????????. " data-bind="text:'Related Artists [from] in role:['+sw_OBJEDIT_M.assgn_artists_from_main_relLD().length+']'"></B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		
+		{{if sw_OBJEDIT_M.assgn_artists_from_main_relLD().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_artists_from_main_relLD()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" data-bind="click: function() { }"> <a href="#" data-bind="text: artist, click: function() { sw_OBJEDIT_M.jump_to_object('artist',key) }"> </a>  </td>
+				
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				
+				<td>
+				<select data-bind="options: artist_rel_type_DDL, optionsValue : 'key', value: rel_type "></select>
+				</td>
+			
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() {  sw_OBJEDIT_M.save_artist_from_to_relation(item,'ART_MAIN_FROM_REL') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		</table>
+		</div>
+		</fieldset> 
+	</script>			
+	
+	<script type="text/html" id="sw_EDITAlb_rel_art_to_in_role">
+		<fieldset> 
+		<legend><B title="?????: ??????-?????? ?? ???????????? ? ????????. ?????? ??? ????????,??? ??????? ?????????? ????????." >Related Artists [to] in role:</B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		
+		{{if sw_OBJEDIT_M.assgn_artists_main_to_relLD().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_artists_main_to_relLD()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" data-bind="click: function() { }"> <a href="#" data-bind="text: artist, click: function() { sw_OBJEDIT_M.jump_to_object('artist',key) }"> </a>  </td>
+				
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td>
+				<select data-bind="options: artist_rel_type_DDL, optionsValue : 'key', value: rel_type "></select>
+				</td>
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() {  sw_OBJEDIT_M.save_artist_from_to_relation(item,'ART_MAIN_TO_REL') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		</table>
+		</div>
+		</fieldset> 
+	</script>			
+	
+	
+	<script type="text/html" id="sw_EDITAlb_rel_alb_from_in_role">
+		<fieldset> 
+		<legend><B data-bind="text:'Related Album [from] in role:['+sw_OBJEDIT_M.assgn_album_from_rel_tbl().length+']'"></B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		
+		{{if sw_OBJEDIT_M.assgn_album_from_rel_tbl().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_album_from_rel_tbl()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" data-bind="click: function() { }"> <a href="#" data-bind="text: album, click: function() { sw_OBJEDIT_M.jump_to_object('album',key) }"> </a>  </td>
+				
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td align="left" data-bind="click: function() { }"> <span data-bind="text: object_type"></span>  </td>
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() {  sw_OBJEDIT_M.save_artist_album_relation(item,'ALB_REL_ROLE') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		</table>
+		</div>
+		</fieldset> 
+	</script>		
+	
+		 
+	<script type="text/html" id="sw_EDITAlb_rel_all_artists_in_role">
+		<fieldset> 
+		<legend><B title="??? ????????? ? ?????? ???????? ?????? ???????, ????? ??????-??????. ??????, ??? ????????." >All related artists in role:</B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		
+		{{if sw_OBJEDIT_M.assgn_artists_all_relLD().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_artists_all_relLD()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				
+				<td align="left" data-bind="click: function() { }"> <a href="#" data-bind="text: artist, click: function() { sw_OBJEDIT_M.jump_to_object('artist',key) }"> </a>  </td>
+				
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td align="left" data-bind="click: function() { }"> <span data-bind="text: rel_type"></span>  </td>
+				
+				</tr>
+			{{/each}}	
+		{{/if}}
+		</table>
+		</div>
+		</fieldset> 
+	</script>		
+	
+		
+	<script type="text/html" id="sw_EDITAlb_rel_alb_to_in_role">
+		<fieldset> 
+		<legend><B>Related Album [to] in role:</B></legend> 
+		<div style="height:100px;overflow-y:scroll;">
+		<table style="width:300px">
+		
+		{{if sw_OBJEDIT_M.assgn_album_rel_tbl().length > 0}}    
+
+			{{each(i, item) sw_OBJEDIT_M.assgn_album_rel_tbl()}}  
+				<tr data-bind="attr:{'class':colorcl}"  >
+				<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked"> </td>
+				<td align="left" data-bind="click: function() { }"> <a href="#" data-bind="text: album, click: function() { sw_OBJEDIT_M.jump_to_object('album',key) }"> </a>  </td>
+				
+				<td data-bind="click: function() { }"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td align="left" data-bind="click: function() { }"> <span data-bind="text: object_type"></span>  </td>
+				
+				<td data-bind="click: function() { }"><button data-bind="click:function() {  sw_OBJEDIT_M.save_artist_album_relation(item,'ALB_REL_ROLE') }"> Save</button>	</td>
+				</tr>
+			{{/each}}	
+		{{/if}}
+		</table>
+		</div>
+		</fieldset> 
+		</script>		
+		
+</div>
+</div>
+
+
+ <div id="mainWindow">
+ 
+ 
+ <div id="search_block" align="left"> 
+ <br>
+<TABLE BORDER="0"> 
+<TR> 
+<td  width="50" >  </td>
+<TD> 
+<fieldset> 
+Initial data load: <input  type="CHECKBOX" data-bind="checked: m_vM.initial_data_load">
+<select id="IDLPARAM" data-bind="enable: m_vM.initial_data_load">
+	<optgroup label="Album loading from track data">
+	<option value="TRCKIDLWOEC">w/o exst check</option>
+	<option value="TRCKIDLONEW">only new</option>
+	</optgroup>
+	
+	<optgroup label="Single preLoaded via album log">
+	<option value="ALBLOGFULL" selected>Full log scan with exst check</option>
+	<option value="ALBLOGl10">In last 10</option>
+	</optgroup>
+<select>
+
+
+Albums Cmpl: <input type="CHECKBOX" title="Get Albumes collections (series,double discs,boxes)" id="alb_cmpl" data-bind="checked: m_vM.albumes_cmpl" >
+<a href="#" title="Close/Restore Panel" id="hide_me"> X/? </a>  <BR>
+<FORM action=""   data-bind="submit: function() {return search_req_send(proc_name,'search_artist_db',$('#search_req_text_field').val(),$('#search_req_text_mass').val())}" > 
+
+
+
+<legend> search in:
+		<input type="radio"  value="artist" data-bind="checked: m_vM.search_object_selector(),click:function() { m_vM.search_object_selector('artist')}" /> Artist
+         <input type="radio"  value="album" data-bind="checked: m_vM.search_object_selector(),click:function() { m_vM.search_object_selector('album')}" /> Album
+		</legend> 
+
+	<div class="ui-widget">	
+			<label for="search_req_text_field">Search: </label>
+		<input id="search_req_text_field" />
+		
+		<input name="do_search"  title="Search" value="Search" type="button" onclick="search_req_send(proc_name,'search_artist_db',this.form.search_req_text_field.value,$('#search_req_text_mass').val())">   	
+</div>
+<B><span style="color:Red;" data-bind="visible: m_vM.curent_selected_Group()['isOn']">Folder filter is On</span> </B> <BR>
+<textarea  id="search_req_text_mass" name="search_req_text_mass" rows="3" cols="40"></textarea>		
+</fieldset>
+		
+
+</TD>
+
+
+ <td rowspan="1" width="200" >  
+<fieldset> 
+	<legend>Toggle select all:</legend> 
+	Artist: <INPUT id="sel_toggle_artist" height="27" width="36" TYPE="checkbox" name="artist_select" value="artist_select" data-bind="checked: m_vM.artist_checked_all_toggle"> 
+	Album: <INPUT  id="sel_toggle_album" height="27" width="36" TYPE="checkbox" name="album_select" value="album_select" data-bind="checked: m_vM.album_checked_all_toggle"> 
+	<br><br>
+</fieldset> 	
+ 
+ 
+
+</TD>
+<TD>
+
+
+</TD>
+<TD>
+
+</TD>
+<TD>
+
+
+</TD>
+
+</FORM >
+</TR> 
+<TR> 
+<td  width="50" >  </td>
+<TD> 
+
+
+
+</TD>
+<TD>  
+
+
+</TD>
+<TD collspan="3" align="right">
+
+ 
+</TD>
+<TD>  
+ 
+</TD>
+<TD style="width:210px">  
+
+</TD>
+</TR> 
+
+</TABLE> 
+
+</div> 
+ <div id="container2" class="clearfix">
+ <div id="container1" class="clearfix">
+ <div id="maincol">
+ <div id="show_loader"> 
+ <input type="hidden" id="selector" value=1> 
+ <ul class="css-menu-2">
+<li> <a data-bind="attr:{class: m_vM.current_selected_srch_view()['artist']['status']},click:function() { m_vM.setView('artist')}"  href="#">Artist</a></li>
+<li><a  data-bind="attr:{class: m_vM.current_selected_srch_view()['album']['status']},click:function() { m_vM.setView('album')}" href="#">Album</a></li>
+
+</ul>
+
+
+
+<FORM action="" METHOD="POST" id="search_result_frm" enctype='multipart/form-data' > 
+
+<div align="center" >
+
+ <table data-bind="visible: m_vM.album_cmpl_init_dataL().length > 0">
+        <thead>
+            <tr data-bind="style:{'background-color':m_vM.curent_process_indicator().color}">
+				<th style="width:30px"></th>
+				<th style="width:30px" collspan="3">NВ°</th>
+                <th style="width:400px">Albumes</th>
+                <th>Relation</th>
+				<th>Action</th>
+				
+                
+            </tr>
+        </thead>
+        <tbody data-bind='template: "albumes_cmpl_RowTemplate"'></tbody>
+    </table>
+
+ <table data-bind="visible: m_vM.search_artist_data_isLoaded">
+        <thead>
+            <tr data-bind="style:{'background-color':m_vM.curent_process_indicator().color}">
+				<th style="width:30px"></th>
+				<th style="width:30px" collspan="2">NВ°</th>
+                <th style="width:400px">Artist</th>
+                <th>Main</th>
+				<th style="width:30px">InDb</th>
+				<th style="width:40px">a-fmt</th>
+				<th style="width:40px">a-NSA</th>
+				<th>Song_num</th>
+				<th>Album_num</th>
+                
+            </tr>
+        </thead>
+        <tbody data-bind='template: "artistRowTemplate"'></tbody>
+    </table>
+	
+<script type="text/html" id="albumes_cmpl_RowTemplate">
+{{each(i, item) m_vM.album_cmpl_init_dataL()}}    
+	<tr data-bind="attr:{'id': index,'class':colorcl}, event: { mouseover: function() { colorMe( index,'LightBlue' ) }, mouseout: function() { uncolorMe( index ) } }" > 
+	<td ><input type="CHECKBOX" class="" data-bind="value: index, uniqueName: true,checked: checked"></td> 
+	<td style="width:30px" collspan="2" align="right"> <span data-bind="text: i+1"></span>. </td> 
+	<td  data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"   align="left" ><input style="width:360px"  data-bind="value: prop_clast_name"></input> </td>
+	<td align="center">
+		<select data-bind="options: album_rel_type_DDL, optionsValue : 'key', value: rel_type "></select>
+	</td>
+	<td align="center"> <a data-bind="click:function() { m_vM.SaveAlbumCmpl(item)}"  href="#">Save</a> </td>
+	</tr>
+	{{each(j, album_item) clast_contentLD}}
+	<tr  data-bind="attr:{'id': index,'class':colorcl}, event: { mouseover: function() { colorMe( index,'LightBlue' ) }, mouseout: function() { uncolorMe( index ) } }" >
+	<td ></td> 
+	<td ><input type="CHECKBOX" class="" data-bind="value: index, uniqueName: true,checked: checked"> </td>
+	<td><span data-bind="text: (j+1)+'.'+disc_name"></span> </td> 
+	</tr>
+	{{/each}}
+{{/each}}
+</script>	
+	
+<script type="text/html" id="artistRowTemplate">
+	{{if m_vM.search_artist_data_isLoaded && (m_vM.getActiveView() == 'artist')}}    
+	
+    {{each(i, artist) search_artist_data()}}    
+	
+	<tr data-bind="attr:{'id': index,'class':colorcl}, event: { mouseover: function() { colorMe( index,'LightBlue' ) }, mouseout: function() { uncolorMe( index ) } }" > 
+		<td><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked,enable: (!is_in_db && !m_vM.initial_data_load())"> </td>
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}" style="width:30px" collspan="2" align="right" ><span data-bind="text: pos_num"></span>. </td>
+		<td align="left" data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"> <span data-bind="text: artist"></span>  </td>
+		<td data-bind="visible:edit_field()"> <a data-bind="click:function() { colorMe( index,'' ), sw_OBJEDIT_M.editAAElem(obj_type,key,'color') }"  href="#">Edit</a>  </td>
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"><input type="CHECKBOX"  data-bind="checked: is_in_db" disabled > </td>
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"></td> 
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"></td> 
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"><span data-bind="text: song_num"></span> </td> 
+		<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'artist')}"><span data-bind="text: album_num"></span> </td> 
+        
+    </tr>
+		{{each(i, album) albumL}}
+		<tr data-bind="checked: checked,visible: visible,attr:{'id': index,'class':colorcl}, event: { mouseover: function() { colorMe( index,'LightGrey' ) }, mouseout: function() { uncolorMe( index ) } }" > 	
+		<td>--</td>
+		<td><input style="width:30px" type="CHECKBOX" class="sel_album" data-bind="value: key, uniqueName: true,checked: checked,enable: (!is_in_db && !m_vM.initial_data_load())" > </td>
+		<td><span data-bind="text: album_display_name"></span> </td> 
+		<td data-bind="visible:edit_field()" > <a data-bind="click:function() { colorMe( index,'' ),sw_OBJEDIT_M.editAAElem(obj_type,key,'color')}"  href="#">Edit</a>  </td>
+		<td></td> 
+		<td><input style="width:30px" type="CHECKBOX"  data-bind="checked: is_in_db" disabled ></td> 
+		<td><span data-bind="text: format"></span> </td> 
+		<td><input style="width:30px" type="CHECKBOX"  data-bind="checked: not_single_artist" disabled ></td> 
+		<td><span data-bind="text: album_song_num"></span> </td> 
+		<td></td> 
+		
+		</tr>
+        {{/each}}
+	{{/each}}	
+	{{/if}}
+	
+	{{if m_vM.search_artist_data_isLoaded && (m_vM.getActiveView() == 'album') }}  
+		{{each(i, album) search_NSA_album_data()}}    
+			<tr data-bind="attr:{'id': index,'class':colorcl}, event: { mouseover: function() { colorMe( index,'LightGrey' ) }, mouseout: function() { uncolorMe( index ) } }" > 	
+			
+			<td align="left" > <input style="width:30px" type="CHECKBOX" class="sel_album" data-bind="value: key, uniqueName: true,checked: checked,enable: (!is_in_db && !m_vM.initial_data_load())" > </td>	
+			<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"><span data-bind="text: album_pos"></span>.</td>
+			<td align="left" data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"><span data-bind="text: album"></span> </td> 
+			
+			<td data-bind="visible:edit_field()"> <a data-bind="click:function() { colorMe( index,'' ), sw_OBJEDIT_M.editAAElem(obj_type,key,'color')}"  href="#">Edit</a>  </td>
+			<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"></td> 
+			<td  align="left" data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"><input style="width:30px" type="CHECKBOX"  data-bind="checked: is_in_db" disabled ></td> 
+			<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"><span data-bind="text: format"></span> </td> 
+			<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"><input style="width:30px" type="CHECKBOX"  data-bind="checked: not_single_artist" disabled ></td> 			
+			<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"><span data-bind="text: song_num"></span> </td> 
+			<td data-bind="click: function() { m_vM.expandArtistAlbum(i,'album')}"></td> 
+			
+			</tr>
+			
+			{{each(i, artist) artistL}}
+			<tr data-bind="checked: checked,visible: visible,attr:{'id': index,'class':colorcl}, event: { mouseover: function() { colorMe( index,'LightBlue' ) }, mouseout: function() { uncolorMe( index ) } }" > 
+				<td align="right"><input type="CHECKBOX" class="sel_artist" data-bind="value: key, uniqueName: true,checked: checked,enable: (!is_in_db && !m_vM.initial_data_load())"> </td>
+				<td align="right" style="width:30px" collspan="2" align="right" >   <span data-bind="text: pos_num"></span> </td>
+				<td align="left" > <span data-bind="text: artist"></span>  </td>
+				<td data-bind="visible:edit_field()"> <a data-bind="click:function() { colorMe( index,'' ), sw_OBJEDIT_M.editAAElem(obj_type,key,'color')}"  href="#">Edit</a>  </td>
+				<td><input type="CHECKBOX"  data-bind="checked: main" disabled> </td>
+				<td align="right"><input type="CHECKBOX"  data-bind="checked: is_in_db" disabled > </td>
+				<td></td> 
+				<td></td> 
+				<td  align="right"><span data-bind="text: song_num"></span> </td> 
+				<td><span data-bind="text: album_num"></span> </td> 
+			</tr>	
+			
+			
+			{{/each}}	
+		{{/each}}	
+	
+		
+	{{/if}}
+    
+</script>	
+	
+	
+<TABLE BORDER="0">
+%(report_part_tmpl)s
+<BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR><BR>
+
+</TABLE>
+</div>
+
+</FORM> 
+</div>
+</div>
+ <div id="rightcol"> 
+
+<div style="width:250px" data-bind="style:{'background-color':m_vM.curent_process_indicator().color}" align="center">
+<span  align="left" data-bind="visible: m_vM.curent_process_indicator().descr != ''"> <B>Process: </B></span> 
+<span data-bind="visible: m_vM.curent_process_indicator().descr != '', text:m_vM.curent_process_indicator().descr "></span> 
+</div>
+ <div data-bind="visible: !m_vM.initial_data_load()">
+		
+		<fieldset> 
+		<legend> Create:
+		<input type="radio"  value="artist" data-bind="checked: m_vM.create_object_selector" /> Artist
+         <input type="radio"  value="album" data-bind="checked: m_vM.create_object_selector" /> Album
+		</legend> 
+		
+ 
+		<div data-bind="visible: m_vM.artist_album_sub_model">
+		<select  size="1" data-bind="foreach:m_vM.artist_album_sub_model()[m_vM.artist_album_sub_model().active_obj], value:m_vM.object_tbcreate_data_objtype">
+				<option data-bind="value: $index" > 	<!--ko text: value--><!--/ko--> </option>
+				
+		 </select>	
+		 </div>
+		
+		
+		
+		
+		<BR>Name:
+		
+		<input  type="text" data-bind="value: m_vM.object_tbcreate_data_name, valueUpdate: 'afterkeydown'" >
+		
+		<BR>SrchList:<input data-bind="value: m_vM.object_tbcreate_data_search_list">
+		
+		<button data-bind="click:function() {m_vM.map_artist_album_tbcreate_data(); processSimpleRequest(proc_name,'create_object','','') }"> Save</button>	
+		
+		<div class="ui-widget">
+			<label for="get_obj_artist_album">Get Artist: </label>
+		<input id="get_obj_artist_album" />
+</div>
+		</fieldset> 
+		
+		
+
+	</div>
+	
+	
+	<FORM action="" name= 'tag'  >
+		<fieldset> 
+		<legend>Work with groups(<SPAN id="lg"> </SPAN>):  </legend> 
+		
+		<TABLE> 
+			<TR>
+				 <TD colspan="2" style="width:350px"  align="left"> Use as search filter <input  type="CHECKBOX" data-bind="checked: m_vM.folder_filter_toggle,enable:( m_vM.folder_filter_enable  && m_vM.curent_process_indicator().proc_key != 'categ')"></TD>
+				 <TD></TD>
+				 <TD rowspan="2"></TD>
+			</TR>
+			<TR> 
+				<TD  style="width:250px"align="left">
+				<span></span>
+				<span style="color:Red;" data-bind="visible: m_vM.curent_selected_Group()['isOn'],text: m_vM.curent_selected_Group.key"></span>
+				</TD>
+			<TD style="width:130px">  
+			<select  align="right" style="width:130px" size="1"  data-bind="visible:m_vM.selectedFolders().length > 0,options: m_vM.selectedFolders, optionsValue: 'key',optionsText: 'folder'",value: '0'> </select>
+			</TD>
+			<TD style="height:30px"></TD>
+			</TR> 
+
+			</TABLE> 	
+			
+			<div data-bind="visible: m_vM.categoryProfileDL().length > 0" >
+			<select  size="6" style="width:240px;" data-bind="foreach:m_vM.categoryProfileDL,value:m_vM.cat_prof_selected">
+				<option data-bind="value: $index" > 	<!--ko text: type_name--><!--/ko--> </option>
+				
+		 </select>	
+		 
+		 <div data-bind="visible: m_vM.categoryProfileDL().length > 0" > 
+		 <select  size="6" style="width:240px;" data-bind="foreach:m_vM.cat_prof_selectedDL,value:m_vM.category_selected">
+				<option data-bind="value:$index,style: {'background-color': JSON.parse(color_set)['background-color'], 'color': JSON.parse(color_set)['color']} " > 	<!--ko text: cat_name--><!--/ko--> </option>
+		 </select>	
+		 </div> 
+		 </div>
+		
+		 
+		
+		<div data-bind="visible:!m_vM.folder_filter_toggle() ">
+		
+		
+
+		<button data-bind="enable: m_vM.search_artist_data_isLoaded() && m_vM.add_to_categ_submodel().mode == '',click:function() { m_vM.curent_process_indicator(process_data['data_categ']); m_vM.use_categ('add') }"> Assign to categ </button>
+		<button data-bind="enable: m_vM.add_to_categ_submodel().mode == '', click:function() { m_vM.use_categ('update'); m_vM.curent_process_indicator(process_data['data_categ']); processSelected(proc_name,'artist_album_get_cat',''); }"> Get Artists </button>
+		
+		<div data-bind="visible:m_vM.add_to_categ_submodel().active">
+		<BR>
+		<b><span data-bind="text: 'Category(' + m_vM.add_to_categ_submodel().mode + '):'" ></span></b>
+		<span data-bind="text: m_vM.add_to_categ_submodel().key" ></span>
+		<BR>
+		
+		<button data-bind="click:function() {  m_vM.do_cancell_categ_action() }"> Cancell </button>
+		<button data-bind="visible: m_vM.getActiveView('state') == 'initial', click:function() { m_vM.curent_process_indicator(process_data['data_categ']); processSelected(proc_name,'artist_album_maintain_categ_check','tb_save') }"> Check assignement</button>
+		<button data-bind="visible: m_vM.getActiveView('state') =='tb_save',click:function() { m_vM.curent_process_indicator(process_data['data_categ']); processSelected(proc_name,'artist_album_maintain_categ_save','save') }"> Save</button>	
+		
+		
+		</div>
+		</div>
+		
+				
+		
+		<BR><BR>
+		<SPAN id="action_name"></SPAN>
+		<SPAN id="action_result"></SPAN>
+		
+		<input type="hidden" name="tag_id" id="tag_id"/>
+		
+		
+		<input name="action_cancell" value="Cancell" id="action_cancell" type="hidden" onclick="do_cancell_action()">
+		<input name="add_to_tag" value="Go" id="action_go" title="Submit and check new changes to the server" type="hidden" onclick="processSelected(proc_name,'artist_tag_assign_update_check',proc_mode)">
+		<input type="hidden" name="form_mode" id="form_mode" value='form_mode'> 
+		<input name="save_button" value="Save" id="save_button" type="hidden"  onclick="send_save_confirm(proc_name,'artist_tag_assignament_db_save',action_key)">		
+		<BR>
+		
+		</fieldset> 
+	</form>	
+	
+	
+	<div data-bind="visible: m_vM.search_artist_data_isLoaded() && m_vM.curent_process_indicator().proc_key == 'initial_load'">
+	<fieldset> 
+	
+	<legend>Mass Object Saving (<SPAN id="lg_mass"> </SPAN>):</legend> 
+
+	<input data-bind="visible: ( m_vM.getActiveView('state') =='initial' || m_vM.getActiveView('state') =='saved' )" id="check_artist_album" value="Check" title="Check results before saving" type="button" onclick="processSelected(proc_name,'artist_album_maintain_check','tb_save')"/>
+	<input data-bind="visible: m_vM.getActiveView('state') =='tb_save'" id="save_artist_album_mass" value="Save" title="Mass object saving" type="button" onclick="processSelected(proc_name,'artist_album_mass_save','save')"/>
+	<input data-bind="visible: m_vM.getActiveView('state') =='tb_save'" id="back_to_artist_album_mass" value="Decline" title="Decline save return to maintain proces" type="button" onclick="processSelected(proc_name,'artist_album_maintain_restore_init_edit','restore_init_edited')" />	
+	
+	</fieldset> 
+	</div>
+	
+<br>
+
+</div>
+</div>
+</div>
+<form name="artist_edit_req" id="artist_edit_req_frm"  method="post" action="" enctype="multipart/form-data"> 
+	<input type="hidden" name="artist_edit" /> 
+ </form> 
+<br>
+
+</div>
+</div>
+
+
+</body>
+</html>

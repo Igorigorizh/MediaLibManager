@@ -1,0 +1,53 @@
+
+<div align="center">
+<TABLE BORDER="0">
+	<tbody>
+	<tr id="hard_tags">
+		   %(hard_tags)s
+	</tr>
+	</tbody>
+	
+
+</TABLE>
+</div>
+
+<div id="slider" ></div>
+<div align="center"> 
+ 
+	<FORM METHOD="POST" action="#" name="player_control" id="player_control" enctype='multipart/form-data' > 
+		<INPUT  height="27" width="36" TYPE="button" id="prev_plst" title = "Previous List" name="prev_plst" VALUE="P<<-" onclick="player_control_send('prev_plst',' ')"> 
+		<INPUT  height="27" width="36" TYPE="button" id="prev_alb" title = "Previous Album" name="prev_alb" VALUE="A<--" onclick="player_control_send('prev_alb',' ')"> 
+		<INPUT  height="27" width="36" TYPE="button" id="rewind" title = "Rewind 10 sec" name="rewind"  VALUE="<<<" onclick="player_control_send('rewind',' ')"> 
+		
+		<a href="#" id="prev_trc" title = "Previous Track" name="prev_trc" VALUE="<" onclick="player_control_send('prev_trc',' ')">
+			<img SRC = "/images/prev.jpg" height="27" width="36" />
+		</a>
+		<a href="#" id="stop" title = "Stop" name="stop" VALUE="?" onclick="player_control_send('stop',' ')">
+			<img SRC = "/images/stop.jpg" height="27" width="36" />
+		</a>
+		
+		<a href="#" id="pause" title = "Pause/Play" name="pause" VALUE="||" onclick="player_control_send('pause',' ')">
+			<img SRC = "/images/pause.jpg" height="27" width="36" />
+		</a>
+		
+		<a href="#" id="play" title = "Play" name="play" VALUE="||" onclick="player_control_send('play',' ')">
+			<img SRC = "/images/play.jpg" height="27" width="36" />
+		</a>
+		
+		<a href="#" id="next_trc" title = "Next Track" name="next_trc" VALUE=">" onclick="player_control_send('next_trc',' ')">
+			<img SRC = "/images/next.jpg" height="27" width="36" />
+		</a>
+		
+		<INPUT  height="37" width="36" TYPE="button" id="forward" title = "Forward" name="forward" VALUE=">>>" onclick="player_control_send('forward',' ')"> 
+		<INPUT  height="27" width="36" TYPE="button" id="next_alb" title = "Next Album" name="next_alb" VALUE="-->A" onclick="player_control_send('next_alb',' ')"> 
+		<INPUT  height="27" width="36" TYPE="button" name="add_favor" VALUE="-->R" onclick="player_control_send('remember_current',' ')"> 
+		
+  </FORM> 
+  
+
+
+
+
+
+  
+ </div> 

@@ -1,0 +1,756 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no", http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<link rel="stylesheet" type="text/css" media="all" href="../../css/demoStyles.css" />
+<script src="../../js/mylib.js" type="text/javascript"></script> 
+<link rel="stylesheet" href="../../css/jquery12/jquery-ui.css" type="text/css" />
+
+<script src="../../js/knockout-3.5.1.js" type="text/javascript"> </script>
+<script src="../../js/knockout.mapping.js" type="text/javascript"> </script>
+
+<script src="../../js/jquery12/jquery.js"></script>
+<script src="../../js/jquery12/jquery-ui.js"></script>
+
+
+<title>   %(html_title)s   </title>
+
+<SCRIPT  TYPE="text/javascript"> 
+
+<!--
+
+  var proc_mode = 0;
+  var req = createRequestObject();
+  var host = "%(host)s";
+  var action_key = 0;
+  var proc_name = "tag_maintain";
+  var tag_list = "";
+  
+var viewModel = new function(){
+	var self = this;
+	self.CatList = ko.observableArray();
+	self.CatList_s = ko.observableArray();
+	self.tagCatList = ko.observableArray();
+	self.selectedCat = ko.observable();
+	self.selectedTag = ko.observable();
+}	
+
+var m_vM =  new function(){
+	var self = this;
+	self.is_CatL_load = ko.observable(false)
+	self.is_tagCatL_load = ko.observable(false)
+	self.update_mode = ko.observable(false);
+	self.is_StyleCatL_load = ko.observable(false)
+	self.folder_filter_toggle =  ko.observable(false);
+	self.curent_selected_Group = ko.observable({'key':'','isOn':false,'index':-1});
+	self.curent_process_indicator = ko.observable({'descr':'','color':'Blue','proc_key':'undef'});
+	
+	self.catTagD = {}
+	
+	self.categoryProfileDL  = ko.observableArray();
+	
+	self.cat_prof_selected  = ko.observable(0);
+	self.category_selected   = ko.observable(0);
+	//console.log( self.cat_prof_selected())
+	
+	self.cat_prof_selectedDL = ko.computed({
+		read: function() {
+		if (self.is_StyleCatL_load()){
+			//console.log(self.is_StyleCatL_load())	
+			//console.log( self.cat_prof_selected())
+			self.categoryProfileDL()[self.cat_prof_selected()]['relCatL'];
+			//self.categoryProfileDL()[0]['relCatL'];
+			//self.category_selected('0')
+			self.folder_filter_toggle(true)
+			return self.categoryProfileDL()[self.cat_prof_selected()]['relCatL'];
+			}
+		 else { return ''; 	};
+		}, 
+		write: function () {	
+		//alert('data write'+':'+self.categoryProfileDL.length)
+		return alert('data'+':'+self.categoryProfileDL.length);
+		},
+		 owner: this
+	});
+	
+	//self.add_to_categ_submodel   = ko.observable({'active':false,'key':'','mode':''} );
+	
+	
+	
+			
+	
+	self.initialize_catProfileDL  = function(categoryProfObj){
+			this.categoryProfileDL(categoryProfObj)
+			self.cat_prof_selected   = ko.observable(0);
+			self.category_selected   = ko.observable(0);
+			//alert(self.cat_prof_selected())
+			self.is_StyleCatL_load(true)
+		};
+	
+	self.setTagCatViewCntxt = function () {
+		//viewModel.tagCatList.mappedRemoveAll()
+		//console.log('setTags')
+		//console.log(viewModel.selectedCat())
+		if (viewModel.selectedCat()){
+			ko.mapping.fromJS(self.catTagD[viewModel.selectedCat()],{},viewModel.tagCatList);
+			self.is_tagCatL_load(true);
+		} else {
+			//console.log('no selected cat yet')	
+		}
+	};	
+
+	self.loadTagCatViewCntxt = function (server_respond) {
+		var id = "";
+		var d_title = "";
+		var old_pl_list = 0;
+		self.catTagD = server_respond
+		viewModel.selectedCat('ALL_GRP')
+		//console.log('loadCntxt')
+		m_vM.setTagCatViewCntxt()
+		//console.log(viewModel.selectedCat())
+		
+		 
+	};
+	
+	self.loadCatL = function (server_respond) {
+		var id = "";
+		ko.mapping.fromJS(server_respond,{},viewModel.CatList);
+		ko.mapping.fromJS(server_respond.slice(1, server_respond.lenght),{},viewModel.CatList_s);
+		self.is_CatL_load(true);
+		
+	};
+	
+};  
+
+ m_vM.folder_filter_toggle.subscribe(function(newValue) {
+		//alert(m_vM.folder_filter_toggle())
+		if (!m_vM.folder_filter_toggle())	{
+			m_vM.curent_selected_Group().isOn = false
+			m_vM.removeSelected()
+			m_vM.curent_selected_Group.valueHasMutated()
+		} else {
+			m_vM.curent_selected_Group().isOn = true
+			
+			index = m_vM.curent_selected_Group()['index']
+			if (index != -1){
+			
+			item = m_vM.folderGroups_Items()[index]
+			
+			m_vM.addItem(item)
+			}
+			m_vM.curent_selected_Group.valueHasMutated()
+			}
+		//m_vM.search_artist_data.valueHasMutated()
+		},
+		m_vM); 
+  
+	
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+		stopProgressBar()
+		my_JSON_object = JSON.parse( req.responseText)
+		
+		for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					if (data == 'search_result_frm'){
+					
+							tag_list = my_JSON_object[data]
+							//document.getElementById("search_result_frm").innerHTML = //Base64.decode(my_JSON_object[data]);
+							document.getElementById("search_result_frm").innerHTML = my_JSON_object[data];
+												   
+					 
+					
+					
+					} else if (data == 'tagCatLD'){
+						
+							m_vM.loadTagCatViewCntxt(my_JSON_object[data])
+							
+					
+					} else if (data == 'catL'){
+							m_vM.loadCatL(my_JSON_object[data])
+
+					}
+					
+					
+					else if (data == 'style_claster_groupL'){
+						
+						category_dataD_list = my_JSON_object[data]
+
+						m_vM.initialize_catProfileDL(category_dataD_list)
+					}
+					
+					
+					else if ( data == 'action_result'){
+						//alert(my_JSON_object)
+						if (my_JSON_object['action_result'] == 2){
+							document.getElementById('action_name').innerHTML = "Changes can be saved in:";
+							document.getElementById('action_go').type = "hidden";
+							document.getElementById('save_button').type = "button";
+						}
+						else if (my_JSON_object['action_result'] == 1){
+							if (my_JSON_object['action_name'] == 'delete_empty_tag'){
+								removeOptionSelected('tagList',my_JSON_object['tag_id'])
+								document.getElementById('action_result').innerHTML = "Tag succesfuly deleted!"+my_JSON_object['tag_id'];
+							
+							
+							} else if (my_JSON_object['action_name'] == 'create_new_tag'){
+								//appendOptionLast('tagList',my_JSON_object['tag_name'],my_JSON_object['tag_id'])
+								document.getElementById('action_result').innerHTML = "Tag succesfuly created:"+my_JSON_object['tag_name'];
+							}
+							 else if (my_JSON_object['action_name'] == 'tag_assign_update'){
+								
+								document.getElementById('action_result').innerHTML = "Changes succesfuly saved!"
+							}
+							
+							
+							document.getElementById('action_go').type = "hidden";
+							document.getElementById('save_button').type = "hidden";
+							do_cancell_action()
+							}
+							
+							else if (my_JSON_object['action_result'] == 0){
+								document.getElementById('action_result').innerHTML = "Action failed with!";
+							}
+						}
+						
+					else if (data == 'action_key'){
+							action_key = my_JSON_object[data]
+					}
+				} 
+    }
+  }
+  }
+  catch( e ) {
+       alert('Error in processReqChange in: ' + data + '  ' + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+
+function send_Simple_Form(myForm,proc_name,param){
+ 
+ 
+	selL = new Array();
+	main_artist = "";
+	artist_name = "";
+	search_term = "";
+        ref_artist = "";
+	//alert(myForm.name);
+	//ref_list = myForm.ref_artist_new;
+	json_req = "{" +"\"" + 'form_name' +"\"" + ':' +"\"" + myForm.name + "\"" + ',';
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + param + "\"" + ',';
+ 
+	for (var i = 0; i < myForm.length; i++) {
+        	var temp_el = myForm[i];    
+		
+		if ( temp_el.type == 'select-one'  ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+
+		}	
+
+		if ( temp_el.type == 'checkbox' ){
+			json_req += "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+
+		if ( temp_el.type == 'text' ){
+			json_req +=  "\"" + temp_el.name + "\"" + ':' + "\"" +temp_el.value + "\"" + ",";
+		}
+		
+		
+		} 
+ 
+	json_req = json_req.substring(0,json_req.length-1)
+	json_req += "}" 
+
+			
+		return do_send_json_req(json_req);
+	}
+
+function processSelected(proc_name,action_name,mode){
+	
+	selL = new Array();
+    var selForm = document.getElementById('search_result_frm');
+	json_req_sel = ""
+	
+	var checkStatus = true;
+	if ( mode == 'deselected'){
+		checkStatus = false
+		}
+	
+	console.log(proc_name)
+	console.log(action_name)
+	//alert(proc_name+":"+action_name)
+	if (action_name == 'tag_assign_to_categ_check'){
+		if (!viewModel.selectedTag()){
+			alert("Tag not selected")
+			return ;
+		}
+		
+		if (!m_vM.category_selected()){
+			alert("Category not selected")
+			return ;
+		}
+		json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ','+"\""+"tag_idL"+"\""+":"+"["+viewModel.selectedTag().key()+"]"+",";
+		json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+",";
+		json_req += "\"" + "cat_idL" + "\"" + ':' +"["+ m_vM.category_selected() +"]" + "}";
+	} else {
+	
+			json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ','+"\""+"tag_id"+"\""+":"+"\""+viewModel.selectedTag().key()+"\""+",";
+			json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+",";
+			json_req += "\"" + "selL" + "\"" + ':';
+
+			for (var i = 0; i < selForm.length; i++) {
+					var temp_el = selForm[i];    
+					if ( temp_el.type == 'checkbox' ){
+							if ( temp_el.checked == checkStatus){
+						json_req_sel +=  temp_el.value +  ",";
+
+				}	
+			}
+			}
+			
+			
+			//alert(json_req[json_req.length-1])
+			if (json_req_sel[json_req_sel.length-1] == ','){
+				json_req_sel = json_req_sel.substring(0,json_req_sel.length-1)
+				}
+				
+			json_req_sel = Base64.encode(json_req_sel)	
+			json_req =  json_req + "\""+ json_req_sel + "\"" + "}"
+
+	} // end else
+	//console.log(json_req)
+ 
+	return do_send_json_req(json_req);
+
+}
+
+
+function processGetPL(myForm){
+	selL = new Array();
+
+	//alert(myForm.toString())
+	for (var i = 0; i < myForm.length; i++) {
+		
+        	var temp_el = myForm[i];    
+		//alert(temp_el.type.toString())
+		//alert(temp_el.value.toString())
+
+	        if ( temp_el.type == 'select-one' ){
+			selL.push(temp_el.value);
+
+		}	
+	
+	}
+
+	var params = 'name= play_entry' + ' getPL=['+ selL.toString()+ ']' ;	
+	if ( selL.length > 0 ){
+	req.open("POST", 'http://' + host + '/search/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data')
+	req.send(params)
+	//alert(params)
+	}
+	//alert(params)
+	return null;
+
+}
+ 
+
+function do_cancell_action() {
+	if (m_vM.is_tagCatL_load() == false){
+		document.getElementById('action_go').type = "hidden"	
+		return null;
+	};
+	
+	document.getElementById('use_tag').disabled=false;
+	console.log(1)
+	document.getElementById('tagList').disabled=false;
+	console.log(2)
+	document.getElementById('get_tag_tracks').disabled=false;
+	console.log(3)
+	document.getElementById('tag_type_filter').disabled=false;
+	console.log(4)
+	document.getElementById('delete_empty_tag').disabled=false;
+	console.log(5)
+	
+	
+	document.getElementById('action_cancell').type = "hidden"
+	document.getElementById('save_button').type = "hidden"
+	document.getElementById('action_name').innerHTML = ""
+	
+	document.getElementById('tagName').type = "hidden"
+	document.getElementById('action_go').type = "hidden"
+	
+	proc_mode = 0
+	
+}
+function Use_Tag(myForm) {
+
+	proc_mode = "add"
+	
+	var selObj = document.getElementById('tagList');
+	var tagValueObj = document.getElementById('tag_id');
+	var tagNameObj = document.getElementById('tagName');
+	document.getElementById('action_name').innerHTML = "Add selected to tag:";
+	document.getElementById('action_go').type = "button";
+	document.getElementById('save_button').type = "hidden"
+	document.getElementById('action_result').innerHTML = ""
+	
+	document.getElementById('action_cancell').type = "button";
+	document.getElementById('get_tag_tracks').disabled=true;
+	document.getElementById('tag_type_filter').disabled=true;
+	
+	
+	document.getElementById('delete_empty_tag').disabled=true;
+	
+	document.getElementById('form_mode').value = "tracks_2_tag";
+
+	var selIndex = selObj.selectedIndex;
+	tagNameObj.type = "text"
+	tagValueObj.value = viewModel.selectedTag().key();
+	tagNameObj.value = viewModel.selectedTag().tag_name();
+
+
+	return null;
+
+}  
+
+
+function GetTracks(myForm) {
+	proc_mode = "delete"
+	
+	var selObj = document.getElementById('tagList');
+	var tagValueObj = document.getElementById('tag_id');
+	var tagNameObj = document.getElementById('tagName');
+	document.getElementById('action_name').innerHTML = "Ready to edit tag:";
+	document.getElementById('action_go').type = "button";
+	document.getElementById('form_mode').value = "tag_tracks";
+	
+	document.getElementById('action_result').innerHTML = ""
+	
+	document.getElementById('use_tag').disabled=true;
+	document.getElementById('tagList').disabled=true;
+	document.getElementById('delete_empty_tag').disabled=true;
+	document.getElementById('get_tag_tracks').disabled=true;
+	document.getElementById('tag_type_filter').disabled=true;
+	document.getElementById('action_cancell').type = "button";
+
+	var selIndex = selObj.selectedIndex;
+	tagNameObj.type = "text"
+	tagValueObj.value = selObj.options[selIndex].value;
+	tagNameObj.value = selObj.options[selIndex].text;
+
+	
+	return null;
+	
+	
+}
+
+
+
+function set_form_layout() {
+	
+	var selObj = document.getElementById('tagList');
+	var tagValueObj = document.getElementById('tag_id');
+	var tagNameObj = document.getElementById('tagName');
+	
+	
+	if (document.getElementById('form_mode').value == "tag_tracks"){
+	
+	document.getElementById('action_name').innerHTML = "Ready to edit tag:";
+	document.getElementById('action_go').type = "button";
+	
+	var selIndex = selObj.selectedIndex;
+	tagNameObj.type = "text"
+	tagValueObj.value = selObj.options[selIndex].value;
+	tagNameObj.value = selObj.options[selIndex].text;
+	document.getElementById('loading').style.visibility="hidden";
+	
+	}
+	
+	if (document.getElementById('form_mode').value == "tracks_2_tag"){
+	
+	document.getElementById('action_name').innerHTML = "Ready to edit tag:";
+	document.getElementById('action_go').type = "button";
+	
+	var selIndex = selObj.selectedIndex;
+	tagNameObj.type = "text"
+	//tagValueObj.value = selObj.options[selIndex].value;
+	tagNameObj.value = selObj.options[selIndex].text;
+	
+	
+	}
+	document.getElementById('loading').style.visibility="hidden";
+	
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + "tag_page_init_data" + "\"" +','+"\"" + "tag_data" +"\"" + ':'+"\""+"\""+"}";
+	do_send_json_req(json_req)
+	
+	
+	return null;
+	
+	
+}
+
+function resend_tagL() {
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + "tag_page_init_data" + "\"" +','+"\"" + "tag_data" +"\"" + ':'+"\""+"\""+"}";
+	do_send_json_req(json_req)
+	
+	
+	return null;
+	
+	
+}
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/tagadmin/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	startProgressBar()
+
+	return false;
+
+}
+function search_req_send(form_id,proc_name,action_name,search_term) {
+	//alert(form_id)
+	selL = new Array();
+    var selForm = document.getElementById(form_id);
+	
+	if ( proc_mode != "use_tag" ) {
+		do_cancell_action();
+		}
+
+	
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+ ",";
+	
+	json_req += "\"" + "selL" + "\"" + ':' + "[";
+
+	for (var i = 0; i < selForm.length; i++) {
+	        var temp_el = selForm[i];    
+	        if ( temp_el.type == 'checkbox' ){
+                	if ( temp_el.checked == true){
+				json_req += "\"" +temp_el.value +"\""+ ",";
+
+		}	
+	}
+	}
+	if (json_req[json_req.length-1] == ','){
+       	json_req = json_req.substring(0,json_req.length-2)
+		}
+		
+	json_req += "\""+"]}";
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+} 
+
+
+function send_save_confirm(proc_name,action_name,param) {
+		
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + "action_key" +"\"" + ':' +"\"" + param + "\"" + ',' +"\""+"tag_id"+"\""+":"+"\""+viewModel.selectedTag().key()+"\""+"}";
+	//alert(json_req)
+	return do_send_json_req(json_req);
+
+} 
+
+ window.onload = set_form_layout;
+
+ $(document).ready(function(){
+  
+ko.applyBindings(viewModel, $("#categ_block")[0]);
+ko.applyBindings(viewModel, $("#tag_create_block")[0]);
+ko.applyBindings(viewModel, $("#categ_tag_block")[0]);
+ko.applyBindings(m_vM, $("#categ_style_block")[0]);
+
+//json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + "tag_page_init_data" + "\"" +','+"\"" + "tag_data" +"\"" + ':'+"\""+"\""+"}";
+//	do_send_json_req(json_req)
+
+
+});
+
+ 
+
+function simple_req_send(proc_name,action_name,key,value) {
+	//alert(param)
+		
+	json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" +','+"\"" + key +"\"" + ':'+"\""+value+"\""+"}";
+
+	return do_send_json_req(json_req);
+} 
+//--> 
+</SCRIPT>
+
+</head>
+
+<body>
+<div id="pagewidth" >
+ <div id="header">
+ 	%(bookmark_tmpl)s
+ </div>
+
+
+
+<div id="search_block" align="center" > 
+<br>
+<form action="" id="search_req_form" onSubmit="return search_req_send(this.id,proc_name,'search_tracks',this.search_req_text_field.value)"> 
+Track search:
+<input  id="search_req_text_field" name="search_req_text_field"  value="%(search_text)s"   type="text"> 
+Artist: <INPUT  height="27" width="36" TYPE="checkbox" name="in_artist_search" value="artist" checked> 
+Album: <INPUT  height="27" width="36" TYPE="checkbox" name="in_album_search" value="album" checked> 
+Track: <INPUT  height="27" width="36" TYPE="checkbox" name="in_track_search" value="title" checked> 
+<input name="do_search"  value="Go" type="button" onclick="search_req_send('search_req_form',proc_name,'search_tracks',this.form.search_req_text_field.value)"> <BR>
+<input name="get_cur_plist"  value="Tracks from current list" type="button" onclick="search_req_send('search_req_form',proc_name,'get_tracks_from_cur_plist','get_tracks_from_cur_plist')"> 
+<input name="get_cur_temp_plist"  title="Tracks from current temp list" value="R->"type="button" onclick="search_req_send('search_req_form',proc_name,'get_tracks_from_temp_plist','get_tracks_from_temp_plist')"> 
+<input type="button" value="SelectDeselect" onClick="setAllOn('search_result_frm')"> 
+
+
+</form>
+
+
+<br>
+%(tag_ancor)s
+<br>
+ </div>
+ 
+
+
+ <div id="container2" class="clearfix">
+ <div id="container1" class="clearfix">
+ <div id="maincol">
+ <p> </p>
+
+	%(search_part_tmpl)s
+	
+</div>
+
+ <div id="rightcol"> 
+ <FORM action="" METHOD="POST" enctype='multipart/form-data' name= 'create_new_tag_frm' >
+		<fieldset> 
+		<legend>New tag creation:</legend> 
+		<div id="tag_create_block" data-bind='visible: m_vM.is_CatL_load()'>
+			Tag type: <select NAME="tag_type" id="tag_type_filter" data-bind="options: viewModel.CatList_s"></select>
+		</div>
+		
+		<BR>Name:<input autocomplete="off" id="tag_name_field" name="tag_name_field"  value="" type="text">
+		<BR>Descr:<input autocomplete="off" id="tag_descr_field" name="tag_descr_field"  value="" type="text">
+		<input name="create_new_tag" value="Save" type="button" onclick="{send_Simple_Form(this.form,proc_name,this.name); }">
+		</fieldset> 
+	</form>	
+
+	
+	
+	<FORM action="" name= 'tag'  >
+		<fieldset> 
+		<legend>Work with tags(<SPAN id="lg"> %(tags_num)s</SPAN>):</legend> 
+		
+		
+		<div id="categ_block"  data-bind='visible: m_vM.is_tagCatL_load()'>
+			Tag type: <select NAME="tag_type_filter" id="tag_type_filter" data-bind="options: viewModel.CatList, value: viewModel.selectedCat, optionsAfterRender: m_vM.setTagCatViewCntxt()"></select>
+		</div>
+		
+		<div id="categ_tag_block"  data-bind='visible: m_vM.is_tagCatL_load()'>
+			<select NAME="tag_id"  size="6" id="tagList" data-bind="options: viewModel.tagCatList, optionsText: 'tag_name',   value: viewModel.selectedTag"></select>
+		</div>
+		
+		 
+		<BR>		
+		<input name="use_tag" id="use_tag" value="Use Tag" title="Select Tag for the new assignement" type="button" onclick="Use_Tag(this.form)"/>
+		<input name="get_tag_tracks" id="get_tag_tracks" value="Get Tracks" title="Take all tracks of the selected tag" type="button" onclick="{simple_req_send(proc_name,this.name,'tag_id',viewModel.selectedTag().key()); GetTracks(this.form) }"/>
+		<input name="delete_empty_tag" id="delete_empty_tag" value="Del Tag" title="Delete empty tag" type="button" onclick="{simple_req_send(proc_name,this.name,'tag_id',viewModel.selectedTag().key());}"/>
+		<BR>		
+		<input name="navi_play_process" id="play_tag" value="       Play Tag       " title="Play tag" type="button" onclick="{simple_req_send('navi_play_process',this.name,'tag_id',viewModel.selectedTag().key());}"/>
+		
+		
+				
+		<input type="hidden" id="tagValue" />
+		<BR><BR>
+		<SPAN id="action_name"></SPAN>
+		<SPAN id="action_result"></SPAN>
+		<input type="hidden" name="tag_id" id="tag_id"/>
+		<input type="hidden" name="tag_name" id="tagName" disabled="disabled"/>
+		<BR>
+		<input name="action_cancell" value="Cancell" id="action_cancell" type="hidden" onclick="do_cancell_action()">
+		<input name="add_to_tag" value="Go" id="action_go" title="Submit and check new changes to the server" type="hidden" onclick="processSelected(proc_name,'tag_assign_update_check',proc_mode)">
+		<input type="hidden" name="form_mode" id="form_mode" value='%(form_mode)s'> 
+		<input name="save_button" value="Save" id="save_button" type="hidden"  onclick="send_save_confirm(proc_name,'tag_assignament_db_save',action_key)">
+		</fieldset> 
+	</form>	
+
+<br>
+
+<FORM action="" name= 'cattag'  >
+		<fieldset> 
+		<legend>Work with groups(<SPAN id="lg"> </SPAN>):  </legend> 
+		
+				
+			<div id="categ_style_block" data-bind="visible: m_vM.is_StyleCatL_load()" >
+			<select   size="6" align="right"   data-bind="foreach: m_vM.categoryProfileDL,   value: m_vM.cat_prof_selected">
+				<option data-bind="value: $index, text: type_name" > 
+			</select>
+			 
+			 <div data-bind="visible: m_vM.is_StyleCatL_load() > 0" > 
+			 <select  style="width:260px" size="6" align="right"   data-bind=" foreach: m_vM.cat_prof_selectedDL, value: m_vM.category_selected">
+				
+				 <option data-bind="value:cat_id, text: cat_name, style: {'background-color': JSON.parse(color_set)['background-color'], 'color': JSON.parse(color_set)['color']} " >
+							
+				
+			 </select>
+			 
+			
+		 </div> 
+			
+		 
+		 </div> 
+
+		<button data-bind="enable: m_vM.search_artist_data_isLoaded() && m_vM.add_to_categ_submodel().mode == '',click:function() { m_vM.curent_process_indicator(process_data['data_categ']); m_vM.use_categ('add') }"> Assign Tag2Categ </button>
+		<button data-bind="enable: m_vM.add_to_categ_submodel().mode == '', click:function() { m_vM.use_categ('update'); m_vM.curent_process_indicator(process_data['data_categ']); processSelected(proc_name,'artist_album_get_cat',''); }"> Get Tags </button>
+		
+
+		<BR>
+		<b><span data-bind="text: 'Category(' + m_vM.add_to_categ_submodel().mode + '):'" ></span></b>
+		<span data-bind="text: m_vM.add_to_categ_submodel().key" ></span>
+		<BR>
+		
+		<button data-bind="click:function() {  m_vM.do_cancell_categ_action() }"> Cancell </button>
+		<input type="button" onclick="processSelected(proc_name,'tag_assign_to_categ_check','tb_save')" value="Check assignement">
+		<button data-bind="visible: m_vM.getActiveView('state') =='tb_save',click:function() { m_vM.curent_process_indicator(process_data['data_categ']); processSelected(proc_name,'tag_maintain_categ_save','save') }"> Save</button>	
+
+				
+		
+		<BR><BR>
+		<SPAN id="action_name"></SPAN>
+		<SPAN id="action_result"></SPAN>
+		
+		<input type="hidden" name="tag_id" id="tag_id"/>
+		
+		
+		<input name="action_cancell" value="Cancell" id="action_cancell" type="hidden" onclick="do_cancell_action()">
+		<input name="add_to_tag" value="Go" id="action_go" title="Submit and check new changes to the server" type="hidden" onclick="processSelected(proc_name,'artist_tag_assign_update_check',proc_mode)">
+		<input type="hidden" name="form_mode" id="form_mode" value='form_mode'> 
+		<input name="save_button" value="Save" id="save_button" type="hidden"  onclick="send_save_confirm(proc_name,'artist_tag_assignament_db_save',action_key)">		
+		<BR>
+		
+		</fieldset> 
+	</form>	
+</div>
+</div>
+</div>
+</div>
+
+	<div id="loading"  align="center"><img src="../../image/ajax-loader.gif" /></div> 
+</div>
+ 
+</body>
+</html>

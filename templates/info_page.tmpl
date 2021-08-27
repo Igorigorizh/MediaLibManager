@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no", http-equiv="Content-Type" content="text/html; charset=utf8">
+<link rel="stylesheet" href="../../css/style.css" type="text/css" />
+<link rel="stylesheet" type="text/css" media="all" href="../../css/demoStyles.css" />
+
+
+
+
+
+<title>   %(html_title)s   </title>
+
+<script type="text/javascript">
+
+			$(function()
+			{
+
+				// this initialises the demo scollpanes on the page.
+				$('#pane1').jScrollPane();
+				
+
+			});
+
+		</script>
+
+</head>
+<body>
+<div id="pagewidth" >
+	
+
+%(bookmark_tmpl)s
+
+<div class="poem">
+<div class="poemtext" style="align=left; margin-left:50px; max-width:800px; min-width:360px"">
+%(info_tmpl)s
+</div>
+</div>
+</div>
+</body>
+</html>

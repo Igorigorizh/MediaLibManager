@@ -1,0 +1,479 @@
+<script type="text/javascript"> 
+  var host = "%(host)s";
+  var html_title = "%(html_title)s";
+  
+  
+  var req = createRequestObject();
+ 
+ 
+ var control_state = null
+ 
+
+ var winamp_cntrl_block_stat = true
+ 
+ var timer = null;
+ var timer_refresh = null;
+ //var clock = "00:00"
+ 
+ myDate = new Date()
+ 
+ myDate.setMinutes(%(my_min)s)
+ 
+ 
+ myDate.setHours(0)
+ myDate.setSeconds(%(my_sec)s)
+ 
+ var cover_image = new Image();
+ cover_image.src = "/images/cover";
+ 
+ var duration = 0
+ var cur_song_pos = 0
+
+ var timestamp = Number(myDate)
+
+ 
+
+
+$(document).ready(function(){
+   $("#slider").slider({ animate: true,stop: handleSliderStop });
+   
+   
+	
+  $("#hide_me").click(function(){
+    $("#winamp_cntrl_block").toggle("slow");
+    //$("#hide_me").html("->");
+		
+  });
+
+
+
+});
+
+function handleSliderStop(e, ui)
+{
+ 
+ var value = $( "#slider" ).slider( "option", "value" );
+ 
+ player_control_send('set_song_pos',value)
+ 
+	 
+}
+
+
+	 function start(old_timestamp){
+		 
+		 //new_timestamp = old_timestamp
+		 
+		 new_timestamp = old_timestamp - 1000;
+		 
+		 
+		 var time = new Date(new_timestamp);
+		 var hours = time.getHours();
+		 //alert(hours)
+		 var minutes = time.getMinutes()+hours*60;
+		 my_minutes = minutes;
+		 minutes = ((minutes < 10) ? "0" : "") + minutes;
+		 var seconds = time.getSeconds();
+		 my_seconds = seconds;
+		 
+		 
+		 seconds=((seconds < 10) ? "0" : "") + seconds;
+		 var clock = minutes + ":" + seconds
+		 document.getElementById("refresh_time").innerHTML = clock;	
+		 //alert((new_timestamp - old_timestamp)/1000)
+		 //alert(hours.toString()+','+my_minutes.toString()+','+my_seconds.toString())
+		 $( "#slider" ).slider( "option", "value", (duration - (  my_minutes*60 + my_seconds)) );
+		 
+		 //if ( ( minutes == "00" ) & ( seconds == "00" )) {
+		//	clearTimeout(timer)
+		 //}
+		 timer = setTimeout("start(" + new_timestamp + ")",1000); //refresh 
+	 } 
+
+	 
+ 
+function secondsToTime(secs){
+var hours = Math.floor(secs / (60 * 60));
+   
+    var divisor_for_minutes = secs %% (60 * 60);
+    var minutes = Math.floor(divisor_for_minutes / 60);
+ 
+    var divisor_for_seconds = divisor_for_minutes %% 60;
+    var seconds = Math.ceil(divisor_for_seconds);
+    
+   
+    var obj = {
+        "h": hours,
+        "m": minutes,
+        "s": seconds
+    };
+	
+    return obj;
+
+
+}
+	 
+function imgReload(imgId) {
+	var timer_absolute=new Date();
+	var path = "/images/cover";
+	//if(path.indexOf('?') < 1) path+= '?';
+	//document.write(timer_absolute.getTime() + " milliseconds since 1970/01/01");
+	path+= timer_absolute.getTime();
+	document.getElementById(imgId).src = path;
+}
+
+ function processReqChange()
+{
+  var my_JSON_object = {};	
+  var control_state_new = {'curList_crc32':0,'curAlbum':0,'curTrack':0}
+  try { // Важно!
+    // только при состоянии "complete"
+	//alert(req.readyState)
+    if (req.readyState == 4) {
+        // для статуса "OK"
+        if (req.status == 200) {
+            // обработка ответа
+			//alert(req.responseText)
+				my_JSON_object = JSON.parse( req.responseText)
+			 //my_JSON_object = JSON.parse( req.responseText,	 function (key, my_value) {
+			//	document.getElementById(key).innerHTML = my_value;	
+			//	if (key == 'play_status') {
+			//	 document.title = my_value + " Udalennaya igralka";	
+			//	} 
+				
+			//});
+			
+				for(var data in my_JSON_object) {
+					//alert("Key:" + data + " Values:" + my_JSON_object[data]);
+					if (data == 'frame3'){
+					 for ( t_item_key in my_JSON_object[data] ) {
+						//alert(t_item_key)
+					  document.getElementById(t_item_key).innerHTML = Base64.decode(my_JSON_object[data][t_item_key]);	
+					   
+					 }
+					} 
+					else if (data == 'artist_search_vars'){
+						document.getElementById("livesearch").innerHTML=my_JSON_object[data];
+						document.getElementById("livesearch").style.border="1px solid #A5ACB2";
+						
+					}
+					else if (data == 'play_status'){
+						//alert(my_JSON_object[data])
+						if ( my_JSON_object[data] == 3 ){
+						//Paused
+						if ( timer != null ) {
+						clearTimeout(timer)
+						clearTimeout(timer_refresh)
+						}
+						} 
+						else if ( my_JSON_object[data] == 1 ){	
+							// Playing
+							//clearTimeout(timer)
+							//clearTimeout(timer_refresh)
+							//start(timestamp)
+							
+						} 
+						
+						else if ( my_JSON_object[data] == 0 ){	
+							// Stopped
+							if ( timer != null ) {
+								clearTimeout(timer)
+								clearTimeout(timer_refresh)
+								
+								var time = new Date(my_JSON_object[data]*1000);
+								var minutes = time.getMinutes();
+								minutes = ((minutes < 10) ? "0" : "") + minutes;
+								var seconds = time.getSeconds();
+		 
+		 						seconds=((seconds < 10) ? "0" : "") + seconds;
+								var clock = minutes + ":" + seconds
+								document.getElementById("refresh_time").innerHTML = clock;	
+								
+								}
+						
+							//start(timestamp)
+							
+						} 
+					}
+					
+					else if (data == 'duration'){
+						
+						duration = my_JSON_object[data]
+						
+						var max = $( ".selector" ).slider( "option", "max" );
+						
+						$( "#slider" ).slider( "option", "max", duration );
+						
+						
+						
+					}
+					
+					else if (data == 'refresh_time'){
+						if (my_JSON_object[data] > 1) {
+							my_JSON_object[data] = my_JSON_object[data] + 1
+						}
+						var time_obj = secondsToTime(my_JSON_object[data])
+						
+						cur_song_pos = duration - my_JSON_object[data]
+						
+						myDate.setHours(time_obj['h'])
+						myDate.setMinutes(time_obj['m'])
+						myDate.setSeconds(time_obj['s'])
+						timestamp = Number(myDate)
+						clearTimeout(timer)
+						clearTimeout(timer_refresh)
+						
+						$( "#slider" ).slider( "option", "value", cur_song_pos );
+						
+						if ( 'play_status' in my_JSON_object) {
+							if ( my_JSON_object['play_status'] == 1 ) {
+								start(timestamp)
+						//alert(my_JSON_object[data])
+								timer_refresh = setTimeout("get_new_data_after_refresh()",my_JSON_object[data]*1000)
+							}
+						}
+					}
+					else if (data == 'play_status_txt'){
+						document.getElementById(data).innerHTML = my_JSON_object[data] +  html_title;	
+					}
+					
+					else if (data == 'trackL'){
+						document.getElementById("getTrack").innerHTML = my_JSON_object[data];	
+					}
+					
+					else if (data == 'albumL'){
+						document.getElementById("getAlbum").innerHTML = my_JSON_object[data];
+						
+						document.getElementById("album_numb").innerHTML = document.myform_getAlbum.getAlbum.options.length.toString();
+						
+						
+					}
+					
+					else if (data == 'tagsL'){
+						document.getElementById("hard_tags").innerHTML = my_JSON_object[data];	
+					}
+					
+					else if (data == 'queueL'){
+						document.getElementById("getPlistQueue").innerHTML = my_JSON_object[data];	
+					}
+					
+					
+					
+					else if (data == 'cover'){
+						//document.getElementById("cover").src = "/images/cover"
+						if ( my_JSON_object[data] == 1 ){
+						//	imgReload("cover")
+						}
+					}
+
+					else if (data == 'image_crc32'){
+						document.getElementById("cover").src = "/images/cover/"+my_JSON_object[data] + ".jpg"
+				//		if ( my_JSON_object[data] == 1 ){
+				//			imgReload("cover")
+				//		}	
+					
+					}
+					
+					
+					
+				    	
+				}
+				
+				if ('curState' in my_JSON_object){
+						//alert(my_JSON_object['curState'])
+						
+						if (control_state != null){
+							//document.getElementById("livesearch").innerHTML=my_JSON_object[data]
+							for ( t_item_key in my_JSON_object['curState'] ) {
+								
+								control_state_new[t_item_key] = my_JSON_object['curState'][t_item_key]
+								//alert(control_state_new[t_item_key])
+							 } // enf for
+						
+							if ( control_state_new['curAlbum'] == control_state['curAlbum'] ) {
+								if ( control_state_new['curTrack'] != control_state['curTrack'] ){
+									set_ddl_selected(document.myform_getpTrack.getTrack, control_state_new['curTrack'])
+								}
+							}
+							
+							if ( control_state_new['curList_crc32'] == control_state['curList_crc32'] ){
+								if ( control_state_new['curAlbum'] != control_state['curAlbum'] ) {
+									if ( control_state_new['curTrack'] != control_state['curTrack'] ){
+										set_ddl_selected(document.myform_getAlbum.getAlbum, control_state_new['curAlbum'])
+										set_ddl_selected(document.myform_getpTrack.getTrack, control_state_new['curTrack'])
+								}
+							}
+							}
+							} else {
+						
+						for ( t_item_key in my_JSON_object['curState'] ) {
+							
+							control_state_new[t_item_key] = my_JSON_object['curState'][t_item_key]
+							//alert(control_state_new[t_item_key])
+					 	 } // enf for
+						
+						if (control_state == null){
+							control_state = control_state_new
+							return
+						}
+						
+						}
+						for ( t_item_key in my_JSON_object['curState'] ) {
+							
+							control_state_new[t_item_key] = my_JSON_object['curState'][t_item_key]
+							//alert(control_state_new[t_item_key])
+					 	 } // enf for
+						
+						control_state = control_state_new
+											
+					} // end if (data == 'curState')
+			//the_object = eval( "(" + req.responseText + ")" );
+			//alert(the_object.toString())
+			
+        } 
+		//req = null;
+    }
+  }
+  catch( e ) {
+       alert('Error in processReqChange in: ' + data + e);
+      // В связи с багом XMLHttpRequest в Firefox приходится отлавливать ошибку
+      // Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+  }
+}
+ 
+ 
+ 
+ function set_ddl_selected(ddl,index){
+	for (var i=0; i < ddl.length; i++) {
+		if (ddl[i].value == index) {
+			ddl[i].selected = true;
+			return 
+		}
+	}
+}
+ 
+	 
+function player_control_send(param,value) {
+	
+	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+        //req.setRequestHeader("Content-Length", json_req.length);
+        //req.setRequestHeader("Connection", "close");
+	var value_part = "";	
+	if (value != " "){
+		value_part = ","+"\"" + param +"\"" + ':' +"\"" + value  + "\""
+	}	
+	json_req = "{" +"\"" + "player_control" +"\"" + ':' +"\"" + param + "\"" + value_part + "}";
+	//json_req  = ""
+	//alert(json_req)
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	
+	
+	//req.close() 
+	//alert(json_req)
+
+	//}
+	//alert(params)
+	return null;
+
+}  	 
+
+function do_send_json_req(json_req){
+	req.open("POST", 'http://' + host + '/medialib/main/', true)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	//startProgressBar()
+
+	return false;
+
+}
+function navigation_control_send(param,indx) {
+	
+	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+        //req.setRequestHeader("Content-Length", json_req.length);
+        //req.setRequestHeader("Connection", "close");
+	if ( param == "goto_libL") {
+	json_req = "{" +"\"" + "navigation_control" +"\"" + ':' +"\"" + param + "\"" +','+"\"" + "sel_idL" +"\"" + ':['+"\""+indx.toString()+"\""+"]}";	
+	}	else {
+	json_req = "{" +"\"" + "navigation_control" +"\"" + ':' +"\"" + param + "\"" +','+"\"" + "sel_idL" +"\"" + ':['+indx.toString()+"]}";
+	}
+
+	//alert(json_req)
+	
+	document.getElementById("livesearch").innerHTML="";
+	document.getElementById("livesearch").style.border="0px";
+  
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	
+
+	return null;
+
+}  
+
+ function fill_all_span(){
+		 document.getElementById("play_status_txt").innerHTML = 'initial';	
+		
+	} 
+	
+ function get_new_data_after_refresh(){
+ 	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+    json_req = "{" +"\"" + "initial_main_load" +"\"" + ':' +"\"" + "refresh_check" + "\"" +"}";
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+	return null;
+		
+	} 	
+	
+function at_initial_page_load(){
+	
+	req.open("POST", 'http://' + host + '/medialib/main/', false)
+	req.setRequestHeader('Content-Type', 'multipart/form-data','Pragma: no-cache','Expires: Mon, 26 Jul 1997 05:00:00 GMT','Cache-Control: no-store, no-cache, must-revalidate')
+
+	json_req = "{" +"\"" + "initial_main_load" +"\"" + ':' +"\""+ "initial"+ "\""+"}";
+
+	req.onreadystatechange = processReqChange;
+	req.send(json_req)
+
+	
+
+}  
+	 
+ window.onload = at_initial_page_load;
+ window.onload = start;
+ window.onload = fill_all_span;
+
+ function setOptions_plist(selbox,num_label,chosen) { 
+	//var selbox = document.myform_Playlist.getPlayList; 
+	//var selbox =  group_selbox;
+	selbox.options.length = 0; 
+	%(scrpt_2_main_plist)s
+	}
+
+ function setOptions_tag(selbox,num_label,chosen) { 
+	//var selbox = document.myform_Playlist.getPlayList; 
+	//var selbox =  group_selbox;
+	selbox.options.length = 0; 
+	%(scrpt_2_main_tag)s
+	}
+
+function showResult(search_term)
+{
+if (search_term.length==0)
+  { 
+  document.getElementById("livesearch").innerHTML="";
+  document.getElementById("livesearch").style.border="0px";
+  return;
+  }
+	json_req = "{" +"\"" + 'search_process' +"\"" + ':' +"\"" + 'get_artist_live_search_variants' + "\"" +','+"\"" + "search_term" +"\"" + ':'+"\""+search_term+"\""+"}";
+  do_send_json_req(json_req)
+}
+
+ </script> 
