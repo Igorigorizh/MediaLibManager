@@ -5,13 +5,11 @@ import zlib
 import datetime
 import socket
 import sqlite3
-#import winamp
 import urllib.request, urllib.error, urllib.parse
 import operator
 import json
-import re
 import os
-import sys
+
 import pickle
 from os import scandir
 import chardet
@@ -25,10 +23,7 @@ import subprocess
 from os import curdir, sep,getcwd           
 from random import randint
 import logging
-#import  wx
 from bs4 import BeautifulStoneSoup
-#from wxTableMaintain_gen_ import ReportFrame
-#from musicbrainz2.webservice import Query, ArtistFilter, WebServiceError
 
 from mutagen.apev2 import APEv2, error
 from mutagen.easyid3 import EasyID3
@@ -3211,7 +3206,7 @@ def readConfigData(fname):
 	f = open(fname,'r')
 	l = f.readlines()
 	f.close()
-	configDict = {'mpdMusicPathPrefix':'','audioFilesPathRoot':'','logPath':'','mediaPath':'','templatesPath':'','lossless_path':'','winampext':'','player_cntrl_port':0,'appl_cntrl_port':0,'commandRouting':'','dbPath':'','audio_files_path_list':[],'applicationPath':'','radioNodePath':'','preprocessAlb4libPath':'','ml_folder_tree_buf_path':'','mpd_host_list':[]}	
+	configDict = {'mpdMusicPathPrefix':'','audioFilesPathRoot':'','logPath':'','mediaPath':'','templatesPath':'','lossless_path':'','winampext':'','player_cntrl_port':0,'appl_cntrl_port':0,'commandRouting':'','dbPath':'','audio_files_path_list':[],'applicationPath':'','radioNodePath':'','imageNodePath':'','preprocessAlb4libPath':'','ml_folder_tree_buf_path':'','mpd_host_list':[]}	
 	configDictCmlx = {'templatesPath':'','audio_files_path_list':[],'mpd_host_list':[]}	
 
 	for a in l:
