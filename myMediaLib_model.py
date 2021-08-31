@@ -220,7 +220,7 @@ class MediaLibPlayProcess_singletone(object):
 			self.__TagD[a[0]]={'tag_name':a[1],'tag_descr':a[2],'tag_type':a[3]}
 		
 		# Загрузка картинки "Нет  Изображения"
-		self.__no_cover_page_obj_path = self.__myMediaLibPath +"images\\no-image-available_110x110.jpg"
+		self.__no_cover_page_obj_path = self.__myMediaLibPath +"images/no-image-available_110x110.jpg"
 		try:
 			fileObj = open(self.__no_cover_page_obj_path,"rb") 
 			self.__no_cover_page_obj = fileObj.read()
@@ -234,7 +234,7 @@ class MediaLibPlayProcess_singletone(object):
 		for a in ['prev','next','play','stop','pause']:
 			try:
 				
-				fileObj = open(self.__myMediaLibPath +"\\images\\%s.jpg"%(a,),"rb")
+				fileObj = open(self.__myMediaLibPath +"images/%s.jpg"%(a,),"rb")
 				self.__controlPicD[a] = fileObj.read()
 				fileObj.close()
 			except IOError as e:
@@ -699,7 +699,7 @@ class MediaLibPlayProcess_singletone(object):
 				
 				# Загрузка картинки "Нет  Изображения"
 				try:	
-					self.__no_cover_page_obj_path = self.__myMediaLibPath + "images\\no-image-available_110x110.jpg"
+					self.__no_cover_page_obj_path = self.__myMediaLibPath + "images/no-image-available_110x110.jpg"
 					fileObj = open(self.__no_cover_page_obj_path,"rb") 
 					self.__no_cover_page_obj = fileObj.read()
 					fileObj.close()
