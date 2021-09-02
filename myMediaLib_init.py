@@ -30,20 +30,22 @@ def readConfigData(fname):
 		
 		if a == '\n': continue
 		if a.strip()[0] == '#':	continue
-		key = 'new'
+		key_found = False
 # 		simple config parameters processing			
 		for key in configDict:
 			pos = a.find(key)
 			if pos >=0:
 				
 				if key in configDictCmlx:
+					key_found = True
 					break
 				else:	
 					configDict[key] = a.split('=')[1].strip()
+					key_found = True
 				break
-			else:
-				logger.critical("Error at readConfigData: undefined key=[%s]"%(a.split('=')[0].strip()))
-				continue
+		if !key_found:
+			logger.critical("Error at readConfigData: undefined key=[%s]"%(a.split('=')[0].strip()))
+			continue
 # 		nested config parameters processing			
 		if key == 'audio_files_path_list':
 			configDict[key] = []
