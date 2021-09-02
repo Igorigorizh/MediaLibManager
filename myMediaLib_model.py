@@ -307,7 +307,7 @@ class MediaLibPlayProcess_singletone(object):
 		#else:
 		self.__winampext = self.__configDict['winampext']
 		winampext_ =  self.__configDict['winampext']
-				
+		print('Starting RPC ...')		
 		self.__PlayerControl = xmlrpc.client.ServerProxy('http://127.0.0.1:%s'%(port))
 		
 		#print 'check -5'	
