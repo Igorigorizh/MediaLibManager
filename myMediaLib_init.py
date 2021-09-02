@@ -75,7 +75,6 @@ def readConfigData(fname):
 				continue		
 						
 			except Exception as e:
-				print("Error getting 'mpd_host_list'[%s]"%())
 				logger.critical("Error at mpd host list load [%s]"%(str(e)))
 				continue		
 				
