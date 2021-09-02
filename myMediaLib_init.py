@@ -73,8 +73,9 @@ def readConfigData(fname):
 					configDict[key].append({'host':hostL[0],'socket':hostL[1]})
 				continue		
 						
-			except:
+			except Exception as e:
 				print("Error getting 'mpd_host_list'")
+				logger.critical("Error at mpd host list load [%s]"%(str(e)))
 				continue		
 				
 			
