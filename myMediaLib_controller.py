@@ -4141,10 +4141,10 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		file_name = os.path.relpath(track_info[0]['file'],mpdMusicPathPrefix)
 		file_name = os.path.normpath(os.path.join(audioFilesPathRoot,file_name))
 		
-		print(file_name)
+		print("File Name = ---->",file_name)
 		
 			
-		pos = file_name.rfind("\\")
+		pos = file_name.rfind("/")
 		music_folder = file_name[:pos]
 		resDBS = []
 		self.__logger.debug('in get_images_4_cur_album_fromPL: path  %s'%(str([music_folder])))	

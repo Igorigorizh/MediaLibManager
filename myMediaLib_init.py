@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 logger = logging.getLogger('controller_logger.init')
 
 def loadCommandRouting(fname):
@@ -11,8 +12,10 @@ def loadCommandRouting(fname):
 	command_routingD = {}	
 	try:
 		command_routingD = json.loads(r.replace('\'','\"'))
-	except:
-		print("Eroror in json command parsing, check:",fname)
+	except Exception as e:
+		print("Error in json command parsing, check:",fname)
+		logger.critical("Error at load command routing [%s]"%(str(e)))
+		#print(r)
 	
 	return command_routingD	
 

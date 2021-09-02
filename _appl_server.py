@@ -1,18 +1,17 @@
 import xmlrpc.client
 import myMediaLib_adm
 import myMediaLib_controller
-
+from myMediaLib_CONST import mymedialib_cfg
 import time
 import sys
 #import myMediaLib_model
 #from medialib_pages import *
-sys.path.append('C:\\My_projects\\myMediaLib\\')
 
 if __name__ == '__main__':
 	
 #	PlayerContr_serv = PlayerController()
 #	PlayerContr_serv.runPlayerServer()
-	cfgD = myMediaLib_adm.readConfigData(myMediaLib_adm.mymedialib_cfg)
+	cfgD = myMediaLib_adm.readConfigData(mymedialib_cfg)
 	
 	port = cfgD['appl_cntrl_port']
 	dbl_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:%s'%(str(port)))	

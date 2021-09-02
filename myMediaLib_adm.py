@@ -3187,20 +3187,6 @@ def loadTemplates_viaCFG(fname):
 		f.close()
 	return configDict
 	
-def loadCommandRouting(fname):
-	
-	#f = open(getcwd()+fname,'r')
-	f = open(fname,'r')
-	r = f.read()
-	f.close()
-	command_routingD = {}	
-	try:
-		command_routingD = json.loads(r.replace('\'','\"'))
-	except:
-		print("Eroror in json command parsing, check:",fname)
-	
-	return command_routingD	
-				
 
 def readConfigData(fname):
 	f = open(fname,'r')

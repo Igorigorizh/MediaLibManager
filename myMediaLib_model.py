@@ -93,6 +93,7 @@ class MediaLibPlayProcess_singletone(object):
 			pass
 		
 		# Читаем конфигурация общей настройки системы
+		print("Reading configuration from [%s] ...."%(mymedialib_cfg))
 		self.__configDict = readConfigData(mymedialib_cfg)		
 		port = int(self.__configDict['player_cntrl_port'])
 		
@@ -185,9 +186,11 @@ class MediaLibPlayProcess_singletone(object):
 		self.__dbPath = self.__configDict['dbPath']
 		# читаем схему маршрутизации
 		if 'commandRouting' in self.__configDict:
+			print("Getting CommandRouting schema...")
 			self.__commandRoutingDic = loadCommandRouting(self.__configDict['commandRouting'])
 		
 		# Строим список главных артистов
+		print("Reading DB ...")
 		db = sqlite3.connect(self.__dbPath)
 		#db.text_factory = str
 		
@@ -914,8 +917,8 @@ class MediaLibPlayProcess_singletone(object):
 					path+='\\'
 					
 				if path[:1] != '\\':
-					path ='\\'+	path	
-
+					path ='\\'+path	
+				path = path.replace("\\","/")
 				cover_path = path_prefixL+path+'cover.jpg'	
 				cover_path_100 = path_prefixL+path+'cover_100.jpg'
 				
@@ -928,6 +931,7 @@ class MediaLibPlayProcess_singletone(object):
 				path_ref_to = self.__DB_virtual_albumD[id]['ref_to_path']
 				pos = path_ref_to.rfind('\\')
 				path = path_ref_to[:pos]
+				path = path.replace("\\","/")
 				cover_path_100 = path+'\\cover_100.jpg'
 				cover_path = path+'\\cover.jpg'
 				#if not os.path.exists(cover_path_100):
@@ -936,7 +940,7 @@ class MediaLibPlayProcess_singletone(object):
 				
 				if not os.path.exists(cover_path_100):
 					if not os.path.exists(cover_path):
-						cover_path_100 = path_ref_to+'\\cover_100.jpg'
+						cover_path_100 = path_ref_to+'/cover_100.jpg'
 						#print('resolved:',cover_path_100)
 						logger.debug( "in  getCoverPageObj: 942 resolved: %s"%(cover_path_100))
 					else:
@@ -1050,7 +1054,7 @@ class MediaLibPlayProcess_singletone(object):
 					path+='\\'
 				if path[:1] != '\\':
 					path ='\\'+	path
-
+				path = path.replace("\\","/")
 				cover_path_320 = path_prefixL+path+'cover_320.jpg'
 				cover_path_100 = path_prefixL+path+'cover_100.jpg'
 				cover_path = path_prefixL+path+'cover.jpg'
@@ -1093,7 +1097,7 @@ class MediaLibPlayProcess_singletone(object):
 					cover_path = str(self.__DB_metaIndxD_album[id])
 				if cover_path[-1] != '\\':
 					cover_path+='\\'
-				
+				cover_path = cover_path.replace("\\","/")
 				#print 'Radio cover path=',cover_path				
 				logger.debug( "in  getCoverPageObj at Radio cover path==%s "%(cover_path))
 				if os.path.exists(cover_path):
@@ -1154,7 +1158,7 @@ class MediaLibPlayProcess_singletone(object):
 			#self.send_header("Content-type", "image/jpg")
 			#self.send_header('Cache-Control','max-age=2592000')
 			#self.end_headers()
-			fileObj = open(self.__myMediaLibPath+"\\images\\no-image-available_110x110.jpg","rb") 		
+			fileObj = open(self.__myMediaLibPath+"/images/no-image-available_110x110.jpg","rb") 		
 			image = fileObj.read()
 			fileObj.close()	
 			#image_s = pickle.dumps(image)

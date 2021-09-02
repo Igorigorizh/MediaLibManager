@@ -10,14 +10,15 @@ import os, sys
 from subprocess import Popen
 import base64
 
-sys.path.append('/home/igor/MyMediaLib')
+sys.path.append('/home/medialib/MediaLibManager')
 
 #import myMediaLib_controller
 #from myMediaLib_adm import checkANDkillMLPids
 #from myMediaLib_adm import RebootServer
-from myMediaLib_init import readConfigData
+#from myMediaLib_init import readConfigData
 
-mymedialib_cfg = 'home/igor/MyMediaLib/mymedialib.cfg'
+mymedialib_cfg = 'home/medialib/MediaLibManager/mymedialib.cfg'
+logPath = 'home/medialib/MediaLibManager/spam.log'
 #from myMediaLib_adm import getHardWareInfo
 
 def getHardWareInfo():
@@ -140,16 +141,15 @@ def application(environ, start_response):
 						line_num = 10
 			res = '<BR> 4. apache wsgi appl log of [%i] last lines (log/->linesNum for more lines in output): <BR>'%line_num
 			Tmpl_D = {}
-			configDict = {}
-            		configDict = readConfigData(mymedialib_cfg)
-			logPath='---no Path---'
+			#configDict = {}
+			#configDict = readConfigData(mymedialib_cfg)
+			#logPath='---no Path---'
 			
-			try:
-				logPath=configDict['logPath']
-				res = res + ' <BR>'
-			except Exception as e:
-				pass
-				res = e
+			#try:
+				#logPath=configDict['logPath']
+				#res = res + ' <BR>'
+			#except Exception as e:
+				#res = b'wsgi error: 132 '+str(e).encode('utf-8')
 
 			#res = res+str(logPath)
 			#res = str(configDict)
