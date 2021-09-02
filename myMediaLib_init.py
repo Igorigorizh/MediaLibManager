@@ -30,8 +30,7 @@ def readConfigData(fname):
 		
 		if a == '\n': continue
 		if a.strip()[0] == '#':	continue
-		
-
+		key = 'new'
 # 		simple config parameters processing			
 		for key in configDict:
 			pos = a.find(key)
@@ -42,7 +41,9 @@ def readConfigData(fname):
 				else:	
 					configDict[key] = a.split('=')[1].strip()
 				break
-
+        if key == 'new':
+            logger.critical("Error at readConfigData undefined key: [%s]"%(a.split('=')[0].strip()))
+			continue
 # 		nested config parameters processing			
 		if key == 'audio_files_path_list':
 			configDict[key] = []
@@ -74,7 +75,7 @@ def readConfigData(fname):
 				continue		
 						
 			except Exception as e:
-				print("Error getting 'mpd_host_list'")
+				print("Error getting 'mpd_host_list'[%s]"%())
 				logger.critical("Error at mpd host list load [%s]"%(str(e)))
 				continue		
 				
