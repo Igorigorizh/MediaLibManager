@@ -23,7 +23,7 @@ def readConfigData(fname):
 	f = open(fname,'r')
 	l = f.readlines()
 	f.close()
-	configDict = {'mpdMusicPathPrefix':'','audioFilesPathRoot':'','logPath':'','mediaPath':'','templatesPath':'','lossless_path':'','winampext':'','player_cntrl_port':0,'appl_cntrl_port':0,'commandRouting':'','dbPath':'','audio_files_path_list':[],'applicationPath':'','radioNodePath':'','preprocessAlb4libPath':'','ml_folder_tree_buf_path':'','mpd_host_list':[]}	
+	configDict = {'mpdMusicPathPrefix':'','audioFilesPathRoot':'','logPath':'','mediaPath':'','templatesPath':'','lossless_path':'','winampext':'','player_cntrl_port':0,'appl_cntrl_port':0,'commandRouting':'','dbPath':'','audio_files_path_list':[],'applicationPath':'','radioNodePath':'','imageNodePath':'','preprocessAlb4libPath':'','ml_folder_tree_buf_path':'','mpd_host_list':[]}	
 	configDictCmlx = {'templatesPath':'','audio_files_path_list':[],'mpd_host_list':[]}	
 
 	for a in l:
