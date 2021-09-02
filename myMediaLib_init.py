@@ -43,7 +43,7 @@ def readConfigData(fname):
 					configDict[key] = a.split('=')[1].strip()
 					key_found = True
 				break
-		if !key_found:
+		if not key_found:
 			logger.critical("Error at readConfigData: undefined key=[%s]"%(a.split('=')[0].strip()))
 			continue
 # 		nested config parameters processing			
