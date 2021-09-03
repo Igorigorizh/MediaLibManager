@@ -6640,9 +6640,9 @@ class MediaLib_Application_RPC_server():
 		
 		dbl_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:%s'%(str(port)))	
 		try:
-			dbl_appl.appl_status()['dbPath']
+			res = dbl_appl.appl_status()['dbPath']
 			print("Application server already running -> no copy allowed")
-			print("Wait 5 sec for exit...")
+			print("Wait 5 sec for exit...[%s]"%(str(res)))
 			time.sleep(5)
 
 			return
