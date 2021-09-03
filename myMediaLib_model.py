@@ -1882,7 +1882,7 @@ class PlayerController():
 		try:
 			res = dbl_appl.get_status()['playBack_Mode']
 			print("Player server already running -> no copy allowed.")
-			print("Wait 5 sec for exit..."%(str(res)))
+			print("Wait 5 sec for exit...[%s]"%(str(res)))
 			time.sleep(5)
 
 			return
