@@ -1,4 +1,4 @@
-import xmlrpc.client
+import xmlrpc.client, socket
 import myMediaLib_adm
 import myMediaLib_controller
 from myMediaLib_CONST import mymedialib_cfg
