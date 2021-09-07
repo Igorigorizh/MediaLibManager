@@ -6638,7 +6638,7 @@ class MediaLib_Application_RPC_server():
 		#print dir(self.__MediaLib_Controller_instance.get_instance())
 		port = int(self.__MediaLib_Controller_instance.get_instance().MediaLibPlayProcessDic_viaKey('appl_cntrl_port','local'))
 		
-		dbl_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:%s'%(str(port)))	
+		dbl_appl = xmlrpc.client.ServerProxy('http://%s:%s'%(str(socket.gethostname()),str(port)))	
 		try:
 			res = dbl_appl.appl_status()['dbPath']
 			print("Application server already running -> no copy allowed")
@@ -6651,7 +6651,7 @@ class MediaLib_Application_RPC_server():
 		
 		#print self.__MediaLib_Controller_instance.MediaLibPlayProcessDic()
 		print('Appla port',port)
-		server = SimpleXMLRPCServer(("127.0.0.1", port),allow_none = True)
+		server = SimpleXMLRPCServer(str(socket.gethostname()), port),allow_none = True)
 		
 		print("Listening on port %s..."%(str(port)))
 		self.__logger = logging.getLogger('controller_logger.rfc')

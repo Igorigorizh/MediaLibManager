@@ -37,8 +37,8 @@ def application(environ, start_response):
 	if '/medialib' not in environ['REQUEST_URI']:
 		exit
 	
-	p_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:9000')	
-	s_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:9001')	
+	p_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9000')	
+	s_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9001')		
 	try:
 		request_body_size = int(environ.get('CONTENT_LENGTH', 0))
 	except (ValueError):
