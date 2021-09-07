@@ -6651,7 +6651,7 @@ class MediaLib_Application_RPC_server():
 		
 		#print self.__MediaLib_Controller_instance.MediaLibPlayProcessDic()
 		print('Appla port',port)
-		server = SimpleXMLRPCServer(str(socket.gethostname()), port,allow_none = True)
+		server = SimpleXMLRPCServer((str(socket.gethostname()), port),allow_none = True)
 		
 		print("Listening on port %s..."%(str(port)))
 		self.__logger = logging.getLogger('controller_logger.rfc')
