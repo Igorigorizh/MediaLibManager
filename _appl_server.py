@@ -14,7 +14,7 @@ if __name__ == '__main__':
 	cfgD = myMediaLib_adm.readConfigData(mymedialib_cfg)
 	
 	port = cfgD['appl_cntrl_port']
-	dbl_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:%s'%(str(port)))	
+	dbl_appl = xmlrpc.client.ServerProxy('http://%s:%s'%(str(socket.gethostname()),str(port)))		
 	
 	try:
 		dbl_appl.appl_status()['stop_flag']
