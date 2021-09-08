@@ -1,6 +1,6 @@
 # MediaLibManager
 new linux compatible medialib manager version
-#Doker image start
+# Doker image start
 docker run -it -p 80:80 -p 9001:9001 --rm imageID
 
 # Mount command
