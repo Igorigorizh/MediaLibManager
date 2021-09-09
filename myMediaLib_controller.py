@@ -135,6 +135,9 @@ import logging
 from myMediaLib_CONST import BASE_ENCODING
 from myMediaLib_CONST import mymedialib_cfg
 
+def is_ip(address):
+    return address.replace('.', '').isnumeric()
+
 class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 	def __init__(self):
 	
@@ -713,6 +716,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 	
 				if  'HTTP_HOST' in attr[0]:
 					try:
+                        
 						ip_address(attr[0]['HTTP_HOST'])
 						self.__modelDic['host'] = socket.gethostbyname(self.__modelDic['host'])
 						self.__modelDic['host_name'] = self.__modelDic['host']+'/medialib'
@@ -725,6 +729,19 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 						self.__modelDic['host_name'] = self.__modelDic['host']+'/medialib'
 						self.__modelDic['host_image_name'] = self.__modelDic['host']+'/images'
 						self.__modelDic['user_agent'] = ''
+                
+				if  'SERVER_NAME' in attr[0] and 'SERVER_ADDR' in attr[0]:
+					if attr[0]['SERVER_NAME'] == attr[0]['SERVER_ADDR']:
+						# addressing py IP
+						pass
+					elif attr[0]['SERVER_NAME'] <> attr[0]['SERVER_ADDR']:
+						if is_ip(attr[0]['SERVER_NAME']):
+							# addresing by ip and we are in isolated network inside Docker bridge     
+							# return parent ip back from ['SERVER_NAME'] 
+						    self.__modelDic['host'] = attr[0]['SERVER_NAME']
+							self.__modelDic['host_name'] = self.__modelDic['host']+'/medialib'
+							self.__modelDic['host_image_name'] = self.__modelDic['host']+'/images'
+							self.__modelDic['user_agent'] = ''
 											
 				if  'HTTP_USER_AGENT' in attr[0]:
 					self.__modelDic['user_agent'] = attr[0]['HTTP_USER_AGENT']	

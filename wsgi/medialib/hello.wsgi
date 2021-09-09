@@ -49,7 +49,7 @@ def application(environ, start_response):
 	
 	http_params = {}
 	if 'REMOTE_ADDR' in environ:
-		http_params = {'REMOTE_ADDR':environ['REMOTE_ADDR'],'HTTP_HOST':environ['HTTP_HOST']}
+		http_params = {'REMOTE_ADDR':environ['REMOTE_ADDR'],'HTTP_HOST':environ['HTTP_HOST'],'SERVER_ADDR':environ['SERVER_ADDR'],'SERVER_NAME':environ['SERVER_NAME']}
 		
 	if 'HTTP_USER_AGENT' in environ:
 		http_params['HTTP_USER_AGENT'] = environ['HTTP_USER_AGENT']
