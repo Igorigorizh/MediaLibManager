@@ -734,7 +734,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 					if attr[0]['SERVER_NAME'] == attr[0]['SERVER_ADDR']:
 						# addressing py IP
 						pass
-					elif attr[0]['SERVER_NAME'] <> attr[0]['SERVER_ADDR']:
+					elif attr[0]['SERVER_NAME'] != attr[0]['SERVER_ADDR']:
 						if is_ip(attr[0]['SERVER_NAME']):
 							# addresing by ip and we are in isolated network inside Docker bridge     
 							# return parent ip back from ['SERVER_NAME'] 
