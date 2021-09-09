@@ -33,13 +33,13 @@ def is_post_request(environ):
 		or content_type.startswith('multipart/form-data'))
 
 def application(environ, start_response):
-# Òàêèì îáðàçîì îòôèëüòðîâûâàåì çàïðîñû ïî äàííîìó ïðèëîæåíèþ
+# Ã’Ã ÃªÃ¨Ã¬ Ã®Ã¡Ã°Ã Ã§Ã®Ã¬ Ã®Ã²Ã´Ã¨Ã«Ã¼Ã²Ã°Ã®Ã¢Ã»Ã¢Ã Ã¥Ã¬ Ã§Ã Ã¯Ã°Ã®Ã±Ã» Ã¯Ã® Ã¤Ã Ã­Ã­Ã®Ã¬Ã³ Ã¯Ã°Ã¨Ã«Ã®Ã¦Ã¥Ã­Ã¨Ã¾
 	if '/medialib' not in environ['REQUEST_URI']:
 		exit
 	
 	p_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9000')	
 	#s_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9001')
-	s_appl = xmlrpc.client.ServerProxy('http://'+'172.17.0.2'+':9001')    
+	s_appl = xmlrpc.client.ServerProxy('http://'+'172.17.0.3'+':9001')    
 	try:
 		request_body_size = int(environ.get('CONTENT_LENGTH', 0))
 	except (ValueError):
@@ -337,7 +337,7 @@ def application(environ, start_response):
 			
 			
 		if commandD != {}:	
-			# àêòóàëüíûé îáðàáîò÷èê
+			# Ã ÃªÃ²Ã³Ã Ã«Ã¼Ã­Ã»Ã© Ã®Ã¡Ã°Ã Ã¡Ã®Ã²Ã·Ã¨Ãª
 			try:
 				
 				res = s_appl.command_dispatcher(commandD, http_params).data
@@ -374,7 +374,7 @@ def application(environ, start_response):
 		commandD = {}		
 		
         	
- #  ÃËÀÂÍÛÉ WSGI îáðàáîò÷èê POST çàïðîñîâ ÷åðåç JSON
+ #  ÃƒÃ‹Ã€Ã‚ÃÃ›Ã‰ WSGI Ã®Ã¡Ã°Ã Ã¡Ã®Ã²Ã·Ã¨Ãª POST Ã§Ã Ã¯Ã°Ã®Ã±Ã®Ã¢ Ã·Ã¥Ã°Ã¥Ã§ JSON
 	if environ['REQUEST_METHOD'] == 'POST':
 		if '/main' in environ['REQUEST_URI'] or '/edit_artist' in environ['REQUEST_URI'] or '/tagadmin' in environ['REQUEST_URI']  or '/admin' in environ['REQUEST_URI'] or '/search' in environ['REQUEST_URI'] or '/report' in environ['REQUEST_URI'] or '/graf' in environ['REQUEST_URI'] or '/cast' in environ['REQUEST_URI'] or '/debug' in environ['REQUEST_URI'] or '/image' in environ['REQUEST_URI'] or '/trackpreload' in environ['REQUEST_URI'] or '/start_ml' in environ['REQUEST_URI']:
 			try:
@@ -393,7 +393,7 @@ def application(environ, start_response):
 				output.append(b'A fault occurred new main params parsing--->\n ')
 				return output	
 				
-			# Îáðàáîòàòü áåç çàïðîñîâ ê ñåðâåðàì çàäà÷ó íà ïåðåçàãðóçêó èëè ôèçè÷åñêóþ îñòàíîâêó ñåðâåðà	
+			# ÃŽÃ¡Ã°Ã Ã¡Ã®Ã²Ã Ã²Ã¼ Ã¡Ã¥Ã§ Ã§Ã Ã¯Ã°Ã®Ã±Ã®Ã¢ Ãª Ã±Ã¥Ã°Ã¢Ã¥Ã°Ã Ã¬ Ã§Ã Ã¤Ã Ã·Ã³ Ã­Ã  Ã¯Ã¥Ã°Ã¥Ã§Ã Ã£Ã°Ã³Ã§ÃªÃ³ Ã¨Ã«Ã¨ Ã´Ã¨Ã§Ã¨Ã·Ã¥Ã±ÃªÃ³Ã¾ Ã®Ã±Ã²Ã Ã­Ã®Ã¢ÃªÃ³ Ã±Ã¥Ã°Ã¢Ã¥Ã°Ã 	
 			if 'do_admin' in json_params:
 				if json_params['do_admin'] == 'restart_srv' or json_params['do_admin'] == 'shutdown_srv' or json_params['do_admin'] == 'remove_srv':
 					if json_params['restart_pswrd'] == 'brumbul':
@@ -482,7 +482,7 @@ def application(environ, start_response):
 			fs = get_post_form(environ)
 			res = ''
 			try:
-				# òåêóùèé êëèåíòñêèé ñòàòóñ
+				# Ã²Ã¥ÃªÃ³Ã¹Ã¨Ã© ÃªÃ«Ã¨Ã¥Ã­Ã²Ã±ÃªÃ¨Ã© Ã±Ã²Ã Ã²Ã³Ã±
 				cur_status = json.loads(fs)
 			except :
 				output.append("A fault occurred new main params parsing--->\n %s")
