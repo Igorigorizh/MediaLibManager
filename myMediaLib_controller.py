@@ -742,6 +742,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 							self.__modelDic['host_ name'] = self.__modelDic['host']+'/medialib'
 							self.__modelDic['host_image_name'] = self.__modelDic['host']+'/images'
 							self.__modelDic['user_agent'] = ''
+							print('GitHub Bridge:',self.__modelDic['host'])
 											
 				if  'HTTP_USER_AGENT' in attr[0]:
 					self.__modelDic['user_agent'] = attr[0]['HTTP_USER_AGENT']	
