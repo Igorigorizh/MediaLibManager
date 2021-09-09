@@ -738,8 +738,8 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 						if is_ip(attr[0]['SERVER_NAME']):
 							# addresing by ip and we are in isolated network inside Docker bridge     
 							# return parent ip back from ['SERVER_NAME'] 
-						    self.__modelDic['host'] = attr[0]['SERVER_NAME']
-							self.__modelDic['host_name'] = self.__modelDic['host']+'/medialib'
+							self.__modelDic['host'] = attr[0]['SERVER_NAME']
+							self.__modelDic['host_ name'] = self.__modelDic['host']+'/medialib'
 							self.__modelDic['host_image_name'] = self.__modelDic['host']+'/images'
 							self.__modelDic['user_agent'] = ''
 											
