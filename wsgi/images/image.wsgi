@@ -12,7 +12,8 @@ def application(environ, start_response):
 	output_len = sum(len(line) for line in output)
 	response_headers = [('Content-type', 'text/plain'),
                     ('Content-Length', str(output_len))]
-	s_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:9001')	
+	#s_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:9001')
+	s_appl = xmlrpc.client.ServerProxy('http://'+'172.17.0.3'+':9001')     
 #	output = ['<pre>']
 #	output.append(pformat(environ))
 #	output.append('</pre>')
@@ -70,18 +71,11 @@ def application(environ, start_response):
 			output_len = sum(len(line) for line in output)
 			start_response('200 OK', [('Content-type', 'text/html'),('Content-Length', str(output_len))])
 			return output
-		#path = pickle.loads(d)
 		
-		#path = u'Y:\\MUSIC\\Mozart - Last concertos - Staier, Coppola\\cover_320.jpg'
-		#path = u'G:\\MUSIC\\'	
-		#path = u'//Don-pipo-music/music//MUSIC//ORIGINAL_MUSIC//ORIGINAL_CLASSICAL//Vivaldi//Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and #Continuo CD1//cover_100.jpg'
-		#path = os.path.normpath(path)
-		#print 'path check:',os.path.exists(os.path.normpath(path)),os.path.normpath(path)
 	# Conditions above are true	
 	print('path='+str([path]),len(path))
 	if path != '':
-		#path = path.replace('G:\\MUSIC\\','\\\\Don-pipo-music\\MUSIC2\\MUSIC\\')		
-		#path = path.replace("\\\\","\\")
+
 		if os.path.exists(bytes(path,encoding = "UTF-8")):
 			fileObj = open(path,'rb')
 			image = fileObj.read()

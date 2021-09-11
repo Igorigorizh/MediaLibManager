@@ -135,6 +135,9 @@ import logging
 from myMediaLib_CONST import BASE_ENCODING
 from myMediaLib_CONST import mymedialib_cfg
 
+def is_ip(address):
+    return address.replace('.', '').isnumeric()
+
 class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 	def __init__(self):
 	
@@ -713,6 +716,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 	
 				if  'HTTP_HOST' in attr[0]:
 					try:
+                        
 						ip_address(attr[0]['HTTP_HOST'])
 						self.__modelDic['host'] = socket.gethostbyname(self.__modelDic['host'])
 						self.__modelDic['host_name'] = self.__modelDic['host']+'/medialib'
@@ -725,6 +729,20 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 						self.__modelDic['host_name'] = self.__modelDic['host']+'/medialib'
 						self.__modelDic['host_image_name'] = self.__modelDic['host']+'/images'
 						self.__modelDic['user_agent'] = ''
+                
+				if  'SERVER_NAME' in attr[0] and 'SERVER_ADDR' in attr[0]:
+					if attr[0]['SERVER_NAME'] == attr[0]['SERVER_ADDR']:
+						# addressing py IP
+						pass
+					elif attr[0]['SERVER_NAME'] != attr[0]['SERVER_ADDR']:
+						if is_ip(attr[0]['SERVER_NAME']):
+							# addresing by ip and we are in isolated network inside Docker bridge     
+							# return parent ip back from ['SERVER_NAME'] 
+							self.__modelDic['host'] = attr[0]['SERVER_NAME']
+							self.__modelDic['host_ name'] = self.__modelDic['host']+'/medialib'
+							self.__modelDic['host_image_name'] = self.__modelDic['host']+'/images'
+							self.__modelDic['user_agent'] = ''
+							print('GitHub Bridge:',self.__modelDic['host'])
 											
 				if  'HTTP_USER_AGENT' in attr[0]:
 					self.__modelDic['user_agent'] = attr[0]['HTTP_USER_AGENT']	
@@ -6638,11 +6656,11 @@ class MediaLib_Application_RPC_server():
 		#print dir(self.__MediaLib_Controller_instance.get_instance())
 		port = int(self.__MediaLib_Controller_instance.get_instance().MediaLibPlayProcessDic_viaKey('appl_cntrl_port','local'))
 		
-		dbl_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:%s'%(str(port)))	
+		dbl_appl = xmlrpc.client.ServerProxy('http://%s:%s'%(str(socket.gethostname()),str(port)))	
 		try:
-			dbl_appl.appl_status()['dbPath']
+			res = dbl_appl.appl_status()['dbPath']
 			print("Application server already running -> no copy allowed")
-			print("Wait 5 sec for exit...")
+			print("Wait 5 sec for exit...[%s]"%(str(res)))
 			time.sleep(5)
 
 			return
@@ -6651,7 +6669,7 @@ class MediaLib_Application_RPC_server():
 		
 		#print self.__MediaLib_Controller_instance.MediaLibPlayProcessDic()
 		print('Appla port',port)
-		server = SimpleXMLRPCServer(("127.0.0.1", port),allow_none = True)
+		server = SimpleXMLRPCServer((str(socket.gethostname()), port),allow_none = True)
 		
 		print("Listening on port %s..."%(str(port)))
 		self.__logger = logging.getLogger('controller_logger.rfc')
