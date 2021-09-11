@@ -13,8 +13,8 @@ services:
       - "127.0.0.1:9001:9001" 
       - "127.0.0.1:6600:6600"
     expose:
-      - "9001"	
-      - "6600"		
+      - "9001"
+      - "6600"
     depends_on:
       - webui 
     restart: on-failure
