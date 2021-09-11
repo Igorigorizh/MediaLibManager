@@ -8,7 +8,7 @@ WORKDIR /home/medialib
 RUN  git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
-COPY /MediaLibManager/medialib.db3 /home/medialib/MediaLibManager/medialib.db3
+COPY medialib.db3 /home/medialib/MediaLibManager/medialib.db3
 RUN pip install -r requirements.txt
 EXPOSE 9001
 EXPOSE 6600
