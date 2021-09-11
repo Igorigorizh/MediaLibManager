@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
 RUN mkdir /mnt/GoflexHome
-RUN apt-get update && apt-get install -y cifs-utils apache2 apache2-utils ssl-c$
+RUN apt-get update && apt-get install -y cifs-utils apache2 apache2-utils ssl-cert libapache2-mod-wsgi-py3 git
 
 WORKDIR /home/medialib
 RUN  git clone https://github.com/Igorigorizh/MediaLibManager.git
