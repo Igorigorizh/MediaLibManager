@@ -6,7 +6,7 @@ Runs on x86 platform with Debian 10 incl. docker , also possible with Raspberry 
 docker-compose build -> builds Apache and application images
 
 docker-compose up -> starts complete project
-## Pure Dockerfiles strart scenario
+## Pure Dockerfiles starting scenario
 ### Doker image start 1: Apache instance via Dockerfile 
 docker run -it - detach -p 80:80 --rm apacheImageID
 ### Doker image start 2: app instance via Dockerfile
