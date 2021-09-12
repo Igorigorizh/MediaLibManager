@@ -3,7 +3,7 @@ Linux compatible medialib manager version 2.9.7 supporting several MPD player in
 ## Docker compose
 docker-compose build -> builds Apache and application images
 
-docker-compose up - starting complete project
+docker-compose up -> starts complete project
 ## Pure Dockerfiles strart scenario
 ### Doker image start 1: Apache instance via Dockerfile 
 docker run -it - detach -p 80:80 --rm apacheImageID
