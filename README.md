@@ -14,3 +14,9 @@ docker run -it -p 6600:6600 -p 9001:9001  --rm appimageID
 
 ## Mount command
 mount -t cifs -o username=igor,vers=1.0 //192.168.1.67/ExternalUSB /mnt/GoflexHome/
+
+## Other Resources
+Raspberry Pi: https://github.com/raspberrypi
+RaspiOS: https://www.raspbian.org/RaspbianRepository
+moodeaudio.org: http://moodeaudio.org
+MPD player: http://www.musicpd.org
