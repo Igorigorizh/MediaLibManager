@@ -1,5 +1,7 @@
 # MediaLibManager
-Linux compatible medialib manager version 2.9.7 supporting several MPD player instances at the same time
+Linux compatible medialib manager version 2.9.7 supporting several MPD player instances at the same time.
+
+Runs on x86 platform with Debian 10 incl. docker , also possible with Raspberry Pi incl. docker
 ## Docker compose
 docker-compose build -> builds Apache and application images
 
