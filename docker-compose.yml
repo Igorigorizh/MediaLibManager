@@ -1,7 +1,7 @@
 version: '3'
 
 networks:
-  integration-tests-example:
+  medialib-net:
     driver: bridge
 
 services:
@@ -19,7 +19,7 @@ services:
       - webui 
     restart: on-failure
     networks:
-      - integration-tests-example
+      - medialib-net
   webui:
     build:
       context: .
@@ -29,8 +29,7 @@ services:
       - "127.0.0.1:80:80"
     expose:
       - "80"
-    
       
     restart: on-failure
     networks:
-      - integration-tests-example
+      - medialib-net
