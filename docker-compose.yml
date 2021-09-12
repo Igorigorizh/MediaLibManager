@@ -3,6 +3,10 @@ version: '3'
 networks:
   medialib-net:
     driver: bridge
+    IPAM:
+      Config:
+        Subnet: 155.23.0.0/16
+        Gateway: 155.23.0.1
 
 services:
   medialib:
