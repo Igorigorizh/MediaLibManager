@@ -19,8 +19,8 @@ services:
       - webui 
     restart: on-failure
     networks:
-      medialib-net
-      ipv4_address: 172.28.0.10
+      medialib-net:
+         ipv4_address: 172.28.0.10
   webui:
     build:
       context: .
@@ -31,5 +31,5 @@ services:
       
     restart: on-failure
     networks:
-      medialib-net
-      ipv4_address: 172.28.0.10
+      medialib-net:
+          ipv4_address: 172.28.0.10
