@@ -2,11 +2,10 @@ version: '3'
 
 networks:
   medialib-net:
-    driver: overlay
-    IPAM:
-      Config:
-        Subnet: 155.23.0.0/16
-        Gateway: 155.23.0.1
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 
 services:
   medialib:
@@ -20,7 +19,8 @@ services:
       - webui 
     restart: on-failure
     networks:
-      - medialib-net
+      medialib-net
+      ipv4_address: 172.28.0.10
   webui:
     build:
       context: .
@@ -31,4 +31,5 @@ services:
       
     restart: on-failure
     networks:
-      - medialib-net
+      medialib-net
+      ipv4_address: 172.28.0.10
