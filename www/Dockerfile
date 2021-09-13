@@ -2,7 +2,7 @@ FROM python:3.8-slim-buster
 RUN mkdir /mnt/GoflexHome
 RUN apt-get update && apt-get install -y cifs-utils apache2 apache2-utils ssl-cert libapache2-mod-wsgi-py3 git
 RUN echo "---->" $(uname -m) "<----"
-RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev;;esac
+RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
 WORKDIR /home/medialib
 RUN  git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
