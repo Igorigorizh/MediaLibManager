@@ -123,8 +123,9 @@ def application(environ, start_response):
 				res = res + '<BR> application instance is OK  <BR>'
 				res = bytes(res,encoding = "utf-8")
 				output.append(res)
-			except:
+			except Exception as e:
 				res = res + ' <BR> application controller instance failed!!!'
+				res = res + 'Error:'+str(e)
 				res = bytes(res,encoding = "utf-8")
 				output.append(res)
 				
