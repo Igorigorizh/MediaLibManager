@@ -10,6 +10,8 @@ RUN  git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
 COPY medialib.db3 /home/medialib/MediaLibManager/medialib.db3
+COPY spam.log /home/medialib/MediaLibManager/spam.log
+
 RUN pip install -r requirements.txt
 EXPOSE 9001
 EXPOSE 6600
