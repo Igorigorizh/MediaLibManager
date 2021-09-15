@@ -6,6 +6,8 @@ services:
       dockerfile: ./medialib/Dockerfile
     volumes:
       - log:/home/medialib/MediaLibManager/log
+      - db:/home/medialib/MediaLibManager/db
+
     ports:
       - "127.0.0.1:9001:9001" 
       - "127.0.0.1:6600:6600"
@@ -24,3 +26,4 @@ services:
     restart: on-failure
   volumes:
       log
+      db
