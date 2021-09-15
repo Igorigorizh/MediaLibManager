@@ -17,8 +17,8 @@ sys.path.append('/home/medialib/MediaLibManager')
 #from myMediaLib_adm import RebootServer
 #from myMediaLib_init import readConfigData
 
-mymedialib_cfg = 'home/medialib/MediaLibManager/mymedialib.cfg'
-logPath = 'home/medialib/MediaLibManager/log/spam.log'
+mymedialib_cfg = '/home/medialib/MediaLibManager/mymedialib.cfg'
+logPath = '/home/medialib/MediaLibManager/log/spam.log'
 #from myMediaLib_adm import getHardWareInfo
 
 def getHardWareInfo():
