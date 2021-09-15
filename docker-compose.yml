@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: ./medialib/Dockerfile
+    volumes:
+      - log:/home/medialib/MediaLibManager/log
     ports:
       - "127.0.0.1:9001:9001" 
       - "127.0.0.1:6600:6600"
@@ -14,8 +16,11 @@ services:
     build:
       context: .
       dockerfile: ./www/Dockerfile
-    
+    volumes:
+      - log:/home/medialib/MediaLibManager/log
     ports:
       - "127.0.0.1:80:80"
       
     restart: on-failure
+  volumes:
+      log
