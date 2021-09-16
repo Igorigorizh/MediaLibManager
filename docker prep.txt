@@ -1,8 +1,0 @@
-sudo apt install cifs-utils
-sudo mkdir /mnt/GoflexHome
-sudo mount -t cifs -o username=igor,vers=1.0 //192.168.1.67/ExternalUSB /mnt/GoflexHome/
-git clone https://github.com/Igorigorizh/MediaLibManager.git
-sudo apt install apache2
-sudo apt install libapache2-mod-wsgi-py3
-sudo apt install apache2 apache2-utils ssl-cert libapache2-mod-wsgi
-sudo a2enconf mod-wsgi
