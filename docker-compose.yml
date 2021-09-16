@@ -9,8 +9,8 @@ services:
       - db:/home/medialib/MediaLibManager/db
 
     ports:
-      - "127.0.0.1:9001:9001" 
-      - "127.0.0.1:6600:6600"
+      - "9001:9001" 
+      - "6600:6600"
     depends_on:
       - webui 
     restart: on-failure
@@ -21,7 +21,7 @@ services:
     volumes:
       - log:/home/medialib/MediaLibManager/log
     ports:
-      - "127.0.0.1:80:80"
+      - "80:80"
       
     restart: on-failure
 volumes:
