@@ -1,5 +1,4 @@
 FROM python:3.8-slim-buster
-RUN mkdir /mnt/GoflexHome
 RUN apt-get update && apt-get install -y cifs-utils apache2 apache2-utils ssl-cert libapache2-mod-wsgi-py3 git
 RUN echo "---->" $(uname -m) "<----"
 RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
@@ -22,7 +21,5 @@ RUN cp -r ./www/static/image /var/www/html/
 
 RUN a2enconf mod-wsgi
 RUN pip install -r requirements.txt
-#COPY medialib.db3 /home/medialib/MediaLibManager/medialib.db3
-#COPY spam.log /home/medialib/MediaLibManager/spam.log
 EXPOSE 80
 CMD ["apachectl", "-DFOREGROUND"]
