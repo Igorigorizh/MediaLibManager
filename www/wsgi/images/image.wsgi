@@ -9,11 +9,12 @@ def application(environ, start_response):
 	output = [b'<pre>']
 	output.append(b'If you see this - it is strange')
 	output.append(b'/<pre>')
+	server_name = 'medialib'
 	output_len = sum(len(line) for line in output)
 	response_headers = [('Content-type', 'text/plain'),
                     ('Content-Length', str(output_len))]
 	#s_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:9001')
-	s_appl = xmlrpc.client.ServerProxy('http://'+'172.17.0.3'+':9001')     
+	s_appl = xmlrpc.client.ServerProxy('http://'+server_name+':9001')     
 #	output = ['<pre>']
 #	output.append(pformat(environ))
 #	output.append('</pre>')

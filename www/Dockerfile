@@ -22,7 +22,7 @@ RUN cp -r ./www/static/image /var/www/html/
 
 RUN a2enconf mod-wsgi
 RUN pip install -r requirements.txt
-COPY medialib.db3 /home/medialib/MediaLibManager/medialib.db3
-COPY spam.log /home/medialib/MediaLibManager/spam.log
+#COPY medialib.db3 /home/medialib/MediaLibManager/medialib.db3
+#COPY spam.log /home/medialib/MediaLibManager/spam.log
 EXPOSE 80
 CMD ["apachectl", "-DFOREGROUND"]

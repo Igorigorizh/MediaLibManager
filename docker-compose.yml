@@ -8,6 +8,7 @@ services:
       - log:/home/medialib/MediaLibManager/log
       - db:/home/medialib/MediaLibManager/db
       - music:/home/medialib/MediaLibManager/music:ro
+
     ports:
       - "9001:9001" 
       - "6600:6600"
@@ -22,7 +23,6 @@ services:
       - log:/home/medialib/MediaLibManager/log
     ports:
       - "80:80"
-      
     restart: on-failure
 volumes:
    log:
@@ -33,4 +33,3 @@ volumes:
         device: "//192.168.1.67/ExternalUSB"
         o: "vers=1.0,username=igor,password=A5j49kp,iocharset=utf8,rsize=61440,wsize=65536,dir_mode=0777,file_mode=0777"
         type: cifs
-    
