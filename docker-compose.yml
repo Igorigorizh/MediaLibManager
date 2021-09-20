@@ -27,7 +27,7 @@ services:
       - "80:80"
     restart: on-failure
 volumes:
-   config:	
+   config:
    log:
    db:
    music:
