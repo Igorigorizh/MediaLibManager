@@ -8,7 +8,7 @@ services:
       - log:/home/medialib/MediaLibManager/log
       - db:/home/medialib/MediaLibManager/db
       - music:/home/medialib/MediaLibManager/music
-
+      - config:/home/medialib/MediaLibManager/config
     ports:
       - "9001:9001" 
       - "6600:6600"
@@ -20,12 +20,14 @@ services:
       context: .
       dockerfile: ./www/Dockerfile
     volumes:
+      - config:/home/medialib/MediaLibManager/config
       - log:/home/medialib/MediaLibManager/log
       - music:/home/medialib/MediaLibManager/music:ro
     ports:
       - "80:80"
     restart: on-failure
 volumes:
+   config:	
    log:
    db:
    music:
