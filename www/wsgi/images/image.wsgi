@@ -14,7 +14,7 @@ def application(environ, start_response):
 	response_headers = [('Content-type', 'text/plain'),
                     ('Content-Length', str(output_len))]
 
-    host_name = 'localhost'
+    host_name = '127.0.0.1'
 	# MEDIALIB_HOST env variable comes through Docker-compose indicating separated wsgi and rpc hosts;
 	# medialib is default rpc host name in separate scenario
 	if 'MEDIALIB_HOST' in os.environ:
