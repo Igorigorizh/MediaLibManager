@@ -36,7 +36,7 @@ def application(environ, start_response):
 # Òàêèì îáðàçîì îòôèëüòðîâûâàåì çàïðîñû ïî äàííîìó ïðèëîæåíèþ
 	if '/medialib' not in environ['REQUEST_URI']:
 		exit
-	host_name = 'localhost'
+	host_name = '127.0.0.1'
 	# MEDIALIB_HOST env variable comes through Docker-compose indicating separated wsgi and rpc hosts;
 	# medialib is default rpc host name in separate scenario
 	if 'MEDIALIB_HOST' in os.environ:
