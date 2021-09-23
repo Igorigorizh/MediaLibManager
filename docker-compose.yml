@@ -19,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: ./www/Dockerfile
+    environment:
+      - MEDIALIB_HOST="medialib"
     volumes:
       - config:/home/medialib/MediaLibManager/config
       - log:/home/medialib/MediaLibManager/log
