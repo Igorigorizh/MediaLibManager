@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: ./medialib/Dockerfile
+    environment:
+      - MEDIALIB_HOST=medialib
     volumes:
       - log:/home/medialib/MediaLibManager/log
       - db:/home/medialib/MediaLibManager/db
