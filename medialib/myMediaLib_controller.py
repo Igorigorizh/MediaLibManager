@@ -6668,10 +6668,13 @@ class MediaLib_Application_RPC_server():
 			pass
 		
 		#print self.__MediaLib_Controller_instance.MediaLibPlayProcessDic()
-		print('Appla port',port)
-		server = SimpleXMLRPCServer((str(socket.gethostname()), port),allow_none = True)
+		print('Application server port:',port)
+		rpc_host_name = socket.gethostname()
+		rpc_host_name = 'localhost'
+
+		server = SimpleXMLRPCServer((rpc_host_name, port),allow_none = True)
 		
-		print("Listening on port %s..."%(str(port)))
+		print("Listening on [%s] port %s..."%(str(rpc_host_name),str(port)))
 		self.__logger = logging.getLogger('controller_logger.rfc')
 		self.__logger.info('avalable transit methods for player:%s'%(str(self.__MediaLib_Controller_instance.get_instance().MediaLibPlayProcessDic_viaKey('Player_RPC_methods','local'))))
 		

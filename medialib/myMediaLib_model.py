@@ -433,10 +433,10 @@ class MediaLibPlayProcess_singletone(object):
 	def runApplServer(self):
 		
 		port = int(self.__configDict['appl_cntrl_port'])
-		print('Appla port',port)
+		print('Applic port',port)
 		server = SimpleXMLRPCServer(("127.0.0.1", port),allow_none = True)
 		print("Listening on port %s..."%(str(port)))
-		print('\n*3  avalable transit methods for player:',str(self.__PlayerControl.system.listMethods()))
+		#print('\n*3  available transit methods for player:',str(self.__PlayerControl.system.listMethods()))
 		time.sleep(3)
 		server.register_introspection_functions()
 		server.register_function(self.getMediaLibPlayProcessContext, "appl_status")

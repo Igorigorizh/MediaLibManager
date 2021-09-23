@@ -36,10 +36,14 @@ def application(environ, start_response):
 # Òàêèì îáðàçîì îòôèëüòðîâûâàåì çàïðîñû ïî äàííîìó ïðèëîæåíèþ
 	if '/medialib' not in environ['REQUEST_URI']:
 		exit
-	
+	host_name = 'localhost'
+	# MEDIALIB_HOST env variable comes through Docker-compose indicating separated wsgi and rpc hosts;
+	# medialib is default rpc host name in separate scenario
+	if 'MEDIALIB_HOST' in os.environ:
+	    host_name = os.environ['MEDIALIB_HOST']
 	p_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9000')	
 	#s_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9001')
-	s_appl = xmlrpc.client.ServerProxy('http://'+'medialib'+':9001')    
+	s_appl = xmlrpc.client.ServerProxy('http://'+host_name+':9001')
 	try:
 		request_body_size = int(environ.get('CONTENT_LENGTH', 0))
 	except (ValueError):
