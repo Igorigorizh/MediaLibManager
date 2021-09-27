@@ -1,0 +1,42 @@
+version: '3.2'
+services:
+  medialib:
+    build:
+      context: .
+      dockerfile: ./medialib/Dockerfile
+    environment:
+      - MEDIALIB_HOST=medialib
+    volumes:
+      - log:/home/medialib/MediaLibManager/log
+      - db:/home/medialib/MediaLibManager/db
+      - music:/home/medialib/MediaLibManager/music
+      - config:/home/medialib/MediaLibManager/config
+    ports:
+      - "9001:9001" 
+      - "6600:6600"
+    depends_on:
+      - webui 
+    restart: on-failure
+  webui:
+    build:
+      context: .
+      dockerfile: ./www/Dockerfile
+    environment:
+      - MEDIALIB_HOST=medialib
+    volumes:
+      - config:/home/medialib/MediaLibManager/config
+      - log:/home/medialib/MediaLibManager/log
+      - music:/home/medialib/MediaLibManager/music:ro
+    ports:
+      - "80:80"
+    restart: on-failure
+volumes:
+   config:
+   log:
+   db:
+   music:
+     driver: local
+     driver_opts:
+        device: "//192.168.1.67/ExternalUSB"
+        o: "vers=1.0,username=igor,password=*****,iocharset=utf8,rsize=61440,wsize=65536,dir_mode=0777,file_mode=0777"
+        type: cifs

@@ -9,11 +9,19 @@ def application(environ, start_response):
 	output = [b'<pre>']
 	output.append(b'If you see this - it is strange')
 	output.append(b'/<pre>')
+
 	output_len = sum(len(line) for line in output)
 	response_headers = [('Content-type', 'text/plain'),
                     ('Content-Length', str(output_len))]
-	#s_appl = xmlrpc.client.ServerProxy('http://127.0.0.1:9001')
-	s_appl = xmlrpc.client.ServerProxy('http://'+'172.17.0.3'+':9001')     
+
+	host_name = '127.0.0.1'
+	# MEDIALIB_HOST env variable comes through Docker-compose indicating separated wsgi and rpc hosts;
+	# medialib is default rpc host name in separate scenario
+	if 'MEDIALIB_HOST' in os.environ:
+	    host_name = os.environ['MEDIALIB_HOST']
+	#p_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9000')
+	#s_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9001')
+	s_appl = xmlrpc.client.ServerProxy('http://'+host_name+':9001')
 #	output = ['<pre>']
 #	output.append(pformat(environ))
 #	output.append('</pre>')

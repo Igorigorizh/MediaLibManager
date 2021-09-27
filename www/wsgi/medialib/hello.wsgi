@@ -17,8 +17,8 @@ sys.path.append('/home/medialib/MediaLibManager')
 #from myMediaLib_adm import RebootServer
 #from myMediaLib_init import readConfigData
 
-mymedialib_cfg = 'home/medialib/MediaLibManager/mymedialib.cfg'
-logPath = 'home/medialib/MediaLibManager/spam.log'
+mymedialib_cfg = '/home/medialib/MediaLibManager/config/mymedialib.cfg'
+logPath = '/home/medialib/MediaLibManager/log/spam.log'
 #from myMediaLib_adm import getHardWareInfo
 
 def getHardWareInfo():
@@ -36,10 +36,14 @@ def application(environ, start_response):
 # Òàêèì îáðàçîì îòôèëüòðîâûâàåì çàïðîñû ïî äàííîìó ïðèëîæåíèþ
 	if '/medialib' not in environ['REQUEST_URI']:
 		exit
-	
+	host_name = '127.0.0.1'
+	# MEDIALIB_HOST env variable comes through Docker-compose indicating separated wsgi and rpc hosts;
+	# medialib is default rpc host name in separate scenario
+	if 'MEDIALIB_HOST' in os.environ:
+	    host_name = os.environ['MEDIALIB_HOST']
 	p_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9000')	
 	#s_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9001')
-	s_appl = xmlrpc.client.ServerProxy('http://'+'172.17.0.3'+':9001')    
+	s_appl = xmlrpc.client.ServerProxy('http://'+host_name+':9001')
 	try:
 		request_body_size = int(environ.get('CONTENT_LENGTH', 0))
 	except (ValueError):
@@ -123,8 +127,9 @@ def application(environ, start_response):
 				res = res + '<BR> application instance is OK  <BR>'
 				res = bytes(res,encoding = "utf-8")
 				output.append(res)
-			except:
+			except Exception as e:
 				res = res + ' <BR> application controller instance failed!!!'
+				res = res + 'Error:'+str(e)
 				res = bytes(res,encoding = "utf-8")
 				output.append(res)
 				

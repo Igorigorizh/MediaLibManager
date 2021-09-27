@@ -1,13 +1,19 @@
 # MediaLibManager
-new linux compatible medialib manager version
+Linux compatible medialib manager version 2.9.7 supporting several MPD player instances at the same time.
 
-# Doker image start 1: Apache instance
+Runs on x86 platform with Debian 10 incl. docker , also possible with Raspberry Pi incl. docker
+## Docker compose
+docker-compose build -> builds Apache and application images
+
+docker-compose up -> starts complete project
+### Pure Dockerfiles starting scenario
+#### Doker image start 1: Apache instance via Dockerfile 
 docker run -it - detach -p 80:80 --rm apacheImageID
-# Doker image start 2: app instance
-docker run -it -p 80:80 -p 9001:9001 -p 6600:6600 --rm imageID
+#### Doker image start 2: app instance via Dockerfile
+docker run -it -p 6600:6600 -p 9001:9001  --rm appimageID
 
-# Mount command
-igor@myhost:~$ sudo mount -t cifs -o "username=$(>&2 echo -n "Enter remote username: "; read u; echo $u),uid=$(id -u),gid=$(id -g)" //192.168.1.67/ExternalUSB /mnt/GoflexHomeUSB
-
-**#Docker KB**
-https://habr.com/ru/company/otus/blog/512404/
+## Other Resources
+Raspberry Pi: https://github.com/raspberrypi
+RaspiOS: https://www.raspbian.org/RaspbianRepository
+moodeaudio.org: http://moodeaudio.org
+MPD player: http://www.musicpd.org

@@ -4,3 +4,4 @@
 /log
 /config
 *.xml
+./__pycache__

@@ -6668,10 +6668,18 @@ class MediaLib_Application_RPC_server():
 			pass
 		
 		#print self.__MediaLib_Controller_instance.MediaLibPlayProcessDic()
-		print('Appla port',port)
-		server = SimpleXMLRPCServer((str(socket.gethostname()), port),allow_none = True)
+		print('Application server port:',port)
+
+		rpc_host_name = 'localhost'
+		#host_name = '127.0.0.1'
+		# MEDIALIB_HOST env variable comes through Docker-compose indicating separated wsgi and rpc hosts;
+		# medialib is default rpc host name in separate scenario
+		if 'MEDIALIB_HOST' in os.environ:
+			rpc_host_name = os.environ['MEDIALIB_HOST']
+
+		server = SimpleXMLRPCServer((rpc_host_name, port),allow_none = True)
 		
-		print("Listening on port %s..."%(str(port)))
+		print("Listening on [%s] port %s..."%(str(rpc_host_name),str(port)))
 		self.__logger = logging.getLogger('controller_logger.rfc')
 		self.__logger.info('avalable transit methods for player:%s'%(str(self.__MediaLib_Controller_instance.get_instance().MediaLibPlayProcessDic_viaKey('Player_RPC_methods','local'))))
 		
