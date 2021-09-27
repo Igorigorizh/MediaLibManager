@@ -1,2 +1,5 @@
-
+/venv
+/db
+/log
+/config
 *.xml
