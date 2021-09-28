@@ -190,7 +190,7 @@ class MediaLibPlayProcess_singletone(object):
 			self.__commandRoutingDic = loadCommandRouting(self.__configDict['commandRouting'])
 		
 		# Строим список главных артистов
-		print("Reading DB ...")
+		print("Reading DB from [%s]... "%str(self.__dbPath))
 		db = sqlite3.connect(self.__dbPath)
 		#db.text_factory = str
 		
