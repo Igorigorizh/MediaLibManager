@@ -1505,7 +1505,7 @@ def check_medialib_ALBUM_utf8_issue(fs_folderL,erL,*args):
 	return {"erL":erL,"er_tb_deleteL":er_tb_deleteL,'convL':convL,'matchL':matchL,'dublicatL':dublicatL}
 	
 def mass_album_track_artist_table_update_path_crc32_ajust(matchL,mode):
-	# Функция исправления БД таблиц(ALBUM,..) на остновании списка matchL
+	# Функция исправления БД таблиц(ALBUM,..) на основании списка matchL
 	# matchL[{'new_crc32':crc32_1,'old_crc32':b[0],'new_path':db_fs_folder_path,'id_album': b[2]},]
 	# resBuf_ml_folder_tree_buf_path = cfgD['ml_folder_tree_buf_path']
 	# f = open(resBuf_ml_folder_tree_buf_path,'r')
@@ -1842,11 +1842,15 @@ def get_parent_folder_stackL(path,stop_nodeL):
 		if os.path.normpath(path) in stop_nodeL:
 			break
 		nodesL.append(path)
-	return(nodesL)	
+	return(nodesL)
 
-def update_album_track_path(tobe_removed_prefix,*args):
-	# Фунция для разового вызова перехода на относительные имена, послее ее запуска необходимо пересчитать CRC32 всех объектов
-	# tobe_removed_prefix = "G:\\MUSIC\\"
+def path_to_posix(f_path):
+	return Path(f_path).as_posix()
+
+def update_album_track_path(path_conv_func,*args):
+	# Фунция для разового вызова изменений path в таблицах ALBUM и TRACK
+	# послее ее запуска необходимо пересчитать CRC32 всех объектов через mass_album_track_artist_table_update_path_crc32_ajust
+	# tobe_removed_substr = "G:\\MUSIC\\"
 	cfgD = readConfigData(mymedialib_cfg)
 	dbPath = cfgD['dbPath']
 	db = sqlite3.connect(dbPath)
@@ -1854,20 +1858,25 @@ def update_album_track_path(tobe_removed_prefix,*args):
 		mode_dif = 100
 		i = 0
 		l = db_request_wrapper(db,"select id_album, path from album")
+
 		for a in l:
-			if tobe_removed_prefix not in a[1]:
+			path_converted = path_conv_func(a[1])
+			print(a[1],path_converted)
+			if not path_converted:
 				if i%mode_dif == 0:
 					print("-", end=' ')
 				i+=1
 				continue
-			rec = (a[1].replace(tobe_removed_prefix,""),a[0])
+			rec = (path_converted,a[0])
 			req = """update album set path = "%s" where id_album = %s"""%rec
-			db_request_wrapper(db,req,'modi')
+			if 'modi' in args:
+				db_request_wrapper(db,req,'modi')
+		
+			if i%mode_dif == 0:
+				print(i, end=' ')
+			i+=1
 		print("Album path is updated")
-		if i%mode_dif == 0:
-			print(i, end=' ')
-		i+=1
-
+		
 	if "track" in args:
 		mode_dif = 1000
 		l = db_request_wrapper(db,"select id_track, path, cue_fname from track")
@@ -1875,26 +1884,31 @@ def update_album_track_path(tobe_removed_prefix,*args):
 		for a in l:
 			if a[2]:
 				if '.cue' in a[2].lower():
-					if tobe_removed_prefix not in a[1] or tobe_removed_prefix not in a[2]:
+					path_converted = path_conv_func(a[1])
+					path_converted_cue_fname = path_conv_func(a[2])
+					if not path_converted  and  not path_converted_cue_fname:
 						if i%mode_dif == 0:
 							print("-", end=' ')
 							i+=1
 							continue
 					if i%mode_dif == 0:
 						print("*", end=' ')
-					rec = (a[1].replace(tobe_removed_prefix,""),a[2].replace(tobe_removed_prefix,""),a[0])
+					rec = (path_converted, path_converted_cue_fname,a[0])
 					req = """update track set path = "%s", cue_fname = "%s" where id_track = %s"""%rec
-					db_request_wrapper(db,req,'modi')
+					if 'modi' in args:
+						db_request_wrapper(db,req,'modi')
 			else:
-				if tobe_removed_prefix not in a[1]:
+				path_converted = path_conv_func(a[1])
+				if not path_converted:
 					if i%mode_dif == 0:
 						print("-", end=' ')
 						i+=1
 						continue
 
-				rec = (a[1].replace(tobe_removed_prefix,""),a[0])
+				rec = (path_converted,a[0])
 				req = """update track set path = "%s" where id_track = %s"""%rec
-				db_request_wrapper(db,req,'modi')
+				if 'modi' in args:
+					db_request_wrapper(db,req,'modi')
 			if i%mode_dif == 0:
 				print(i, end=' ')
 			i+=1

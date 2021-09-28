@@ -7,7 +7,7 @@ import base64
 
 def application(environ, start_response):
 	output = [b'<pre>']
-	output.append(b'If you see this - it is strange')
+	output.append(b'image.wsgi: If you see this - it is strange')
 	output.append(b'/<pre>')
 
 	output_len = sum(len(line) for line in output)
