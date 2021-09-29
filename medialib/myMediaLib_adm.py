@@ -7395,14 +7395,14 @@ def collect_images_for_album(album_crc32,album_path,*args):
 		path = os.path.normpath(cfgD['audioFilesPathRoot'])+path		
 	else: 	
 		path = album_path
-		
+        
+	logger.debug('in collect_images_for_album check path:[%s] '%(str(path)))
 	init_dir_checkedL = []	
 	init_dir_modif = b""
 	if isinstance(path, str):
 		#char_codec = chardet.detect(init_dir)
 		
 		try:
-			#init_dir_modif = init_dir.decode(char_codec['encoding'])
 			init_dir_modif = bytes(path,encoding = BASE_ENCODING)
 			init_dir_checkedL.append(path)
 		except Exception as e:
@@ -7421,11 +7421,6 @@ def collect_images_for_album(album_crc32,album_path,*args):
 			return []
 		else:
 			init_dir_checkedL.append(path)	
-		
-		
-		
-	
-	
 	
 	pathL.append(path)
 	cover_insert_index=0
