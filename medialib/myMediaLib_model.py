@@ -247,14 +247,14 @@ class MediaLibPlayProcess_singletone(object):
 		
 			
 		try:
-			f = open(self.__myMediaLibPath+'\\medialibFavor.dat','r')
+			f = open(self.__myMediaLibPath+'/medialibFavor.dat','r')
 			self.__FavoritL = pickle.load(f)
 			f.close()
 		except:
 			print('Favorites  not found')
 		
 		try:
-			f = open(self.__myMediaLibPath+'\\medialibHist.dat','r')
+			f = open(self.__myMediaLibPath+'/medialibHist.dat','r')
 			self.__HistoryL = pickle.load(f)
 			f.close()
 		except:
@@ -714,7 +714,7 @@ class MediaLibPlayProcess_singletone(object):
 				print("Buttons loading...")
 				for a in ['prev','next','play','stop','pause']:
 					try:
-						fileObj = open(self.__myMediaLibPath+"\\images\\%s.jpg"%(a,),"rb")
+						fileObj = open(self.__myMediaLibPath+"/images/%s.jpg"%(a,),"rb")
 						self.__controlPicD[a] = fileObj.read()
 						fileObj.close()
 						
@@ -725,14 +725,14 @@ class MediaLibPlayProcess_singletone(object):
 				
 					
 				try:
-					f = open(self.__myMediaLibPath+'\\medialibFavor.dat','r')
+					f = open(self.__myMediaLibPath+'/medialibFavor.dat','r')
 					self.__FavoritL = pickle.load(f)
 					f.close()
 				except:
 					print('Favorites  not found')
 				
 				try:
-					f = open(self.__myMediaLibPath+'\\medialibHist.dat','r')
+					f = open(self.__myMediaLibPath+'/medialibHist.dat','r')
 					self.__HistoryL = pickle.load(f)
 					f.close()
 				except:
@@ -752,15 +752,15 @@ class MediaLibPlayProcess_singletone(object):
 				
 				print("Winamp lists metadata loading... ")	
 				# Этот словарь нужен для вывода при поиске связанной с треком инфы по плейлистам в которые он входит
-				self.__listsMetaData=getMyMediaLib_ListsData(self.__pD,self.__configDict['mediaPath']+"Plugins\\ml\\")
+				self.__listsMetaData=getMyMediaLib_ListsData(self.__pD,self.__configDict['mediaPath']+"Plugins/ml/")
 				print('OK')
 				
-				self.__mediaPath = self.__configDict['mediaPath']+"Plugins\\ml\\"
+				self.__mediaPath = self.__configDict['mediaPath']+"Plugins/ml/"
 				
 				# формируем актуальные контрольные суммы листов	
 				pDkeyL = list(self.__pD.keys())
 				for a in pDkeyL:
-					curPlayList =  getTrackList(self.__configDict['mediaPath']+"Plugins\\ml\\"+a)
+					curPlayList =  getTrackList(self.__configDict['mediaPath']+"Plugins/ml/"+a)
 					self.__pD[a]['crc32'] = zlib.crc32(str(curPlayList))
 					
 					
@@ -846,7 +846,7 @@ class MediaLibPlayProcess_singletone(object):
 				#	return self.__pD
 				
 				# Грузим шаблоны
-				self.__Tmpl_D  = loadTemplates_viaCFG(self.__myMediaLibPath+'\\templates\\templates.cfg')
+				self.__Tmpl_D  = loadTemplates_viaCFG(self.__myMediaLibPath+'/templates/templates.cfg')
 				#print self.__Tmpl_D
 				
 				logger.debug('in RefreshServerContent - in [%s]  FINISHED - OK'%(str(content_key)))
@@ -913,11 +913,11 @@ class MediaLibPlayProcess_singletone(object):
 				path = self.__DB_metaIndxD_album[id]
 				logger.debug( "in  getCoverPageObj at path: %s"%(path))
 				#print 'path:',path
-				if path[-1] != '\\':
-					path+='\\'
+				if path[-1] != '/':
+					path+='/'
 					
-				if path[:1] != '\\':
-					path ='\\'+path	
+				if path[:1] != '/':
+					path ='/'+path	
 				path = path.replace("\\","/")
 				cover_path = path_prefixL+path+'cover.jpg'	
 				cover_path_100 = path_prefixL+path+'cover_100.jpg'
@@ -929,11 +929,11 @@ class MediaLibPlayProcess_singletone(object):
 				# 1. поиск в корневой дирректории одного из связанных альбомов
 				logger.debug( "in  getCoverPageObj: 928 Virtual album to be resolved: %s"%(str(id)))
 				path_ref_to = self.__DB_virtual_albumD[id]['ref_to_path']
-				pos = path_ref_to.rfind('\\')
+				pos = path_ref_to.rfind('/')
 				path = path_ref_to[:pos]
 				path = path.replace("\\","/")
-				cover_path_100 = path+'\\cover_100.jpg'
-				cover_path = path+'\\cover.jpg'
+				cover_path_100 = path+'/cover_100.jpg'
+				cover_path = path+'/cover.jpg'
 				#if not os.path.exists(cover_path_100):
 				#	cover_path_100 = path_ref_to+'\\cover_100.jpg'
 					
@@ -1050,10 +1050,10 @@ class MediaLibPlayProcess_singletone(object):
 				path = self.__DB_metaIndxD_album[id]
 				logger.debug( "in  getCoverPageObj at other cases path=%s "%(path))
 				#print 'path:',path
-				if path[-1] != '\\':
-					path+='\\'
-				if path[:1] != '\\':
-					path ='\\'+	path
+				if path[-1] != '/':
+					path+='/'
+				if path[:1] != '/':
+					path ='/'+	path
 				path = path.replace("\\","/")
 				cover_path_320 = path_prefixL+path+'cover_320.jpg'
 				cover_path_100 = path_prefixL+path+'cover_100.jpg'
@@ -1095,8 +1095,8 @@ class MediaLibPlayProcess_singletone(object):
 				
 				if id in self.__DB_metaIndxD_album:
 					cover_path = str(self.__DB_metaIndxD_album[id])
-				if cover_path[-1] != '\\':
-					cover_path+='\\'
+				if cover_path[-1] != '/':
+					cover_path+='/'
 				cover_path = cover_path.replace("\\","/")
 				#print 'Radio cover path=',cover_path				
 				logger.debug( "in  getCoverPageObj at Radio cover path==%s "%(cover_path))
@@ -1760,7 +1760,7 @@ def getMyMediaLib_ListsData(pD,mlPath):
 				logger.critical('at getMyMediaLib_ListsData Error %s %s'%(str(a),str(e)))
 				continue
 				
-			pos = b.rfind('\\')
+			pos = b.rfind('/')
 			try:
 				crc32_d=zlib.crc32(b.encode('raw_unicode_escape').lower()[:pos])
 				#crc32_d=zlib.crc32(b.lower()[:pos])
@@ -2202,8 +2202,8 @@ def DistinctAlbums_from_playlist(playlist):
 		#index = playlist.index(a)
 		#print index
 		
-		pos_2 = a.rfind('\\')
-		pos_1 = a[:pos_2-2].rfind('\\')+1
+		pos_2 = a.rfind('/')
+		pos_1 = a[:pos_2-2].rfind('/')+1
 		#album = a[pos_1:pos_2]
 		try:
 			album_key = zlib.crc32(a[0:pos_2].encode('raw_unicode_escape'))
@@ -2215,11 +2215,11 @@ def DistinctAlbums_from_playlist(playlist):
 		#print album
 
 		if album_key not in albumD:
-			albumD[album_key] = {'firstFileIndex':index,'albumL':[(a[a.rfind('\\')+1:],index)],'album_order_numb':album_order_numb}
+			albumD[album_key] = {'firstFileIndex':index,'albumL':[(a[a.rfind('/')+1:],index)],'album_order_numb':album_order_numb}
 			album_order_numb +=1
 			#print a[a.rfind('\\')+1:]
 		else:
-			albumD[album_key]['albumL'].append((a[a.rfind('\\')+1:],index))
+			albumD[album_key]['albumL'].append((a[a.rfind('/')+1:],index))
 		index+=1	
 	
 	logger.debug( "in DistinctAlbums_from_playlist - Finished")	

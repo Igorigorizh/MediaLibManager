@@ -187,7 +187,7 @@ def parseCue(fName,*args):
 			#	orig_file = 'decode_utf8_Error'.decode(BASE_ENCODING)
 			
 			orig_file_path = os.path.join(os.path.dirname(fName),orig_file)
-			#orig_file_path = fName[:fName.rfind('\\')+1]+orig_file
+			
 			fType = os.path.splitext(orig_file)[-1][1:].decode()
 			
 			orig_file_path_exist = False
@@ -534,7 +534,7 @@ def simple_parseCue(fName,*args):
 				
 			
 			orig_file_path = os.path.join(os.path.dirname(fName),orig_file)
-			#orig_file_path = fName[:fName.rfind('\\')+1]+orig_file
+			
 			fType = os.path.splitext(orig_file)[-1][1:].decode()
 			
 			#print 'orig_file_path',orig_file_path,fType
@@ -579,7 +579,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 					ftype = ''
 					
 					try:
-						cue_name = (root+'\\'+a)
+						cue_name = (root+'/'+a)
 				
 					except Exception as e:
 						logger.critical('in checkCue_inLibConsistenc_folder - Exception  [%s]'%(str(e)))
@@ -643,8 +643,8 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 					ftype = 'mp3'
 				
 				if	ftype != None:
-					fname = (root+'\\'+a).lower() 
-					orig_fname = root+'\\'+a 
+					fname = (root+'/'+a).lower() 
+					orig_fname = root+'/'+a 
 					
 					crc32 = zlib.crc32(fname)
 					#if crc32 == 1133272172:
@@ -656,8 +656,8 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 						pass
 					
 					
-					pos = root.rfind('\\')
-					#pos_1 = a[:pos_2-2].rfind('\\')+1
+					pos = root.rfind('/')
+					
 					album = root[pos+1:]
 					#print root
 					if crc32 in cueD:
@@ -672,8 +672,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 				continue
 				
 			for a in files:
-				#crc32 = zlib.crc32(str(root).lower()+'\\'+a.lower())
-				#allmFL[crc32] = str(root).lower()+'\\'+a.lower() 
+			
 				if a[a.rfind('.'):].find('.mp3') >= 0:
 					all_alb_cnt += 1
 					break
@@ -811,7 +810,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 			logger.critical(' 711 Exception in GetTrackInfoVia_ext: %s'%(str(e)))	
 		except IOError as e:
 			logger.critical(' 713 Exception in GetTrackInfoVia_ext: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('\\')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
 		except :	
 			logger.critical(' 716 Exception in GetTrackInfoVia_ext: %s'%(str('unknown mutagen error')))	
 			
@@ -821,11 +820,11 @@ def GetTrackInfoVia_ext(filename,ftype):
 			audio = MP3(filename, ID3=EasyID3)
 		except IOError as e:
 			logger.critical('723 Exception in GetTrackInfoVia_ext: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('\\')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
 		except:
 			logger.critical('Strange mp3 error at 639 myMediaLib_cue:')	
 			print('Strange mp3 error at 1524 myMediaLib:',filename)
-			return {"title":filename[filename.rfind('\\')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}	
 			
 
 		
@@ -853,10 +852,10 @@ def GetTrackInfoVia_ext(filename,ftype):
 			audio=APEv2(filename)
 	
 		except IOError:
-			return {"title":filename[filename.rfind('\\')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'time':'00:00','time_sec':0,'ftype':ftype}	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'time':'00:00','time_sec':0,'ftype':ftype}	
 		
 	if audio == None:
-		return {"title":filename[filename.rfind('\\')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'time':'00:00','time_sec':0,'ftype':ftype}	
+		return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'time':'00:00','time_sec':0,'ftype':ftype}	
 		
 	#logger.debug('in GetTrackInfoVia_ext - audio keys [%s]'%str(audio.keys()))	
 	#logger.debug('in GetTrackInfoVia_ext - audio keys val [%s]'%str(audio))	
@@ -905,7 +904,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 					infoD['tracknumber'] = infoD[c]
 		else:
 			if c == 'title':
-				infoD[c] = filename[filename.rfind('\\')+1:-(len(ftype)+1)]
+				infoD[c] = filename[filename.rfind('/')+1:-(len(ftype)+1)]
 			elif c == 'tracknumber':			
 				infoD[c] = 0
 			else:
@@ -958,14 +957,14 @@ def generate_play_list_from_fileData(trackLD,album_crc32,track_crc32,audioFilesP
 				print('file:',trackLD[a]['file'])
 				
 				#if os.path.normpath(audioFilesPathRoot) in trackLD[a]['file']:
-				#	mpd_file = os.path.relpath(trackLD[a]['file'],audioFilesPathRoot).replace(b"\\",b"/")
+				
 				#	print(mpd_file)
 				#	trackL.append((os.path.join(mpdMusicPathPrefix,mpd_file).decode('utf-8'),0))
 
 				if is_cue:
 					try:
 						
-						if os.path.normpath(audioFilesPathRoot) in trackLD[a]['cue_f_name_abs']:
+						if audioFilesPathRoot in trackLD[a]['cue_f_name_abs']:
 							print('before2:==========') 
 							# в конце замена замена по байт строке, т.к. следующая операция с os.path	
 							cue_item = os.path.relpath(trackLD[a]['cue_f_name_abs'],audioFilesPathRoot).replace(b"\\",b"/")
@@ -977,7 +976,7 @@ def generate_play_list_from_fileData(trackLD,album_crc32,track_crc32,audioFilesP
 						logger.critical('Error: in generate_play_list_from_fileData skipped [%s]'%(trackLD[a]['file']))
 						continue
 				else:
-					if os.path.normpath(audioFilesPathRoot) in trackLD[a]['file']:
+					if audioFilesPathRoot in trackLD[a]['file']:
 						mpd_file = os.path.relpath(trackLD[a]['file'],audioFilesPathRoot).replace(b"\\",b"/")
 						print(mpd_file)
 						trackL.append((os.path.join(mpdMusicPathPrefix,mpd_file).decode('utf-8'),0))
