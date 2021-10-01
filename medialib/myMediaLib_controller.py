@@ -134,7 +134,7 @@ import logging
 
 from myMediaLib_CONST import BASE_ENCODING
 from myMediaLib_CONST import mymedialib_cfg
-
+from pathlib import Path, PosixPath, WindowsPath, PurePosixPath 
 def is_ip(address):
     return address.replace('.', '').isnumeric()
 
@@ -4143,6 +4143,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		#print(track_list_num)
 		
 		track_info = asyncio.run(get_mpd_playlistinfo(mpd_client,host_ip, mpd_socket,track_list_num))
+		print("Track info = ---->",track_info[0]['file'])
 		
 			
 		if track_info == []:
@@ -4156,14 +4157,12 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			return 0
 		
 		
-		file_name = os.path.relpath(track_info[0]['file'],mpdMusicPathPrefix)
-		file_name = os.path.normpath(os.path.join(audioFilesPathRoot,file_name))
+		
+		file_name = PurePosixPath(audioFilesPathRoot).joinpath(PurePosixPath(track_info[0]['file']).relative_to(mpdMusicPathPrefix))
 		
 		print("File Name = ---->",file_name)
 		
-			
-		pos = file_name.rfind("/")
-		music_folder = file_name[:pos]
+		music_folder = str(file_name.parent)
 		resDBS = []
 		self.__logger.debug('in get_images_4_cur_album_fromPL: path  %s'%(str([music_folder])))	
 		
@@ -4204,7 +4203,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 					
 		imageLD = {'album_crc32':album_crc32,'imageL':imageL,'imageD':imageD}	
 		
-		self.__logger.debug('3723 get_images_4_cur_album_fromPL: len[%s] '%(str(len(imageL))))
+		self.__logger.debug('3723 get_images_4_selected_album: len[%s] '%(str(len(imageL))))
 		# Найти срц32 текущего альбома album_crc32 = metaD_of_cur_pL[1989996026]['album_crc32']
 		
 		paramD = {'action':'get_album_images_from_cur_plist'}
@@ -4234,9 +4233,9 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		print('albumcrc32:',album_crc32)
 		
 		autoComplBufD = self.__model_instance.getAutoComplSearch_BufD()
-		#sel_dir = os.path.normpath(audioFilesPathRoot)+"\\"+autoComplBufD[album_crc32]
-		if os.path.normpath(audioFilesPathRoot) not in autoComplBufD[album_crc32]:
-			sel_dir = os.path.normpath(audioFilesPathRoot)+"\\"+autoComplBufD[album_crc32]
+
+		if audioFilesPathRoot not in autoComplBufD[album_crc32]:
+			sel_dir = audioFilesPathRoot+"/"+autoComplBufD[album_crc32]
 		else:
 			sel_dir = autoComplBufD[album_crc32]
 		
@@ -4413,18 +4412,14 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			return 0
 		
 		
-		file_name = os.path.relpath(track_info[0]['file'],mpdMusicPathPrefix)
-		file_name = os.path.normpath(os.path.join(audioFilesPathRoot,file_name))
+		file_name = PurePosixPath(audioFilesPathRoot).joinpath(PurePosixPath(track_info[0]['file']).relative_to(mpdMusicPathPrefix))
 		
-		print(file_name)
+		print("File Name = ---->",file_name)
 		
-			
-		pos = file_name.rfind("\\")
-		music_folder = file_name[:pos]
+		music_folder = str(file_name.parent)
 		resDBS = []
 		self.__logger.debug('in get_tracks_4_cur_album_fromPL: path  %s'%(str([music_folder])))	
-		
-			
+					
 		print("test 0")		
 		path_check = False
 		try:
@@ -4808,10 +4803,12 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		
 		path_prefixL = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')['audio_files_path_list']
 		audioFilesPathRoot = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')['audioFilesPathRoot']
-		#path_prefixL = os.path.normpath(self.__configDict['audioFilesPathRoot'])
+		
+		if audioFilesPathRoot[:1] != '/':
+			audioFilesPathRoot = audioFilesPathRoot + '/'
 		
 		for i in range(len(path_prefixL)):
-			path_prefixL[i] = os.path.normpath(path_prefixL[i])
+			path_prefixL[i] = path_prefixL[i]
 		
 		MLFolderTreeNodeL = getFolderAlbumD_fromDB(dbPath,None,None,[],'all')
 		print("*****Tut1****",len(MLFolderTreeNodeL))
@@ -4834,7 +4831,8 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			if not found_term:
 				continue
 			
-			path = os.path.normpath(audioFilesPathRoot)+'\\'+a[node_key]
+			path = audioFilesPathRoot+a[node_key]
+			print('path-----',path)
 			key = zlib.crc32(path.encode(BASE_ENCODING))
 			if key not in check_keyL:
 				check_keyL.append(key)
@@ -4843,7 +4841,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			for prefix in path_prefixL:
 				item_name = ''
 				#print("prefix=",prefix)
-				if os.path.normpath(prefix) in path:
+				if prefix in path:
 					item_name = path[len(prefix):]
 					#print('*',path)
 					#print('item=',item_name)
@@ -4864,8 +4862,8 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		if not update_mode:
 			print("*****Tut3****",len(extract_dirL))
 			for a in extract_dirL:
-				
-				path = os.path.normpath(audioFilesPathRoot)+'\\'+a
+								
+				path = audioFilesPathRoot+a
 				#print("path=",path)
 				#print('path_prefixL=',path_prefixL)
 				l = get_parent_folder_stackL(path,path_prefixL)
@@ -5246,7 +5244,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			for rel_item in album_artist_metaD_db['artist_album_refLD']:
 								
 				album_item = album_artist_metaD_db['albumD'][rel_item['album_key']]
-				#album_item['path'] = album_item['path'].replace('\\','/')
+				
 				album_item['path'] = "disable"
 				keyL =[b for b in album_item if b != 'artistD']
 				new_Item = {}
