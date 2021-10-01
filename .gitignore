@@ -1,4 +1,7 @@
+/medialib/_pycache_
+/venv
 /db
 /log
 /config
 *.xml
+./__pycache__
