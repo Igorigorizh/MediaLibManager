@@ -7389,10 +7389,10 @@ def collect_images_for_album(album_crc32,album_path,*args):
 			logger.critical('Error in collect_images_for_album album_crc32[%s] not in albumD- finished'%(str(album_crc32)))
 			return []
 			
-		if path[:1] != '\\':
-			path ='\\'+	path
+		if path[:1] != '/':
+			path ='/'+	path
 		
-		path = os.path.normpath(cfgD['audioFilesPathRoot'])+path		
+		path = cfgD['audioFilesPathRoot']+path		
 	else: 	
 		path = album_path
 		
@@ -7422,11 +7422,6 @@ def collect_images_for_album(album_crc32,album_path,*args):
 		else:
 			init_dir_checkedL.append(path)	
 		
-		
-		
-	
-	
-	
 	pathL.append(path)
 	cover_insert_index=0
 	
@@ -7446,7 +7441,7 @@ def collect_images_for_album(album_crc32,album_path,*args):
 		for a in pathL:
 			#print '7438 :',pathL
 			
-			parent = a[:a[:-1].rfind('\\')]
+			parent = a[:a[:-1].rfind('/')]
 			#print '7441',parent
 			if parent not in parent_dirL:
 				parent_dirL.append(parent)
@@ -7500,7 +7495,7 @@ def collect_images_for_album(album_crc32,album_path,*args):
 			for a in files:
 				
 				if a[a.rfind('.'):].lower().find('.jpg') >= 0 or a[a.rfind('.'):].lower().find('.pdf') >= 0 or a[a.rfind('.'):].lower().find('.png') >= 0:
-					f_path = root+'\\'+a
+					f_path = root+'/'+a
 					if os.path.exists(f_path):
 						crc32 = zlib.crc32(f_path.lower().encode(BASE_ENCODING))
 						#imageLD[crc32]=f_path
@@ -7555,7 +7550,7 @@ def getFolderPathL_fromDB_viaTermL(dbPath,db,TermL,audioFilesPathRoot):
 		if not found_term:
 			continue
 			
-		path = os.path.normpath(audioFilesPathRoot)+'\\'+a[node_key]
+		path = audioFilesPathRoot+'/'+a[node_key]
 		resL.append(os.path.split(path))
 		
 		
