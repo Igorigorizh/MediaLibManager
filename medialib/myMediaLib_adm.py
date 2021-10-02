@@ -7505,8 +7505,14 @@ def collect_images_for_album(album_crc32,album_path,*args):
 							cover_insert_index+=1
 						else:	
 							imageL.append({"image_crc32":crc32,'f_path':f_path,'f_name':a})
-	logger.debug('in collect_images_for_album - Finished with resL len[%s]'%(str(len(parent_imageL+imageL))))						
-	return parent_imageL+imageL
+							
+	resL = parent_imageL+imageL
+	if (len(parent_imageL+imageL) > 30):
+			logger.critical(' Warning: in collect_images_for_album - Finished with Huge result image list! total [%s] parent_imageL: [%s] restribted to 30'%(str(len(parent_imageL+imageL)),str(len(parent_imageL))))
+			resL = resL[:30]	
+			return resL
+	logger.debug('in collect_images_for_album - Finished with resL total: len[%s] parent_imageL:len[%s]'%(str(len(parent_imageL+imageL)),str(len(parent_imageL))))		
+	return resL
 	
 def getFolderPathL_fromDB_viaTermL(dbPath,db,TermL,audioFilesPathRoot):	
 	logger.debug('in getFolderPathL_fromDB_viaTermL [%s]- Start'%(str(TermL)))
