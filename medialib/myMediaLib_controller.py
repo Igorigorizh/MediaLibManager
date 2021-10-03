@@ -4809,6 +4809,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		
 		for i in range(len(path_prefixL)):
 			path_prefixL[i] = path_prefixL[i]
+			self.__logger.debug('at get_album_folder_autocompl_data_db: path_prefixL=[%s]'%str(path_prefixL[i]))
 		
 		MLFolderTreeNodeL = getFolderAlbumD_fromDB(dbPath,None,None,[],'all')
 		print("*****Tut1****",len(MLFolderTreeNodeL))
@@ -4824,6 +4825,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 					path_lower = a[node_key].lower()
 				except:
 					print("---------------------->>error:", MLFolderTreeAll_List.index(a),a)
+					self.__logger.critical('Error 4828 at get_album_folder_autocompl_data_db: [%s] [%s] '%(str(MLFolderTreeAll_List.index(a)),str(a)))
 					
 				if term not in path_lower:
 					found_term = False
@@ -4833,6 +4835,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			
 			path = audioFilesPathRoot+a[node_key]
 			print('path-----',path)
+			self.__logger.debug('at 4838 get_album_folder_autocompl_data_db: path:[%s]'%(path))
 			key = zlib.crc32(path.encode(BASE_ENCODING))
 			if key not in check_keyL:
 				check_keyL.append(key)
