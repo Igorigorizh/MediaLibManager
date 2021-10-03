@@ -4804,7 +4804,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		path_prefixL = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')['audio_files_path_list']
 		audioFilesPathRoot = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')['audioFilesPathRoot']
 		
-		if audioFilesPathRoot[:1] != '/':
+		if audioFilesPathRoot[-1] != '/':
 			audioFilesPathRoot = audioFilesPathRoot + '/'
 		
 		for i in range(len(path_prefixL)):
