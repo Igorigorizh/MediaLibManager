@@ -9,12 +9,7 @@ docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s)  --build-arg ws
 
 docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes in medialib using date timestamp
 
-docker-compose up -> starts complete project
-### Pure Dockerfiles starting scenario
-#### Doker image start 1: Apache instance via Dockerfile 
-docker run -it - detach -p 80:80 --rm apacheImageID
-#### Doker image start 2: app instance via Dockerfile
-docker run -it -p 6600:6600 -p 9001:9001  --rm appimageID
+docker-compose up -d -> starts complete project
 
 ## Other Resources
 Raspberry Pi: https://github.com/raspberrypi
