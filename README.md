@@ -5,7 +5,9 @@ Runs on x86 platform with Debian 10 incl. docker , also possible with Raspberry 
 ## Docker compose
 docker-compose build -> builds Apache and application images
 
-docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes using date timestamp
+docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s)  --build-arg wsgi_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes wsgi+medialib using date timestamp
+
+docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s)  --build-arg wsgi_bld_ver=1 -> to retrive only the last code changes medialib using date timestamp
 
 docker-compose up -> starts complete project
 ### Pure Dockerfiles starting scenario
