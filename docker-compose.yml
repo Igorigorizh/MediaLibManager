@@ -24,7 +24,7 @@ services:
       context: .
       dockerfile: ./www/Dockerfile
       args:
-      -wsgi_bld_ver=1
+      - wsgi_bld_ver=1
     environment:
       - MEDIALIB_HOST=medialib
     volumes:
