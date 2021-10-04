@@ -4,6 +4,7 @@ Linux compatible medialib manager version 2.9.7 supporting several MPD player in
 Runs on x86 platform with Debian 10 incl. docker , also possible with Raspberry Pi incl. docker
 ## Docker compose
 docker-compose build -> builds Apache and application images
+docker-compose build --build-arg CACHE_VER="8" -> to retrive only the last code changes (increment CACHE_VER at every build)
 
 docker-compose up -> starts complete project
 ### Pure Dockerfiles starting scenario
