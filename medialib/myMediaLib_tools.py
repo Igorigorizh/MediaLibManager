@@ -757,7 +757,7 @@ def identify_music_folder(init_dirL,*args):
 					#print(entry.name, os.path.splitext(entry.name)[-1])
 					if os.path.splitext(entry.name)[-1] in file_extL:
 
-						dir_name = os.path.dirname(''.join((new_folder,'\\',entry.name)))
+						dir_name = os.path.dirname(''.join((new_folder,'/',entry.name)))
 						#print(dir_name)
 						#print [join(root.decode('utf8'),a.decode('utf8'))]
 						if dir_name not in music_folderL:
@@ -812,7 +812,7 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 				if i%100 == 0:
 					print(i, end=' ')
 				i+=1
-				f_l.append((os.path.normpath(root),a))
+				f_l.append((root,a))
 				#f_l.append(join(root,a))
 	print()
 	time_stop_diff = time.time()-t
@@ -1831,15 +1831,17 @@ def unicode_migration_scenario():
 	check_after_migrationD = quick_check_medialib_utf8_issue('with_fetch_detailes')
 	
 def get_parent_folder_stackL(path,stop_nodeL):
+	
 	if not os.path.isabs(path):
 		return([])	
 	nodesL =[]
+	
 	for a in range(20):
-		parent_dir = os.path.abspath(path + "/../")
+		parent_dir = os.path.dirname(path)
 		if path == parent_dir:
 			break
 		path = parent_dir
-		if os.path.normpath(path) in stop_nodeL:
+		if path in stop_nodeL:
 			break
 		nodesL.append(path)
 	return(nodesL)
