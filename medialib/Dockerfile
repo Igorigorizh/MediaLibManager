@@ -9,7 +9,7 @@ RUN pip install -r requirements.txt
 
 ARG medialib_bld_ver="unknown"
 RUN echo "medialib build ver is ${medialib_bld_ver}"
-RUN CACHE_VER=${medialib_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
+RUN medialib_bld_ver=${medialib_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
 EXPOSE 9001
