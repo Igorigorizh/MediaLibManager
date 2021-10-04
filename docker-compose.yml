@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./medialib/Dockerfile
-    args:
+      args:
       - cache_ver=1
     environment:
       - MEDIALIB_HOST=medialib
