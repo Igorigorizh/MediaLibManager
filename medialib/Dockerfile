@@ -4,10 +4,14 @@ RUN echo "---->" $(uname -m) "<----"
 RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
 
 WORKDIR /home/medialib
-RUN  git clone https://github.com/Igorigorizh/MediaLibManager.git
+COPY requirements.txt /home/medialib/requirements.txt
+RUN pip install -r requirements.txt
+
+ARG CACHE_VER="unknown"
+RUN echo "medialib cache ver is ${CACHE_VER}"
+RUN CACHE_VER=${CACHE_VER} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
-RUN pip install -r requirements.txt
 EXPOSE 9001
 EXPOSE 6600
 CMD ["python", "./medialib/_appl_server.py" ]
