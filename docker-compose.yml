@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: ./medialib/Dockerfile
       args:
-      - cache_ver=1
+      - medialib_bld_ver=1
     environment:
       - MEDIALIB_HOST=medialib
     volumes:
@@ -23,6 +23,8 @@ services:
     build:
       context: .
       dockerfile: ./www/Dockerfile
+      args:
+      -wsgi_bld_ver=1
     environment:
       - MEDIALIB_HOST=medialib
     volumes:
