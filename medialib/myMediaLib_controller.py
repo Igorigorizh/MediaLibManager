@@ -4254,6 +4254,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			self.__logger.debug('3836 in get_tracks_4_selected_folder: before identify_music_folder %s '%(str([sel_dir])))
 			res = identify_music_folder([sel_dir])
 			music_folder = res['music_folderL']
+			self.__logger.debug('4257 in get_tracks_4_selected_folder: after identify_music_folder %s '%(str(res['music_folderL'])))
 			print('existed music_folderL:',res['music_folderL'])
 
 		# Сравнение по предварительно сохраненному списку дирректорий
@@ -4874,6 +4875,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 				dif_L = list(set(l).difference(set(stackL)))
 				stackL += dif_L
 			
+			self.__logger.debug('at 4878 get_album_folder_autocompl_data_db: parent pathL:[%s]'%(str(stackL)))
 			print("*****Tut4****",len(extract_dirL))	
 			#print('stackL=',len(stackL),stackL)
 			for a in stackL:
