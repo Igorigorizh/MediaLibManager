@@ -7,9 +7,9 @@ WORKDIR /home/medialib
 COPY requirements.txt /home/medialib/requirements.txt
 RUN pip install -r requirements.txt
 
-ARG CACHE_VER="unknown"
-RUN echo "medialib cache ver is ${CACHE_VER}"
-RUN CACHE_VER=${CACHE_VER} git clone https://github.com/Igorigorizh/MediaLibManager.git
+ARG medialib_bld_ver="unknown"
+RUN echo "medialib build ver is ${medialib_bld_ver}"
+RUN CACHE_VER=${medialib_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
 EXPOSE 9001
