@@ -7,7 +7,7 @@ docker-compose build -> builds Apache and application images
 
 docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s)  --build-arg wsgi_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes wsgi+medialib using date timestamp
 
-docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s)  --build-arg wsgi_bld_ver=1 -> to retrive only the last code changes medialib using date timestamp
+docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes in medialib using date timestamp
 
 docker-compose up -> starts complete project
 ### Pure Dockerfiles starting scenario
