@@ -3,7 +3,12 @@ RUN apt-get update && apt-get install -y cifs-utils apache2 apache2-utils ssl-ce
 RUN echo "---->" $(uname -m) "<----"
 RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
 WORKDIR /home/medialib
-RUN  git clone https://github.com/Igorigorizh/MediaLibManager.git
+COPY requirements.txt /home/medialib/requirements.txt
+RUN pip install -r requirements.txt
+
+ARG wsgi_bld_ver="unknown"
+RUN echo "wsgi build ver is ${wsgi_bld_ver}"
+RUN CACHE_VER=${wsgi_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
 RUN cp ./www/apache2-conf/mod-wsgi.conf /etc/apache2/conf-available/mod-wsgi.conf
@@ -20,6 +25,5 @@ RUN cp -r ./www/static/js /var/www/html/
 RUN cp -r ./www/static/image /var/www/html/
 
 RUN a2enconf mod-wsgi
-RUN pip install -r requirements.txt
 EXPOSE 80
 CMD ["apachectl", "-DFOREGROUND"]
