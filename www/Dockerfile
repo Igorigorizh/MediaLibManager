@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 ARG wsgi_bld_ver="unknown"
 RUN echo "wsgi build ver is ${wsgi_bld_ver}"
-RUN CACHE_VER=${wsgi_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
+RUN wsgi_bld_ver=${wsgi_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
 RUN cp ./www/apache2-conf/mod-wsgi.conf /etc/apache2/conf-available/mod-wsgi.conf
