@@ -753,7 +753,7 @@ var proc_mode = 0;
 	self.category_type_index_selected = ko.observable(0);
 	self.catProfileDL_current  = ko.observableArray([]);
 	self.mpdHostDL_current  = ko.observableArray([]);
-	self.mpdHostDL_index_selected = ko.observable(0);
+	self.mpdHostDL_index_selected = ko.observable(null);
 	self.categoryDL  = ko.observableArray([]);
 	
 	//self.cat_prof_selectedDL = ko.observableArray();
@@ -1082,7 +1082,7 @@ var proc_mode = 0;
 		
 				if (mpdHostObj[a]['selected'] == 'X') {
 					//self.mpdHostDL_index_selected(a)
-					m_vM.mpdHostDL_index_selected = ko.observable(a)
+					m_vM.mpdHostDL_index_selected(a)
 					//console.log("val index_selected_A="+a.toString())
 					//console.log(m_vM.mpdHostDL_index_selected().toString())
 					}
