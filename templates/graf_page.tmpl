@@ -796,6 +796,7 @@ var proc_mode = 0;
 	
 	self.artistL = ko.observableArray();
 	self.albumL = ko.observableArray();
+	self.tagL = ko.observableArray();
 	
 	self.artist_rel_albumL = ko.observableArray();
 	self.album_rel_artistL = ko.observableArray();
@@ -803,6 +804,7 @@ var proc_mode = 0;
 	
 	self.artist_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
 	self.album_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
+	self.tag_song_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
 	
 	self.cur_before_select_color = '';
 	
@@ -831,8 +833,13 @@ var proc_mode = 0;
 		
 		m_vM.current_selected_srch_view.valueHasMutated();
 		if (view_name == 'song'){
-			alert('song')
-			$("#navi_categ_song_panel").jScrollPane();
+			
+			do_scroll = false	
+				if ( self.tag_song_play_control.key != null){
+					do_scroll = true
+				}	
+					
+				set_scroll_position_vertical('navi_categ_song_panel',m_vM.tag_song_play_control.key,30,8,do_scroll)
 			
 		} else if (view_name == 'artist'){
 				do_scroll = false	
@@ -1037,7 +1044,15 @@ var proc_mode = 0;
 		}
 		self.albumL(artist_albumObj['albumL'])
 	}
+	
+	if ('tagL' in artist_albumObj){	
+	
+	if (self.tagL().length > 0){
+		self.tagL.removeAll(self.albumL())
 		
+		}
+		self.tagL(artist_albumObj['tagL'])
+	}	
 	
 	
 		
@@ -2819,49 +2834,66 @@ Category:
 	 </script>
 
 	<script type="text/html" id="songL_block">	
-	
-	
-	
-	  {{if m_vM.getActiveView() == 'song'}}	
-	  
-			
-	  
+	{{if tagL().length > 0 && getActiveView() == 'song'}}	
 	 <table> 
 	 
 	<tr style=" background-color: lightGrey">
 	 <td>
 	  <B> Song in: </B>
 		<a data-bind="click:function() { navi_play_control_send('genre',catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_id)}"  href="#">
-		
+		<span style="color:Green;" data-bind="visible: tagL().length > 0 , text: catProfileDL_current()[category_type_index_selected()]['relCatL'][cur_cat_selected_index].cat_key"></span></a>
 	 
 	</td>
-	<td >
-	<B> Artists of: </B>
-	<a data-bind="click:function() { navi_play_control_send('album',album_play_control.key)}"  href="#"><span style="color:Green;" data-bind="visible: album_play_control.active && !album_play_control().object_type, text: album_play_control()['name']"></span></a>
 	
-	
-	</td>
 	</tr>
 	 
 	 
 	 <tr>
 	<td>		
-	 	 
-	 <div style=" height:60vh; width: 185px; ">	
-	 <h3>#pane1 (default)</h3>
-
-	 <div id="navi_categ_song_panel" class="scroll-pane" >
 	 
-		</div>	
-		</div>	
 	 
-	</td>
-	</tr>
-	
-	</table>	
-	{{/if}}		
+	 <div class="holder" style=" overflow: auto; ">	
+	 <div style=" height:60vh; width:230px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_song_panel"  >
+		<div  style="overflow: auto;">	
+	 
+	 
+		<ul style="list-style: none; ;  height: auto; width: 180px; padding: 2px 2px 2px 2px; overflow: auto; " >
+		 
 		
-	 </script>	
+		 {{each(i, item) m_vM.tagL()}}    
+			
+			
+			<li style="display: inline,width:130px; height: 20;" data-bind="attr:{id: 'tagcat'+item.key}" >
+			
+			
+			<a data-bind="click:function() { navi_play_control_send('tag',item.key)} "   href="#">
+			
+			<span data-bind="text: item.value "></span>
+			</a>
+			
+			</li>
+			
+			
+		 {{/each}}
+		 
+		
+		</ul>
+		</div>
+		</div>
+		</div>
+		
+		</td>	
+		<td>	
+		
+
+	
+		
+		<tr>	
+		</table>	
+		{{/if}}		
+		
+		
+	 </script>
 </div>
 </body>
 </html>

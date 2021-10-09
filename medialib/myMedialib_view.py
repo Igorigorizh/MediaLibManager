@@ -429,7 +429,8 @@ class MediaLib_ViewGen(MediaLibPlayProcess_singletone_Wrapper):
 				navi_cat_data['artistL'] = modelDic['artist_album_DDL_data']['artistL']
 			if 'albumL' in modelDic['artist_album_DDL_data']:
 				navi_cat_data['albumL'] = modelDic['artist_album_DDL_data']['albumL']
-			
+			if 'tag_DDL_data' in modelDic:	
+				navi_cat_data['tagL'] = modelDic['tag_DDL_data']['tagL']
 			logger.debug('chek point 5')
 			try:	
 				json_reply = {'navi_cat_data_general':json.dumps(navi_cat_data)}
