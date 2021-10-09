@@ -2777,6 +2777,30 @@ def createPlayList_viaArtistCRC32(artistCRC32,db):
 	#print '3'
 	return resL	
 
+def getTag_indexL_viaCategId(dbPath,categId,mode_L,categ_key):
+	db = sqlite3.connect(dbPath)
+	#db.text_factory = str
+	
+	c = db.cursor()
+	if type(categId) == str:
+		req = """select id_tag from TAG_CAT_REL where object_name = "%s" """%(str(categId))
+	elif type(categId) == int:
+		req = """select id_tag from TAG_CAT_REL where id_object = %s """%(categId)
+	print(req)	
+	c.execute(req)
+	l = c.fetchall()
+	tagL = [a[0] for a in l]	
+	
+	req = """select id_tag, tag_descr, tag_type from tag where id_tag in (%s)"""%(str(tagL)[1:-1])
+	print(req)
+	c.execute(req)
+	l = c.fetchall()
+	tagLDDL_L = [{'key':a[0],'value':a[1],'object_type':a[2]} for a in l]
+	c.close()
+	db.close()
+	print('ddl ok')
+	return {'tagL':tagLDDL_L}	
+	
 def getArtistAlbum_indexL_viaCategId(dbPath,categId,mode_L,categ_key):
 
 	# ���������������� ���� ������������ :

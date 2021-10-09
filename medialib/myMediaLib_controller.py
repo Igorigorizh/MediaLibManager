@@ -70,6 +70,7 @@ from myMediaLib_adm import getAlbumD_fromDB
 from myMediaLib_adm import getAll_Related_to_main_Artist_fromDB
 from myMediaLib_adm import artist_album_categorisation_and_save
 from myMediaLib_adm import getArtistAlbum_indexL_viaCategId
+from myMediaLib_adm import getTag_indexL_viaCategId
 from myMediaLib_adm import checkReplicaMapping
 from myMediaLib_adm import getCoverPage
 from myMediaLib_adm import getArtist_Album_metaD_fromDB
@@ -6204,7 +6205,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 				even_odd = ''
 				self.__modelDic['artist_album_DDL_data'] = getArtistAlbum_indexL_viaCategId(dbPath,categ_id,['artist','album'],'general_categ')
 				self.__modelDic['artist_album_DDL_data']['proc'] = commandD['proc']	
-				
+				self.__modelDic['tag_DDL_data'] = getTag_indexL_viaCategId(dbPath,categ_id,[],'general_categ')
 				
 				composL = []
 				artL = []
