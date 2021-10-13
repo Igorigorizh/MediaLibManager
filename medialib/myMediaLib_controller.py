@@ -75,6 +75,7 @@ from myMediaLib_adm import checkReplicaMapping
 from myMediaLib_adm import getCoverPage
 from myMediaLib_adm import getArtist_Album_metaD_fromDB
 from myMediaLib_adm import getAlbumArtist_dbId_CRC32_mapping
+from myMediaLib_adm import Tag_to_Categ_save
 
 from myMediaLib_adm import getArtist_Album_relationD_and_simpleMetaD_viaCRC32L
 from myMediaLib_adm import artist_album_categorisation_delete
@@ -6105,17 +6106,20 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		# тэгоназначении
 			
 		self.__logger.info('in tag_assign_to_categ_check: [%s] '%(str(commandD)))
-		tag_idL = []
-		cat_idL = []
-		if 'tag_idL' in commandD and 'cat_idL' in commandD :
-			tag_idL = commandD['tag_idL']
-			cat_idL = commandD['cat_idL']
-		for cat_id in cat_idL:
-			for tag_id in tag_idL:
-				pass
+		
+		if 'tag_id' in commandD and 'cat_id' in commandD :
+			tag_id = base64.b64decode(commandD['tag_id']).decode("utf-8")
+			cat_id = base64.b64decode(commandD['cat_id']).decode("utf-8")
+			
+		self.__logger.debug('in tag_assign_to_categ_check after decoding: [%s] [%s]'%(str(tag_id),str(cat_id)))	
+		
+		tagID = int(tag_id)
+		catID = int(cat_id)		
 		dbPath = self.__model_instance.getMediaLibPlayProcessContext()['dbPath']
-		TagD = self.__model_instance.MediaLibPlayProcessDic_viaKey('TagD','local')
+		tagD = self.__model_instance.MediaLibPlayProcessDic_viaKey('TagD','local')
 		categoryD = getCategoryProfileDic(dbPath)['categoryD']	
+		resL = Tag_to_Categ_save(dbPath,tagID,catID,tagD,categoryD)
+		self.__logger.debug('in tag_assign_to_categ_check Finished after save with result: [%s]'%(str(resL)))	
 		return 0
 			
 	def tag_assign_update_check(self,commandD):	

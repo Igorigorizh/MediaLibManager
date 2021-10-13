@@ -33,7 +33,7 @@ var viewModel = new function(){
 	self.CatList_s = ko.observableArray();
 	self.tagCatList = ko.observableArray();
 	self.selectedCat = ko.observable();
-	self.selectedTag = ko.observable();
+	self.selectedTag = ko.observableArray();
 }	
 
 var m_vM =  new function(){
@@ -300,9 +300,12 @@ function processSelected(proc_name,action_name,mode){
 			alert("Category not selected")
 			return ;
 		}
-		json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ','+"\""+"tag_idL"+"\""+":"+"["+viewModel.selectedTag().key()+"]"+",";
+		
+		catSel_str = Base64.encode(m_vM.category_selected().toString())	
+		tagSel_str = Base64.encode(viewModel.selectedTag().key().toString())	
+		json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ','+"\""+"tag_id"+"\""+":"+"\"" +  tagSel_str +"\"" +",";
 		json_req += "\"" + "action_mode" + "\"" + ':' + "\"" + mode +"\""+",";
-		json_req += "\"" + "cat_idL" + "\"" + ':' +"["+ m_vM.category_selected() +"]" + "}";
+		json_req += "\"" + "cat_id" + "\"" + ':'  +"\"" + catSel_str +"\""+ "}";
 	} else {
 	
 			json_req = "{" +"\"" + proc_name +"\"" + ':' +"\"" + action_name + "\"" + ','+"\""+"tag_id"+"\""+":"+"\""+viewModel.selectedTag().key()+"\""+",";
@@ -661,7 +664,8 @@ Track: <INPUT  height="27" width="36" TYPE="checkbox" name="in_track_search" val
 		</div>
 		
 		<div id="categ_tag_block"  data-bind='visible: m_vM.is_tagCatL_load()'>
-			<select NAME="tag_id"  size="6" id="tagList" data-bind="options: viewModel.tagCatList, optionsText: 'tag_name',   value: viewModel.selectedTag"></select>
+			<select NAME="tag_id"  size="6" id="tagList" data-bind="options: viewModel.tagCatList, optionsText: 'tag_name',   value: viewModel.selectedTag" >
+			</select>
 		</div>
 		
 		 
@@ -723,11 +727,7 @@ Track: <INPUT  height="27" width="36" TYPE="checkbox" name="in_track_search" val
 		<span data-bind="text: m_vM.add_to_categ_submodel().key" ></span>
 		<BR>
 		
-		<button data-bind="click:function() {  m_vM.do_cancell_categ_action() }"> Cancell </button>
-		<input type="button" onclick="processSelected(proc_name,'tag_assign_to_categ_check','tb_save')" value="Check assignement">
-		<button data-bind="visible: m_vM.getActiveView('state') =='tb_save',click:function() { m_vM.curent_process_indicator(process_data['data_categ']); processSelected(proc_name,'tag_maintain_categ_save','save') }"> Save</button>	
-
-				
+		<input type="button" onclick="processSelected(proc_name,'tag_assign_to_categ_check','tb_save')" value="Save">
 		
 		<BR><BR>
 		<SPAN id="action_name"></SPAN>

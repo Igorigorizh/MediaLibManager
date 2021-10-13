@@ -180,7 +180,7 @@ class MediaLib_ViewGen(MediaLibPlayProcess_singletone_Wrapper):
 			
 			json_reply = json.dumps(view_elem_id_Dic)
 		
-		logger.debug('view_elem_id_Dic: %s'%(str(view_elem_id_Dic)))
+		logger.debug('ajax_tag_admin_page_update: Finished!')
 		
 		return json_reply
 		

@@ -2945,6 +2945,39 @@ def Tag_Assignement_and_save(dbPath,metaD,tagKey,tagD):
 	db.close()	
 	
 	return resL	
+	
+def Tag_to_Categ_save(dbPath,tagID,catID,tagD,categoryD):
+	logger.debug('in Tag_to_Categ_save: tagID[%s],catID[%s] Start '%(str(tagID),str(catID)))		
+	if tagID == 0:
+		logger.error('Error : No assgnement to 0-TAG')
+		return
+	s = ''
+	resL = []
+	sortedL = []
+	db = sqlite3.connect(dbPath)
+	c = db.cursor()
+	try:
+		rec = (str(tagID),str(catID),tagD[tagID]['tag_descr'],categoryD[catID]['cat_key'],tagD[tagID]['tag_type'])
+	except Exception as e:	
+		logger.critical('Error in Tag_to_Categ_save [%s] '%(str(e)))		
+		print(str(tagD)[:300])
+		print(str(categoryD)[:300])
+		return 0
+	req_ins = """insert into tag_cat_rel (id_tag,id_object,tag_name,object_name,rel_type) values (%s,%s,"%s","%s", "%s") """%rec
+	print(req_ins)
+		
+	try:
+		resL = c.execute(req_ins)
+	except Exception as e:
+		logger.critical('Exception: %s in [%s]'%((str(e),str(req_ins))))
+		logger.critical('a = %s'%((str(a))))
+	
+	
+	db.commit()
+	c.close()
+	db.close()	
+	logger.debug('in Tag_to_Categ_save: Finished with res [%s] '%(str(resL)))		
+	return resL		
 
 def Tag_Assignement_delta_update(dbPath,deltaL,action,DB_metaIndxD,tagKey,tagD):
 	# action - ��� �������� ���������: 'delete' �������� �� ������ ��� ���������� 'add'
