@@ -1,5 +1,6 @@
 import xmlrpc.client, socket
 import myMediaLib_adm
+import myMediaLib_init
 import myMediaLib_controller
 from myMediaLib_CONST import mymedialib_cfg
 import time
@@ -11,7 +12,7 @@ if __name__ == '__main__':
 	
 #	PlayerContr_serv = PlayerController()
 #	PlayerContr_serv.runPlayerServer()
-	cfgD = myMediaLib_adm.readConfigData(mymedialib_cfg)
+	cfgD = myMediaLib_init.readConfigData(mymedialib_cfg)
 	
 	port = cfgD['appl_cntrl_port']
 	dbl_appl = xmlrpc.client.ServerProxy('http://%s:%s'%(str(socket.gethostname()),str(port)))		

@@ -20,7 +20,7 @@ def loadCommandRouting(fname):
 	return command_routingD	
 
 def readConfigData(fname):
-	f = open(fname,'r')
+	f = open(fname,'r', encoding="utf-8")
 	l = f.readlines()
 	f.close()
 	configDict = {'mpdMusicPathPrefix':'','audioFilesPathRoot':'','logPath':'','mediaPath':'','templatesPath':'','lossless_path':'','winampext':'','player_cntrl_port':0,'appl_cntrl_port':0,'commandRouting':'','dbPath':'','audio_files_path_list':[],'applicationPath':'','radioNodePath':'','imageNodePath':'','preprocessAlb4libPath':'','ml_folder_tree_buf_path':'','mpd_host_list':[]}	
@@ -69,15 +69,16 @@ def readConfigData(fname):
 			configDict[key] = []
 			
 			try:
-				host_s = a.split('=')[1].strip().split(';')
-				chkL = [b.strip() for b in  host_s if b != '']
-				for host in chkL:
-					hostL = host.split(':')
-					configDict[key].append({'host':hostL[0],'socket':hostL[1]})
+				host_s = a.split('=')[1].strip().replace('\'','\"')
+				chkD = json.loads(host_s)
+				for host_name in chkD:
+					print(chkD[host_name])
+					hostL = chkD[host_name].split(':')
+					configDict[key].append({'host_name':host_name,'host':hostL[0],'socket':hostL[1]})
 				continue		
 						
 			except Exception as e:
-				logger.critical("Error at mpd host list load [%s]"%(str(e)))
+				logger.critical("Error at mpd host list load [%s] [%s]"%(str(e),str(host_name)))
 				continue		
 				
 			

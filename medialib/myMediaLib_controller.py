@@ -387,7 +387,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 					cfgD = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')
 					mpdDL = cfgD['mpd_host_list']
 					for item in mpdDL:
-						modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host'],'socket':item['socket']})
+						modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host_name'],'socket':item['socket']})
 				
 				
 			except Exception as e:
@@ -435,7 +435,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 					cfgD = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')
 					mpdDL = cfgD['mpd_host_list']
 					for item in mpdDL:
-						modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host'],'socket':item['socket']})
+						modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host_name'],'socket':item['socket']})
 				
 				
 			except Exception as e:
@@ -6451,11 +6451,11 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 				for item in mpdDL:
 					if remote_host_ip_addr:
 						if item['host'] == remote_host_ip_addr:
-							self.__modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host'],'socket':item['socket'],'selected':'X'})
+							self.__modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host_name'],'socket':item['socket'],'selected':'X'})
 						else:
-							self.__modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host'],'socket':item['socket'],'selected':''})
+							self.__modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host_name'],'socket':item['socket'],'selected':''})
 					else:		
-						self.__modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host'],'socket':item['socket']})
+						self.__modelDic['mpd_instanceDL'].append({'key':item['host'],'instance_name':item['host_name'],'socket':item['socket']})
 			else:
 				for item in self.__modelDic['mpd_instanceDL']:
 					if remote_host_ip_addr:
