@@ -386,8 +386,6 @@ def do_mass_album_FP_and_AccId(codec_path,album_path,*args):
 	if not os.path.exists(album_path):
 		print('---!Album path Error:%s - not exists'%album_path)
 		return 
-	
-	
 	dirL = collect_albums_folders([album_path])
 	print("Folders structure build with folders:",len(dirL))
 	fpDL = []
@@ -1881,7 +1879,7 @@ def update_album_track_path(path_conv_func,*args):
 		
 	if "track" in args:
 		mode_dif = 1000
-		l = db_request_wrapper(db,"select id_track, path, cue_fname from track")
+		l = db_request_wrapper(db,"select id_track, path, cue_fname from track where path not like '%http%'")
 		i = 0
 		for a in l:
 			if a[2]:

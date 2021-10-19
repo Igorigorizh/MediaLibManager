@@ -388,8 +388,6 @@ async def load_mpd_playlist_via_metaD(mpdHandle,host,socket,metaD,mpd_path_preff
 				f = metaD[key]["path"]
 			else:
 				f = mpd_path_preffix + metaD[key]["path"]
-
-			
 			f=f.replace("\\","/")
 			#print("MPD add")
 			try:

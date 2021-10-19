@@ -30,6 +30,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from mutagen.monkeysaudio import MonkeysAudioInfo
+
 import acoustid
 import mutagen
 
@@ -40,6 +41,7 @@ import musicbrainzngs
 from myMediaLib_cue import parseCue
 from myMediaLib_cue import simple_parseCue
 from myMediaLib_cue import GetTrackInfoVia_ext
+from myMediaLib_init import readConfigData
 from functools import reduce
 
 
@@ -2945,6 +2947,39 @@ def Tag_Assignement_and_save(dbPath,metaD,tagKey,tagD):
 	db.close()	
 	
 	return resL	
+	
+def Tag_to_Categ_save(dbPath,tagID,catID,tagD,categoryD):
+	logger.debug('in Tag_to_Categ_save: tagID[%s],catID[%s] Start '%(str(tagID),str(catID)))		
+	if tagID == 0:
+		logger.error('Error : No assgnement to 0-TAG')
+		return
+	s = ''
+	resL = []
+	sortedL = []
+	db = sqlite3.connect(dbPath)
+	c = db.cursor()
+	try:
+		rec = (str(tagID),str(catID),tagD[tagID]['tag_descr'],categoryD[catID]['cat_key'],tagD[tagID]['tag_type'])
+	except Exception as e:	
+		logger.critical('Error in Tag_to_Categ_save [%s] '%(str(e)))		
+		print(str(tagD)[:300])
+		print(str(categoryD)[:300])
+		return 0
+	req_ins = """insert into tag_cat_rel (id_tag,id_object,tag_name,object_name,rel_type) values (%s,%s,"%s","%s", "%s") """%rec
+	print(req_ins)
+		
+	try:
+		resL = c.execute(req_ins)
+	except Exception as e:
+		logger.critical('Exception: %s in [%s]'%((str(e),str(req_ins))))
+		logger.critical('a = %s'%((str(a))))
+	
+	
+	db.commit()
+	c.close()
+	db.close()	
+	logger.debug('in Tag_to_Categ_save: Finished with res [%s] '%(str(resL)))		
+	return resL		
 
 def Tag_Assignement_delta_update(dbPath,deltaL,action,DB_metaIndxD,tagKey,tagD):
 	# action - ��� �������� ���������: 'delete' �������� �� ������ ��� ���������� 'add'
@@ -3157,130 +3192,7 @@ def getPlaylistGroupRelDic(db):
 		#print 	group2PlistD[a]
 
 	return {'groupD':groupD,'group2PlistD':group2PlistD}				
-def loadTemplates_viaCFG(fname):
-	f = open(fname,'r')
-	l = f.readlines()
-	f.close()
-	configDict = {}	
-	tmplD = {}	
-	for a in l:
-		if a.strip()[0] == '#': continue
-		
-		if '::' in a:
-			configDict[a.split('::')[0].strip()] = {'TMPL':a.split('::')[1].strip()}
-			continue
-		# �������� ��� ������� ������ ���� ������ ������	
-		if '=' in a:
-			configDict[a.split('=')[0].strip()] = {'fname':a.split('=')[1].strip()}
-			continue	
-	
-	
-	#print configDict
-	cur_dir = os.path.dirname(fname)
-	for a in configDict:
-		if 'fname' not in configDict[a]:
-			continue
-		f_name = cur_dir+'//'+configDict[a]['fname']	
-		f = open(f_name,'r', encoding="cp1251")
-		read_error_flag = False
-		try:
-			line = f.read()
-		except Exception as e:
-			logger.critical('Exception [%s] [%s] [%s] in loadTemplates_viaCFG'%(str(e),a,f_name))
-			f.close()
-			read_error_flag = True
-			# код ниже оформить как отдельную ветку при ошибке
-			#f = open(f_name,'r', errors='ignore')
-			#return configDict
-		if read_error_flag:
-			f = open(f_name,'r', errors='ignore')
-			try:
-				line = f.read()
-			except Exception as e:
-				logger.critical('Exception 2 [%s] [%s] [%s] in loadTemplates_viaCFG'%(str(e),a,f_name))
-				f.close()
-				return configDict
-				
-			
-		# try:
-			# configDict[a]['TMPL'] = line.decode('utf8')
-		# except Exception,e:
-			# logger.critical("Error at loadTemplates_viaCFG[%s]: %s "%(a,str(e)))
-		configDict[a]['TMPL'] = line
-			
-		f.close()
-	return configDict
-	
 
-def readConfigData(fname):
-	f = open(fname,'r')
-	l = f.readlines()
-	f.close()
-	configDict = {'mpdMusicPathPrefix':'','audioFilesPathRoot':'','logPath':'','mediaPath':'','templatesPath':'','lossless_path':'','winampext':'','player_cntrl_port':0,'appl_cntrl_port':0,'commandRouting':'','dbPath':'','audio_files_path_list':[],'applicationPath':'','radioNodePath':'','imageNodePath':'','preprocessAlb4libPath':'','ml_folder_tree_buf_path':'','mpd_host_list':[]}	
-	configDictCmlx = {'templatesPath':'','audio_files_path_list':[],'mpd_host_list':[]}	
-
-	for a in l:
-		
-		if a == '\n': continue
-		if a.strip()[0] == '#':	continue
-		
-
-# 		Обработка простых параметров конфига			
-		for key in configDict:
-			pos = a.find(key)
-			if pos >=0:
-				
-				if key in configDictCmlx:
-					break
-				else:	
-					configDict[key] = a.split('=')[1].strip()
-				break
-# 		Обработка сложных параметров конфига	
-		
-		if key == 'audio_files_path_list':
-			configDict[key] = []
-			try:
-				path_strL = a.split('=')[1].strip().split(';')
-				chkL = [b.strip() for b in  path_strL if b != '']
-				for path in chkL:
-					if not os.path.exists(path):
-						print('Wrong  path! 3294:',[path], "-->Check in config:'audio_files_path_list='")
-						#logger.critical("Wrong  path!:'%s, '-->Check in config:audio_files_path_list="%(str([path])))
-						logger.critical("Wrong  path! -->Check in config:audio_files_path_list=")
-					else:	
-						configDict[key].append(path)
-				continue		
-						
-			except:
-				print("Error getting 'audio_files_path_list'")
-				continue
-				
-		elif key == 'mpd_host_list':
-			configDict[key] = []
-			
-			try:
-				host_s = a.split('=')[1].strip().split(';')
-				chkL = [b.strip() for b in  host_s if b != '']
-				for host in chkL:
-					hostL = host.split(':')
-					configDict[key].append({'host':hostL[0],'socket':hostL[1]})
-				continue		
-						
-			except:
-				print("Error getting 'mpd_host_list'")
-				continue		
-				
-			
-		if key == 'templatesPath':	 
-		
-			if 'templatesD' not in configDict:
-				configDict['templatesD'] = {l.index(a):{key:a.split('=')[1].strip(),'active':True}}
-			else:
-				configDict['templatesD'][l.index(a)] = {key:a.split('=')[1].strip(),'active':False}
-				
-			continue	
-
-	return 	configDict	
 				
 def getTrackList(sPlaylistFilepath):
 #   ������� ������������ �� ������� ����������� ��������

@@ -753,9 +753,10 @@ var proc_mode = 0;
 	self.category_type_index_selected = ko.observable(0);
 	self.catProfileDL_current  = ko.observableArray([]);
 	self.mpdHostDL_current  = ko.observableArray([]);
-	self.mpdHostDL_index_selected = ko.observable(null);
-	self.categoryDL  = ko.observableArray([]);
+	self.mpdHostDL_index_selected = ko.observable(0);
 	
+	self.categoryDL  = ko.observableArray([]);
+	self.manualChange = false
 	//self.cat_prof_selectedDL = ko.observableArray();
 	
 	self.cat_prof_selected  = ko.observable('0');
@@ -1077,7 +1078,7 @@ var proc_mode = 0;
 	
 		
 	self.initialize_mpdHostDL  = function(mpdHostObj){
-		
+			var sel_index = 0
 			for (a in mpdHostObj){
 		
 				if (mpdHostObj[a]['selected'] == 'X') {
@@ -1085,9 +1086,11 @@ var proc_mode = 0;
 					m_vM.mpdHostDL_index_selected(a)
 					//console.log("val index_selected_A="+a.toString())
 					//console.log(m_vM.mpdHostDL_index_selected().toString())
+					sel_index = a
 					}
 
-					//m_vM.mpdHostDL_index_selected.valueHasMutated()
+					
+					
 					//console.log("val indexfor="+a.toString())
 				m_vM.mpdHostDL_current.push(mpdHostObj[a])
 			}
@@ -1095,6 +1098,7 @@ var proc_mode = 0;
 		
 		if (m_vM.mpdHostDL_current().length > 0){
 		m_vM.mpdHostDL_isLoaded(true)
+		m_vM.mpdHostDL_index_selected(sel_index)
 
 	}
 		
@@ -1447,7 +1451,7 @@ $(document).ready(function(){
 						
 						m_vM.initialize_catProfileDL(grf_data.cat_profD)
 						m_vM.initialize_mpdHostDL(grf_data.mpdHostDL)
-						//alert('ai')
+						
 						//m_vM.initialize_myGenreList(grf_data.nodes)
 						
 						do_cancell_action()
@@ -1588,8 +1592,7 @@ function at_initial_page_load(){
 	do_send_json_req(json_req)
 	//Восстановить, когда вновь заработает плеер
 	//static_state=do_send_ajax_json_req(url_key,ko.toJSON({'player_process_info':'get_player_process_info','get_player_process_info':'initial'}))
-	
-			
+
 	return false;
 	
 
@@ -2553,7 +2556,7 @@ Category:
 		<td align="left"  >	
 				
 		<select  name= "mpd_hosts"  style="text-overflow:ellipsis;width:120px;" size="1" data-bind="foreach:m_vM.mpdHostDL_current,value:mpdHostDL_index_selected">
-				<option  data-bind="attr: {title: key}, value: $index" > 	<!--ko text: key--><!--/ko--> </option>
+				<option  data-bind="attr: {title: instance_name}, value: $index" > 	<!--ko text: instance_name--><!--/ko--> </option>
 				
 		 </select>		
 
