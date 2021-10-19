@@ -71,6 +71,7 @@ def readConfigData(fname):
 			try:
 				host_s = a.split('=')[1].strip().replace('\'','\"')
 				chkD = json.loads(host_s)
+				host_name = "undefined"
 				for host_name in chkD:
 					print(chkD[host_name])
 					hostL = chkD[host_name].split(':')
