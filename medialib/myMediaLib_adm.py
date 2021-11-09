@@ -3495,6 +3495,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 								
 							fNameRel = os.path.relpath(orig_file_path,audioFilesPathRoot)
 							CuefNameRel  = os.path.relpath(cue_name,audioFilesPathRoot)
+							
 							#origfD['cue_f_name_rel'] = os.path.relpath(cue_name,audioFilesPathRoot)
 							#cue_crc32 = zlib.crc32(fNameRel.encode(BASE_ENCODING))
 							
@@ -3509,7 +3510,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 							songL.append(cue_item_name)	
 							
 							cue_item_name_crc32 = zlib.crc32(cue_item_name_for_crc32)
-							
+							#logger.debug('debug info cuecrc32[%s] [%s]  in collectMyMediaLib_folder_new'%(str(cue_item_name_crc32),init_dir))
 							print(i,'crc32=',cue_item_name_crc32,cue_item_name,'cue_item_name_for_crc32:',cue_item_name_for_crc32)
 							cue_run_warning = True
 							#allmFD[cue_item_name_crc32] = {'cue_f_name':origfD['cue_f_name'],'orig_fname':orig_file_path,'last_modify_date':last_modify_date,'album':origfD['trackD'][i]['Album'],'album_path':root,'album_crc32':album_path_crc32,'file':cue_item_name,'cueNameIndx':i,'ftype':ftype,'cue':'X','album_tracks_number':origfD['cue_tracks_number']}
