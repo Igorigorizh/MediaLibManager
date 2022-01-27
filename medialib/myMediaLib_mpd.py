@@ -232,7 +232,7 @@ def check_tracks_in_cue_album(db,mpdHandle,mpd_host,mpd_socket,mpd_path_prefix,c
 		mpdHandle.disconnect()
 		
 def navigate_check_all_cue_image_albums(db,mpdHandle,mpd_host,mpd_socket,mpd_path_prefix,saved_dump,*args):
-	req = """select path_crc32 from album where format_type in ('flac cue','ape cue')"""
+	req = """select path_crc32 from album where format_type in ('flac cue','ape cue','wv cue')"""
 	cue_album_crc32L = [a[0] for a in db_request_wrapper(db,req)]
 
 	req = """select path_crc32 from track where ignore is NULL"""
@@ -461,7 +461,7 @@ async def load_mpd_playlist_via_pathL(mpdHandle,host,socket,pathTupelL, isCue,*a
 	return {'mpdHandle':'','errorLog':errorLog}
 
 async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folder,uri_file):
-	logger.debug('in check_update_mpd_db- Start')
+	logger.debug('in check_update_mpd_db [%s]- Start'%(str(uri_file)))
 	#get folder URI
 	uri_folder = ''
 	isInMpdDb = False
