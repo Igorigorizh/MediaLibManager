@@ -15,6 +15,7 @@ from mutagen.apev2 import APEv2, error
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
+from mutagen.wavpack import WavPack, error as WavPackError
 from mutagen.monkeysaudio import MonkeysAudioInfo
 
 import mutagen
@@ -245,6 +246,17 @@ def parseCue(fName,*args):
 					full_time = myMusicStr2TimeDelta(tmp_length)
 					#bitrate = int(os.path.getsize(orig_file_path)*8/1024/audio.info.length)
 					bitrate = int(round(float(audio.info.bitrate)/1000))
+					
+				elif fType.lower() == 'wv':	
+					try:
+						audio = WavPack(orig_file_path)
+					except Exception as e :
+						print('probably WavPack error',orig_file_path)
+						return {'Error':e,'error path':orig_file_path}
+					tmp_length = sec2hour(audio.info.length)
+					full_time = myMusicStr2TimeDelta(tmp_length)
+					#bitrate = int(os.path.getsize(orig_file_path)*8/1024/audio.info.length)
+					bitrate = int(os.path.getsize(orig_file_path)*8/1000/audio.info.length)	
 			
 			
 			
@@ -559,7 +571,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 	notRelevCue = {}
 	cueDupResD = {}
 	flac_no_cueL = []
-	ape_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
+	ape_num = wv_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
 	for init_dir in init_dirL:
 		for root, dirs, files in os.walk(init_dir):
 			cue_flag = False
@@ -606,6 +618,8 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 								flac_num+=1
 							elif origfD['fType'].lower() == 'ape':
 								ape_num+=1
+							elif origfD['fType'].lower() == 'wv':
+								wv_num+=1
 							else:
 								print(origfD['fType'])
 							origf = origfD['orig_file_path']
@@ -699,7 +713,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 	
 	if 'stat' in args:
 		print()
-		print('cueL:',len(cueD),'ape_num:',ape_num,'flac_num:',flac_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
+		print('cueL:',len(cueD),'ape_num:',ape_num,'wv_num:',wv_num,'flac_num:',flac_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
 		return {'allmFD':allmFD,'cueL':cueD,'flac_no_cueL':flac_no_cueL,'ape_num':ape_num,'flac_num':flac_num,'all_alb_cnt':all_alb_cnt,'flac_no_cue_num':flac_no_cue_num}
 	else:
 		return {'allmFD':allmFD,'cueL':cueD}		
