@@ -12,7 +12,9 @@ docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrive o
 docker-compose up -d -> starts complete project
 ## Direct access to config, log, shares, etc
 config is placed in /var/lib/docker/volumes/medialibmanager_config
+
 music DB in /var/lib/docker/volumes/medialibmanager_db
+
 log DB in /var/lib/docker/volumes/medialibmanager_log
 
 ## Other Resources
