@@ -986,7 +986,11 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		# profile  this -------------------------------
 			cProfile.run("http_Reply = getattr(self.__instance_VIEW,signatura_view_method)(pc,view_elemD,modelStateDic,modelDic)",  '_profile_get_modelDic1') 
 		else:	
-			http_Reply = getattr(self.__instance_VIEW,signatura_view_method)(pc,view_elemD,modelStateDic,modelDic)
+			try:
+				http_Reply = getattr(self.__instance_VIEW,signatura_view_method)(pc,view_elemD,modelStateDic,modelDic)
+			except Exception as e:	
+				self.__logger.critical("Error in command_dispatcher: at view method[%s], error text [[%s]]"%(str(signatura_view_method),str(e)))
+				
 		#print 'http_Reply1=',signatura_view_method,http_Reply
 		
 		if 'cover' in view_elemD:

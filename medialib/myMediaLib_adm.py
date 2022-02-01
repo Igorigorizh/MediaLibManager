@@ -25,12 +25,6 @@ from random import randint
 import logging
 from bs4 import BeautifulStoneSoup
 
-from mutagen.apev2 import APEv2, error
-from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-from mutagen.flac import FLAC
-from mutagen.monkeysaudio import MonkeysAudioInfo
-
 import acoustid
 import mutagen
 
@@ -1558,7 +1552,7 @@ def getAlbumArtista_from_allMetaData(allmFD,*args):
 				album_artistD[allmFD[a]['album_crc32']]['artistDataD'][artist_CRC32] = {'artist_crc32':allmFD[a]['metaD']['artist_CRC32'],'artist':allmFD[a]['metaD']['artist'], 'add_date':'','tobeSave':False,'tracks_num_per_artist':1}
 				
 			album_artistD[allmFD[a]['album_crc32']]['album_track_number'] = album_artistD[allmFD[a]['album_crc32']]['album_track_number']+1
-	print('for finished')
+	print('for finished:',len(album_artistD))
 	for album_key in album_artistD:
 		if len(album_artistD[album_key]['artistDataD']) == 1:
 			album_artistD[album_key]['album_type'] = 'ONE_ARTIST'
@@ -2272,7 +2266,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 	notRelevCue = {}
 	cueDupResD = {}
 	flac_no_cueL = []
-	ape_num = wv_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
+	ape_num = wv_num = m4a_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
 	for init_dir in init_dirL:
 		for root, dirs, files in os.walk(init_dir):
 			cue_flag = False
@@ -2280,13 +2274,8 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 			ftype = ''
 
 			for a in files:
-			       #if a.find('.ape') > 0 or a.find('.flac')
-				#if "image" in a:
-				#	print a  
-				#if "ergole" in a:
-				#	print a   
 				cue_flag = False
-				#if a[a.rfind('.'):].lower().find('.cue') >= 0:
+				# CUE scenario  processing
 				if '.cue' in a:
 					origf = ''
 					ftype = ''
@@ -2317,6 +2306,8 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 								ape_num+=1
 							elif origfD['fType'].lower() == 'wv':
 								wv_num+=1	
+							elif origfD['fType'].lower() == 'm4a':
+								m4a_num+=1	
 							else:
 								print(origfD['fType'])
 							origf = origfD['orig_file_path']
@@ -2350,6 +2341,10 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 					
 				elif a[a.rfind('.'):].lower().find('.flac') >= 0:
 					ftype = 'flac'
+				elif a[a.rfind('.'):].lower().find('.wv') >= 0:
+					ftype = 'wv'	
+				elif a[a.rfind('.'):].lower().find('.dsf') >= 0:
+					ftype = 'dsf'	
 				elif a[a.rfind('.'):].lower().find('.mp3') >= 0:
 					ftype = 'mp3'
 				
@@ -2391,6 +2386,15 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 				elif a[a.rfind('.'):].find('.ape') >= 0:
 					all_alb_cnt += 1
 					break
+				elif a[a.rfind('.'):].find('.wv') >= 0:
+					all_alb_cnt += 1
+					break	
+				elif a[a.rfind('.'):].find('.wv') >= 0:
+					all_alb_cnt += 1
+					break
+				elif a[a.rfind('.'):].find('.dsf') >= 0:
+					all_alb_cnt += 1
+					break
 				elif a[a.rfind('.'):].find('.flac') >= 0:
 					if not cue_flag:
 						flac_no_cue_num +=1
@@ -2411,7 +2415,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 	
 	if 'stat' in args:
 		print()
-		print('cueL:',len(cueD),'ape_num:',ape_num,'flac_num:',flac_num,'wv_num:',wv_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
+		print('cueL:',len(cueD),'ape_num:',ape_num,'flac_num:',flac_num,'wv_num:',wv_num, 'm4a_num:',m4a_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
 		return {'allmFD':allmFD,'cueL':cueD,'flac_no_cueL':flac_no_cueL,'ape_num':ape_num,'flac_num':flac_num,'all_alb_cnt':all_alb_cnt,'flac_no_cue_num':flac_no_cue_num}
 	else:
 		return {'allmFD':allmFD,'cueL':cueD}	
@@ -3264,7 +3268,7 @@ def rus_name_folder_test(init_dirL,*args):
 	allmFD = {}
 	cueD = {}
 	flac_no_cueL = []
-	ape_num = wv_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
+	ape_num = wv_num = m4a_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
 	for init_dir in init_dirL:
 		print()
 		print('Scanning:',init_dir)
@@ -3285,6 +3289,10 @@ def rus_name_folder_test(init_dirL,*args):
 
 				elif a[a.rfind('.'):].lower().find('.flac') >= 0:
 					ftype = 'flac'
+				elif a[a.rfind('.'):].lower().find('.wv') >= 0:
+					ftype = 'wv'	
+				elif a[a.rfind('.'):].lower().find('.m4a') >= 0:
+					ftype = 'm4a'	
 				elif a[a.rfind('.'):].lower().find('.mp3') >= 0:
 					ftype = 'mp3'
 
@@ -3314,7 +3322,7 @@ def collect_albums_folders(init_dirL,*args):
 	albumDirL = []
 	cueD = {}
 	flac_no_cueL = []
-	ape_num = wv_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
+	ape_num = wv_num = m4a_num =flac_num = all_alb_cnt = flac_no_cue_num = 0
 	for init_dir in init_dirL:
 		print()
 		print('Scanning:',init_dir)
@@ -3396,7 +3404,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 	cue_run_warning = False
 	
 	origfD = {}
-	ape_num = wv_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
+	ape_num = wv_num = m4a_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
 	
 	audioFilesPathRoot = bytes(audioFilesPathRoot,encoding = BASE_ENCODING) 
 	
@@ -3535,6 +3543,8 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 								ape_num+=1
 							elif origfD['fType'].lower() == 'wv':
 								wv_num+=1	
+							elif origfD['fType'].lower() == 'm4a':
+								m4a_num+=1		
 							else:
 								print(origfD['fType'])
 							origf = origfD['orig_file_pathL'][0]['orig_file_path']
@@ -3567,6 +3577,8 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 					ftype = 'flac'
 				elif a[a.rfind(b"."):].lower().find(b".wv") >= 0:
 					ftype = 'wv'	
+				elif a[a.rfind(b"."):].lower().find(b".dsf") >= 0:
+					ftype = 'dsf'	
 				elif a[a.rfind(b"."):].lower().find(b".mp3") >= 0:
 					ftype = 'mp3'
 				
@@ -3645,6 +3657,9 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 				elif a[a.rfind('.'):].find('.ape') >= 0:
 					all_alb_cnt += 1
 					break
+				elif a[a.rfind('.'):].find('.dsf') >= 0:
+					all_alb_cnt += 1
+					break	
 				elif a[a.rfind('.'):].find('.flac') >= 0:
 					if not cue_flag:
 						flac_no_cue_num +=1
@@ -3661,7 +3676,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 	logger.info('in collectMyMediaLib_folder_new - Finished')			
 	if 'stat' in args:
 		print()
-		print('cueL:',len(cueD),'ape_num:',ape_num,'flac_num:',flac_num,'wv_num:',wv_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
+		print('cueL:',len(cueD),'ape_num:',ape_num,'flac_num:',flac_num,'wv_num:',wv_num, 'm4a_num:',m4a_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
 		return {'allmFD':allmFD,'cueL':cueD,'flac_no_cueL':flac_no_cueL,'ape_num':ape_num,'flac_num':flac_num,'all_alb_cnt':all_alb_cnt,'flac_no_cue_num':flac_no_cue_num}
 	else:
 		
