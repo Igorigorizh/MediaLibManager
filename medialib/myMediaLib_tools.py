@@ -8,7 +8,6 @@ import zlib
 import sqlite3
 import chardet
 
-import mutagen
 #import discid
 #import mktoc
 

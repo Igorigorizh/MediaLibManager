@@ -16,6 +16,9 @@ from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 from mutagen.flac import FLAC
 from mutagen.wavpack import WavPack, error as WavPackError
+from mutagen.dsf import DSF
+from mutagen.mp4 import MP4	
+
 from mutagen.monkeysaudio import MonkeysAudioInfo
 
 import mutagen
@@ -244,7 +247,6 @@ def parseCue(fName,*args):
 						return {'Error':e,'error path':orig_file_path}
 					tmp_length = sec2hour(audio.info.length)
 					full_time = myMusicStr2TimeDelta(tmp_length)
-					#bitrate = int(os.path.getsize(orig_file_path)*8/1024/audio.info.length)
 					bitrate = int(round(float(audio.info.bitrate)/1000))
 					
 				elif fType.lower() == 'wv':	
@@ -255,10 +257,17 @@ def parseCue(fName,*args):
 						return {'Error':e,'error path':orig_file_path}
 					tmp_length = sec2hour(audio.info.length)
 					full_time = myMusicStr2TimeDelta(tmp_length)
-					#bitrate = int(os.path.getsize(orig_file_path)*8/1024/audio.info.length)
 					bitrate = int(os.path.getsize(orig_file_path)*8/1000/audio.info.length)	
 			
-			
+				elif fType.lower() == 'm4a':	
+					try:
+						audio = MP4(orig_file_path)
+					except Exception as e :
+						print('probably MP4 (ALAC) error',orig_file_path)
+						return {'Error':e,'error path':orig_file_path}
+					tmp_length = sec2hour(audio.info.length)
+					full_time = myMusicStr2TimeDelta(tmp_length)
+					bitrate = int(os.path.getsize(orig_file_path)*8/1000/audio.info.length)				
 			
 			if orig_file_path != '' and orig_file_path != b"":
 				#fNameRel = os.path.relpath(orig_file_path,audioFilesPathRoot)
@@ -571,7 +580,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 	notRelevCue = {}
 	cueDupResD = {}
 	flac_no_cueL = []
-	ape_num = wv_num = flac_num = all_alb_cnt = flac_no_cue_num = 0
+	ape_num = wv_num = flac_num = m4a_num = all_alb_cnt = flac_no_cue_num = 0
 	for init_dir in init_dirL:
 		for root, dirs, files in os.walk(init_dir):
 			cue_flag = False
@@ -620,6 +629,8 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 								ape_num+=1
 							elif origfD['fType'].lower() == 'wv':
 								wv_num+=1
+							elif origfD['fType'].lower() == 'm4a':
+								m4a_num+=1	
 							else:
 								print(origfD['fType'])
 							origf = origfD['orig_file_path']
@@ -655,7 +666,10 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 					ftype = 'flac'
 				elif a[a.rfind('.'):].lower().find('.mp3') >= 0:
 					ftype = 'mp3'
-				
+				elif a[a.rfind('.'):].lower().find('.wv') >= 0:
+					ftype = 'wv'	
+				elif a[a.rfind('.'):].lower().find('.m4a') >= 0:
+					ftype = 'm4a'
 				if	ftype != None:
 					fname = (root+'/'+a).lower() 
 					orig_fname = root+'/'+a 
@@ -693,6 +707,12 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 				elif a[a.rfind('.'):].find('.ape') >= 0:
 					all_alb_cnt += 1
 					break
+				elif a[a.rfind('.'):].find('.wv') >= 0:
+					all_alb_cnt += 1
+					break	
+				elif a[a.rfind('.'):].find('.m4a') >= 0:
+					all_alb_cnt += 1
+					break	
 				elif a[a.rfind('.'):].find('.flac') >= 0:
 					if not cue_flag:
 						flac_no_cue_num +=1
@@ -713,7 +733,7 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 	
 	if 'stat' in args:
 		print()
-		print('cueL:',len(cueD),'ape_num:',ape_num,'wv_num:',wv_num,'flac_num:',flac_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
+		print('cueL:',len(cueD),'ape_num:',ape_num,'wv_num:',wv_num,'m4a_num:',m4a_num,'flac_num:',flac_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
 		return {'allmFD':allmFD,'cueL':cueD,'flac_no_cueL':flac_no_cueL,'ape_num':ape_num,'flac_num':flac_num,'all_alb_cnt':all_alb_cnt,'flac_no_cue_num':flac_no_cue_num}
 	else:
 		return {'allmFD':allmFD,'cueL':cueD}		
@@ -807,6 +827,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 	bitrate = 0
 	time = '00:00'
 	time_sec = 0
+	infoD = {}
 	if ftype.lower() == 'flac':
 		try:
 			
@@ -828,7 +849,107 @@ def GetTrackInfoVia_ext(filename,ftype):
 		except :	
 			logger.critical(' 716 Exception in GetTrackInfoVia_ext: %s'%(str('unknown mutagen error')))	
 			
+	elif ftype.lower() == 'wv':
+		try:
 			
+			audio = WavPack(filename)
+			
+			if audio.info.length != 0:
+			
+				bitrate = int(round(os.path.getsize(filename)*8/1000/audio.info.length))
+				tmp_length = sec2hour(audio.info.length)
+				full_time = myMusicStr2TimeDelta(tmp_length)
+				time_sec = int(audio.info.length)
+				time = full_time
+			
+		except Exception as e:	
+			logger.critical(' 846 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
+		except IOError as e:
+			logger.critical(' 848 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+		except :	
+			logger.critical(' 851 Exception in GetTrackInfoVia_ext wv: %s'%(str('unknown mutagen error')))	
+			
+	elif ftype.lower() == 'm4a':
+		try:
+			
+			audio = MP4(filename)
+			
+			if audio.info.length != 0:
+			
+				bitrate = int(round(os.path.getsize(filename)*8/1000/audio.info.length))
+				tmp_length = sec2hour(audio.info.length)
+				full_time = myMusicStr2TimeDelta(tmp_length)
+				time_sec = int(audio.info.length)
+				time = full_time
+			
+		except Exception as e:	
+			logger.critical(' 887 Exception in GetTrackInfoVia_ext mp4: %s'%(str(e)))	
+		except IOError as e:
+			logger.critical(' 889 Exception in GetTrackInfoVia_ext mp4: %s'%(str(e)))	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+		except :	
+			logger.critical(' 851 Exception in GetTrackInfoVia_ext mp4: %s'%(str('unknown mutagen error')))			
+		
+		try:
+			
+			audio = mutagen.File(filename)
+			infoD['title'] = audio['\xa9nam'][0]
+			infoD['artist'] = audio['\xa9ART'][0]
+			infoD['album'] = audio['\xa9alb'][0]
+			infoD['tracknumber'] = audio['TRCK'][0][0]
+			infoD['date'] = audio['\xa9day'][0]
+			infoD['genre'] = audio['\xa9gen'][0]
+			
+		except Exception as e:	
+			logger.critical(' 905 Exception in GetTrackInfoVia_ext MP4 meta: %s'%(str(e)))	
+		except IOError as e:
+			logger.critical(' 907 Exception in GetTrackInfoVia_ext MP4 meta: %s'%(str(e)))	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+		except :	
+			logger.critical(' 891 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str('unknown mutagen error')))			
+
+
+		
+	elif ftype.lower() == 'dsf':
+		try:
+			
+			audio = DSF(filename)
+			
+			
+			if audio.info.length != 0:
+			
+				bitrate = int(round(os.path.getsize(filename)*8/1000/audio.info.length))
+				tmp_length = sec2hour(audio.info.length)
+				full_time = myMusicStr2TimeDelta(tmp_length)
+				time_sec = int(audio.info.length)
+				time = full_time
+			
+		except Exception as e:	
+			logger.critical(' 869 Exception in GetTrackInfoVia_ext dsf: %s'%(str(e)))	
+		except IOError as e:
+			logger.critical(' 871 Exception in GetTrackInfoVia_ext dsf: %s'%(str(e)))	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+		except :	
+			logger.critical(' 874 Exception in GetTrackInfoVia_ext dsf: %s'%(str('unknown mutagen error')))	
+			
+		try:
+			
+			audio = mutagen.File(filename)
+			infoD['title'] = audio['TIT2'].text[0]
+			infoD['artist'] = audio['TPE1'].text[0]
+			infoD['album'] = audio['TALB'].text[0]
+			infoD['tracknumber'] = audio['TRCK'].text[0]
+			infoD['date'] = audio['TDRC'].text[0].text
+			infoD['genre'] = audio['TCON'].text[0]
+			
+		except Exception as e:	
+			logger.critical(' 886 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str(e)))	
+		except IOError as e:
+			logger.critical(' 888 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str(e)))	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+		except :	
+			logger.critical(' 891 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str('unknown mutagen error')))			
 	elif ftype.lower() == 'mp3':		
 		try:
 			audio = MP3(filename, ID3=EasyID3)
@@ -879,7 +1000,6 @@ def GetTrackInfoVia_ext(filename,ftype):
 		#else:
 		#	time = '00:00'
 				
-	infoD = {}
 	audio_keys = ['title','artist','album','tracknumber','date','genre']
 	if ftype == 'ape' or ftype == 'apl':
 		audio_keys = ['title','artist','album','track','date','genre']
@@ -901,6 +1021,8 @@ def GetTrackInfoVia_ext(filename,ftype):
 			time_sec = 0
 	#return audio	
 	for c in audio_keys:
+		if ftype ==	'dsf':
+			break
 		if c not in audio:
 			infoD[c] = 'NA '+c
 			continue

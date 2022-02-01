@@ -232,7 +232,7 @@ def check_tracks_in_cue_album(db,mpdHandle,mpd_host,mpd_socket,mpd_path_prefix,c
 		mpdHandle.disconnect()
 		
 def navigate_check_all_cue_image_albums(db,mpdHandle,mpd_host,mpd_socket,mpd_path_prefix,saved_dump,*args):
-	req = """select path_crc32 from album where format_type in ('flac cue','ape cue','wv cue')"""
+	req = """select path_crc32 from album where format_type in ('flac cue','ape cue','wv cue', 'm4a cue')"""
 	cue_album_crc32L = [a[0] for a in db_request_wrapper(db,req)]
 
 	req = """select path_crc32 from track where ignore is NULL"""

@@ -185,11 +185,19 @@ class MediaLib_ViewGen(MediaLibPlayProcess_singletone_Wrapper):
 		return json_reply
 		
 	def	ajax_tracks_preload_page_update(self,res,view_elem_id_Dic,dummy_2,modelDic):
-		logger.info('at are in ajax_tracks_preload_page_update %s res=%s:'%(str(view_elem_id_Dic),str(res)))
+		logger.info('at are in ajax_tracks_preload_page_update %s res=%s: - Start'%(str(view_elem_id_Dic),str(res)))
 		json_reply = {}
 		
 		view_elem_id_Dic['action_result'] = 0
-		json_reply = json.dumps(modelDic['tracks_preload_proc_buf_db'])
+		try:
+			json_reply = json.dumps(modelDic['tracks_preload_proc_buf_db'])
+		except Exception as e:	
+			logger.critical(" 194 Error in ajax_tracks_preload_page_update at json serialize, error text [[%s]]"%(str(e)))
+			d = pickle.dumps(modelDic['tracks_preload_proc_buf_db'])
+			f = open('debug.dat','wb')
+			f.write(d)
+			f.close()	
+			logger.critical(" 195 check pickle dump in debug.dat in [%s]"%(str(os.getcwd())))
 		print(3)	
 		logger.debug('ajax_tracks_preload_page_update - Finished')
 		return json_reply
