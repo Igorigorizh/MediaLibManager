@@ -1424,6 +1424,8 @@ class MediaLibPlayProcess_singletone(object):
 		return self.__SearchBuf_D
 	def setSearchBufD(self,searchTerm,Obj,tag_id,tag_form_mode,paramD):
 		self.__SearchBuf_D = {'searchTerm':	searchTerm,'sD':Obj,'tag_id':tag_id,'tag_form_mode':tag_form_mode,'paramD':paramD}
+	def add_to_DB_metaIndxD_album(self,key,path):
+		self.__DB_metaIndxD_album[key] = path
 		
 	def getSearch_editable_BufD(self):
 		return self.__SearchEditBuf_D
