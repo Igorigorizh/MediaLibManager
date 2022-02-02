@@ -4515,6 +4515,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		self.__logger.debug('in save_tracks_from_preload_scenario [%s] - Start '%(str(commandD)))
 		album_crc32 = int(commandD['text_line'])
 		bufD = self.__model_instance.getTracksPreloadRes_BufD()
+		
 		trackLD = bufD['new_allmFD']
 		album_artistD = bufD['album_artistD']
 		tb_saveTracklD = {}
@@ -4537,7 +4538,10 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			if resD['insL'] != []:
 				lenResD = len(resD['insL'])
 				print('Correct artist CRC32 for:',lenResD)
+			#update __DB_metaIndxD_album model buffer	
+			self.__model_instance.add_to_DB_metaIndxD_album(album_crc32,album_artistD[album_crc32]['path'].decode("utf-8"))
 			
+			print("update DB_metaIndxD_album:",album_crc32,DB_metaIndxD_album[album_crc32])
 		self.__logger.debug('in save_tracks_from_preload_scenario Finished')
 		return 1
 		
