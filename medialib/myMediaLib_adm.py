@@ -3451,14 +3451,13 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 				print(i, end=' ')
 			i+=1	
 			
-			#pos = root.rfind('\\')
-			#album_path = root[pos+1:]
-			album_rel_path = os.path.relpath(root,audioFilesPathRoot)
+			album_rel_path = os.path.relpath(root,audioFilesPathRoot).replace(b"\\",b"/")
 			if isinstance(album_rel_path,bytes):
 				album_path_crc32 = zlib.crc32(album_rel_path)
+				#print("Album crc32 calulation (bytes):",album_path_crc32,album_rel_path,root,audioFilesPathRoot)
 			elif isinstance(album_rel_path,str):	
 				album_path_crc32 = zlib.crc32(album_rel_path.encode(BASE_ENCODING))
-			#print(album_rel_path)
+				#print("Album crc32 calulation (str):",album_path_crc32,album_rel_path)
 			for a in files:
 			       #if a.find('.ape') > 0 or a.find('.flac')
 				cue_flag = False
@@ -3503,8 +3502,8 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 							else:
 								orig_file_path = 'uncompliant and broken cue %d %d'%(origfD['cue_tracks_number'],len(origfD['orig_file_pathL']))
 								
-							fNameRel = os.path.relpath(orig_file_path,audioFilesPathRoot)
-							CuefNameRel  = os.path.relpath(cue_name,audioFilesPathRoot)
+							fNameRel = os.path.relpath(orig_file_path,audioFilesPathRoot).replace(b"\\",b"/")
+							CuefNameRel  = os.path.relpath(cue_name,audioFilesPathRoot).replace(b"\\",b"/")
 							
 							#origfD['cue_f_name_rel'] = os.path.relpath(cue_name,audioFilesPathRoot)
 							#cue_crc32 = zlib.crc32(fNameRel.encode(BASE_ENCODING))
@@ -3549,7 +3548,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 								print(origfD['fType'])
 							origf = origfD['orig_file_pathL'][0]['orig_file_path']
 							ftype = origfD['fType']
-							#crc32 = zlib.crc32(origf.encode(BASE_ENCODING))
+							
 							last_modify_date = 0
 							try:
 								last_modify_date = os.stat(cue_name).st_mtime
@@ -3585,7 +3584,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 				if	ftype != None:
 
 					orig_fname = os.path.join(root,a)
-					fname_rel = os.path.relpath(orig_fname,audioFilesPathRoot)
+					fname_rel = os.path.relpath(orig_fname,audioFilesPathRoot).replace(b"\\",b"/")
 
 					#print type(root),type(a),type(orig_fname)
 					#logger.debug('3652 in collectMyMediaLib_folder_new. orig_fname:[%s] [%s]'%(root,a))

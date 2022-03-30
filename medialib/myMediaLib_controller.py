@@ -226,8 +226,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		#		списка элементов представления требующих обновления, спи
 		self.__commandRoutingDic = self.__model_instance.MediaLibPlayProcessDic_viaKey('commandRouting','local')
 		if self.__commandRoutingDic != {}:
-			
-			
+
 			self.__logger.debug('commandRouting is OK:%s'%(str(list(self.__commandRoutingDic.keys()))))
 		else:
 			

@@ -8,8 +8,11 @@ import zlib
 import sqlite3
 import chardet
 
-#import discid
-#import mktoc
+if os.name == 'nt':
+	import discid
+elif os.name == 'posix':
+	import libdiscid as discid
+import mktoc
 
 import musicbrainzngs
 import time
@@ -659,7 +662,7 @@ def Calculate_DiscID(cue_name):
 		offsetL.append(track_frames+start_offset)
 
 	total = start_offset+a.indexes[0].time.frames+a.indexes[0].len_.frames
-	#discID = discid.put(1,len(cue._tracks),total,offsetL)
+	discID = discid.put(1,len(cue._tracks),total,offsetL)
 	if discID:
 		try:
 			result = musicbrainzngs.get_releases_by_discid(discID,includes=["artists"])
@@ -1776,7 +1779,7 @@ def unicode_migration_scenario():
 	cfgD = readConfigData(mymedialib_cfg)
 	resBuf_ml_folder_tree_buf_path = cfgD['ml_folder_tree_buf_path']
 	f = open(resBuf_ml_folder_tree_buf_path,'r')
-	Obj = pickle.load(f)
+	#Obj = pickle.load(f)
 	f.close()
 	
 	t = time.time()
