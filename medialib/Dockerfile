@@ -6,7 +6,7 @@ RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev g
 WORKDIR /home/medialib
 COPY requirements.txt /home/medialib/requirements.txt
 RUN pip install -r requirements.txt
-RUN git clone https://github.com/Igorigorizh/MediaLibManager.git
+RUN git clone https://github.com/cmcginty/mktoc.git
 RUN python ./mktoc/setup.py install
 RUN rm -r mktoc
 
