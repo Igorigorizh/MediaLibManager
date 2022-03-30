@@ -1,5 +1,5 @@
 FROM python:3.8-slim-buster
-RUN apt-get update && apt-get install -y cifs-utils  git
+RUN apt-get update && apt-get install -y cifs-utils  git shntool ffmpeg libdiscid0 python3-libdiscid
 RUN echo "---->" $(uname -m) "<----"
 RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
 

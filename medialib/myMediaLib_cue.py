@@ -122,7 +122,6 @@ def parseCue(fName,*args):
 	bitrateL = []
 	
 	try:
-		#fNameRel = os.path.relpath(fName,audioFilesPathRoot)
 		#cue_crc32 = zlib.crc32(fNameRel.encode(BASE_ENCODING))
 		if isinstance(fName, str):
 			cue_crc32 = zlib.crc32(fName.encode(BASE_ENCODING))
@@ -270,8 +269,7 @@ def parseCue(fName,*args):
 					bitrate = int(os.path.getsize(orig_file_path)*8/1000/audio.info.length)				
 			
 			if orig_file_path != '' and orig_file_path != b"":
-				#fNameRel = os.path.relpath(orig_file_path,audioFilesPathRoot)
-				
+
 				
 				if isinstance(orig_file_path, str):
 					orig_file_path_crc32 = zlib.crc32(orig_file_path.encode(BASE_ENCODING))
@@ -540,7 +538,6 @@ def simple_parseCue(fName,*args):
 			
 			if tracL[0].lower() == 'track' and tracL[2].lower() == 'audio':
 				track_num = int(tracL[1])
-		#		trackD[track_num]={'Title':''}
 				continue
 
 

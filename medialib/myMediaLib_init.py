@@ -29,9 +29,14 @@ def readConfigData(fname):
 	for a in l:
 		
 		if a == '\n': continue
-		if a.strip()[0] == '#':	continue
+
+		try:
+			if a.strip()[0] == '#': continue
+		except:
+			logger.critical("Error in config. Check line [%i],[%s]"%(l.index(a),a))
+			continue
 		key_found = False
-# 		simple config parameters processing			
+# 		simple config parameters processing
 		for key in configDict:
 			pos = a.find(key)
 			if pos >=0:
