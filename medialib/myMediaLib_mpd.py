@@ -123,7 +123,7 @@ async def get_mpd_playlist_as_crc32_tuplL(mpd_client,host,socket, mpd_path_prefi
 	try:
 		await mpd_client.connect(host, socket)
 	except Exception as e:
-		print("Connection failed:", e)
+		print("Connection failed 126:", e)
         
 		
 	try:
@@ -207,9 +207,10 @@ def load_mpd_playlist_via_tag_num(db,mpd_client,host,socket,mpd_path_preffix,obj
 	print('metaD len:',len(metaD))
 	resD = asyncio.run(load_mpd_playlist_via_metaD(mpd_client,host,socket,metaD,mpd_path_preffix))
 	if len(resD['errorLog']) > 0:
+		logger.critical('Errors after load_mpd_playlist_via_metaD [%i]'%(len(resD['errorLog'])))		
 		print('errors at loading:',str(len(resD['errorLog'])))
 		for a in resD['errorLog'][:10]:
-			print(a)
+			logger.debug('erorrs from errorLog [%s]'%(str(a)))		
 	logger.debug('in load_mpd_playlist_via_tag_num - OK Finished')		
 	return resD
 	
@@ -379,9 +380,9 @@ async def load_mpd_playlist_via_metaD(mpdHandle,host,socket,metaD,mpd_path_preff
 			try:
 				await mpdHandle.load(f,metaD[key]["cue_num"]-1)
 			except Exception as e:
-				logger.critical('MPD connection Error: in load_mpd_playlist_via_metaD [%s]'%(str(e)))
+				logger.critical('MPD load Error: in load_mpd_playlist_via_metaD [%s]'%(str(e)))
 				errorLog.append((f,e,'cue'))
-				mpdHandle.disconnect()
+				#mpdHandle.disconnect()
 			#print('c', end=' ')
 		else:
 			if "http://" in metaD[key]["path"] or "https://" in metaD[key]["path"]:
@@ -395,12 +396,12 @@ async def load_mpd_playlist_via_metaD(mpdHandle,host,socket,metaD,mpd_path_preff
 				#print('*', end=' ')
 			except Exception as e:
 				errorLog.append((f,e,'file'))
-				mpdHandle.disconnect()
+				#mpdHandle.disconnect()
 			#print("MPD add fin")	
 	try:
 		await mpdHandle.play()
 	except Exception as e: 
-		print("Connection failed:", e)
+		print("Connection failed 403:", e)
 		mpdHandle.disconnect()
 	print("mpd load finita")	
 	mpdHandle.disconnect()	
@@ -435,8 +436,8 @@ async def load_mpd_playlist_via_pathL(mpdHandle,host,socket,pathTupelL, isCue,*a
 			try:
 				await mpdHandle.load(track_item[0],track_item[1])
 			except Exception as e:
-				mpdHandle.disconnect()
-				logger.critical('MPD connection Error: in load_mpd_playlist_via_pathL [%s]'%(str(e)))
+				#mpdHandle.disconnect()
+				logger.critical('MPD load Error: in load_mpd_playlist_via_pathL [%s]'%(str(e)))
 				errorLog.append((track_item,e,'cue'))
 		else:
 
@@ -445,13 +446,13 @@ async def load_mpd_playlist_via_pathL(mpdHandle,host,socket,pathTupelL, isCue,*a
 				await mpdHandle.add(track_item[0])
 				#print('*', end=' ')
 			except Exception as e:
-				mpdHandle.disconnect()
+				#mpdHandle.disconnect()
 				logger.critical('MPD connection Error: in load_mpd_playlist_via_pathL [%s]'%(str(e)))
 				errorLog.append(((track_item,e,'Notcue')),e,'file')
 	try:
 		await mpdHandle.play()
 	except Exception as e: 
-		print("Connection failed:", e)
+		print("Connection failed 454:", e)
 		mpdHandle.disconnect()
 	print("mpd load finita")	
 	mpdHandle.disconnect()				
