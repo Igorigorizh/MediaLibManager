@@ -39,6 +39,6 @@ volumes:
    music:
      driver: local
      driver_opts:
-        device: "//192.168.1.67/ExternalUSB"
+        device: "//192.168.1.66/OMVNasUsb"
         o: "vers=1.0,username=igor,password=*****,iocharset=utf8,rsize=61440,wsize=65536,dir_mode=0777,file_mode=0777"
         type: cifs
