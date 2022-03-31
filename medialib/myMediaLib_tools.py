@@ -11,7 +11,8 @@ import chardet
 if os.name == 'nt':
 	import discid
 elif os.name == 'posix':
-	import libdiscid as discid
+	pass
+	#import libdiscid as discid
 import mktoc
 
 import musicbrainzngs
@@ -662,7 +663,7 @@ def Calculate_DiscID(cue_name):
 		offsetL.append(track_frames+start_offset)
 
 	total = start_offset+a.indexes[0].time.frames+a.indexes[0].len_.frames
-	discID = discid.put(1,len(cue._tracks),total,offsetL)
+	#discID = discid.put(1,len(cue._tracks),total,offsetL)
 	if discID:
 		try:
 			result = musicbrainzngs.get_releases_by_discid(discID,includes=["artists"])
