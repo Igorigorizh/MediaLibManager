@@ -13,7 +13,7 @@ if os.name == 'nt':
 elif os.name == 'posix':
 	pass
 	#import libdiscid as discid
-import mktoc
+#import mktoc
 
 import musicbrainzngs
 import time
