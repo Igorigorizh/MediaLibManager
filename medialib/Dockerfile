@@ -1,13 +1,13 @@
 FROM python:3.8-slim-buster
-RUN apt-get update && apt-get install -y cifs-utils  git shntool ffmpeg libdiscid0 python3-libdiscid
+RUN apt-get update && apt-get install -y cifs-utils  git shntool ffmpeg libdiscid0
 RUN echo "---->" $(uname -m) "<----"
 RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
 
 WORKDIR /home/medialib
 COPY requirements.txt /home/medialib/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 RUN git clone https://github.com/cmcginty/mktoc.git
-RUN python ./mktoc/setup.py install
+RUN pip3 install ./mktoc --use-feature=in-tree-build
 RUN rm -r mktoc
 
 ARG medialib_bld_ver="unknown"
