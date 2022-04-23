@@ -6,9 +6,7 @@ RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev g
 WORKDIR /home/medialib
 COPY requirements.txt /home/medialib/requirements.txt
 RUN pip3 install -r requirements.txt
-RUN git clone https://github.com/cmcginty/mktoc.git
-RUN pip3 install ./mktoc --use-feature=in-tree-build
-RUN rm -r mktoc
+
 
 ARG medialib_bld_ver="unknown"
 RUN echo "medialib build ver is ${medialib_bld_ver}"

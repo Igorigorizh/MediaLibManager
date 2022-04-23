@@ -29,7 +29,8 @@ logger = logging.getLogger('controller_logger.cue')
 
 def myMusicStr2TimeDelta(strTime):
 	l = [int(a) for a in strTime.split(':')]
-	return datetime.timedelta(hours=l[0],minutes=l[1],seconds=l[2],microseconds=l[3])
+	
+	return datetime.timedelta(hours=l[0],minutes=l[1],seconds=l[2],milliseconds=(l[3]/75)*1000)
 
 def sec2hour(sec):
 	return '%02i'%(int(sec/3600))+':'+'%02i'%(int(int(sec%3600)/60))+':'+'%02i'%(sec%60)+':00'
@@ -111,6 +112,15 @@ def parseCue(fName,*args):
 	track_num = 0
 	trackD = {}
 	bitrate = 0
+	first_track_offset = 150
+	pregap = 0
+	total_track_sectors = 0
+	offsetL = []
+	
+	# для смещений медиафайлов ape, flac,wv etc, если мультитрэк
+	offset_mediaL = []
+	lead_out_track_offset = 0
+	sample_rate = 0
 	got_file_info = False
 	orig_file_path_exist = False
 	is_cue_multy_tracks = False
@@ -157,9 +167,15 @@ def parseCue(fName,*args):
 	
 	print("----------------^^^^ParseCue-stamp^^^^^^^^^^^^^^^^^^----------")
 	print([most_codec],counter.most_common(1))
-		
+	track_offset_cnt=0	
 	for a in l:
-		
+		if a.lower().strip().find('pregap ') == 0:
+			lst = a.split()
+			
+			# convert MSF to frames: 1 sec = 75 frames, MM(min):SS(sec):FF(frame) -> MM*60*75+SS*75+FF
+			MSF_l = lst[1].split(':')
+			pregap = int(MSF_l[0])*60*75 + int(MSF_l[1])*75+int(MSF_l[2])
+			print(pregap)
 		if a.lower().strip().find('file ') == 0:
 			
 			#print chardet.detect(a)
@@ -176,20 +192,9 @@ def parseCue(fName,*args):
 				orig_file = bytes(lst[2],encoding = BASE_ENCODING)
 			else:
 				orig_file = lst[2]
-			#try:	
-				#orig_file = lst[2].decode(line_file_codec['encoding'])
-				#orig_file = lst[2].decode(most_codec)
-			#	orig_file = lst[2]
-				
-			#except UnicodeDecodeError as e:
-			#	print('decoding catch at cueParse:',orig_file)
-			#	logger.warning('in parseCue - Exception 1 [%s]'%(str(e)))
-			#	orig_file = lst[2].decode(BASE_ENCODING)
-			#except Exception as e:	
-			#	logger.warning('in parseCue - Exception 2 [%s]'%(str(e)))	
-			#	orig_file = 'decode_utf8_Error'.decode(BASE_ENCODING)
 			
-			orig_file_path = os.path.join(os.path.dirname(fName),orig_file)
+			orig_file_path = os.path.join(os.path.dirname(fName)+b'/',orig_file)
+			#print(os.path.dirname(fName),orig_file)
 			
 			fType = os.path.splitext(orig_file)[-1][1:].decode()
 			
@@ -206,8 +211,6 @@ def parseCue(fName,*args):
 			if len(exists_track_stackL)>1:
 				is_cue_multy_tracks = True	
 			
-			
-				
 			if orig_file_path_exist and 'with_bitrate' in args:	
 				if fType.lower() == 'ape':
 					try:
@@ -217,7 +220,6 @@ def parseCue(fName,*args):
 						logger.critical('Exception at 131 [%s] in parseCue  [cue crc32 generation]'%(str(e)))	
 						return {'Error':e}
 						
-					#print 'orig_file_path=',orig_file_path
 					try:
 						m = MonkeysAudioInfo(f)
 						f.close()
@@ -228,10 +230,14 @@ def parseCue(fName,*args):
 						return {'Error':e}
 					
 					try:	
-						tmp_length = sec2hour(m.length)
+						sample_rate = m.sample_rate
+						full_length = m.length
+						tmp_length = sec2hour(full_length)
 						full_time = myMusicStr2TimeDelta(tmp_length)
-						bitrate = int(os.path.getsize(orig_file_path)*8/1000/m.length)
-					except :
+						bitrate = int(os.path.getsize(orig_file_path)*8/1000/full_length)
+						
+					
+					except Exception as e:
 						print('probably MonkeysAudioHeaderError_2',orig_file_path)	
 						logger.critical('Exception at 151 [%s] in parseCue  [MonkeysAudioHeaderError_2]'%(str(e)))	
 						return {'Error':e}
@@ -244,30 +250,51 @@ def parseCue(fName,*args):
 					except Exception as e :
 						print('probably FLAC error',orig_file_path)
 						return {'Error':e,'error path':orig_file_path}
-					tmp_length = sec2hour(audio.info.length)
+					full_length = audio.info.length		
+					tmp_length = sec2hour(full_length)
 					full_time = myMusicStr2TimeDelta(tmp_length)
 					bitrate = int(round(float(audio.info.bitrate)/1000))
-					
+					sample_rate = audio.info.sample_rate
+						
 				elif fType.lower() == 'wv':	
 					try:
 						audio = WavPack(orig_file_path)
 					except Exception as e :
 						print('probably WavPack error',orig_file_path)
 						return {'Error':e,'error path':orig_file_path}
-					tmp_length = sec2hour(audio.info.length)
+					full_length = audio.info.length	
+					tmp_length = sec2hour(full_length)
 					full_time = myMusicStr2TimeDelta(tmp_length)
-					bitrate = int(os.path.getsize(orig_file_path)*8/1000/audio.info.length)	
-			
+					bitrate = int(os.path.getsize(orig_file_path)*8/1000/full_length)	
+					sample_rate = audio.info.sample_rate
 				elif fType.lower() == 'm4a':	
 					try:
 						audio = MP4(orig_file_path)
 					except Exception as e :
 						print('probably MP4 (ALAC) error',orig_file_path)
 						return {'Error':e,'error path':orig_file_path}
-					tmp_length = sec2hour(audio.info.length)
+						
+					full_length = audio.info.length	
+					tmp_length = sec2hour(full_length)
 					full_time = myMusicStr2TimeDelta(tmp_length)
-					bitrate = int(os.path.getsize(orig_file_path)*8/1000/audio.info.length)				
-			
+					bitrate = int(os.path.getsize(orig_file_path)*8/1000/full_length)				
+					sample_rate = audio.info.sample_rate
+					
+				#For all formats  keep the same approach of TOC data calculation. Only for multy tracks cue	
+				lead_out_track_offset = int(full_length * 75) + first_track_offset
+						
+				total_track_sectors = total_track_sectors + int(full_length *75)+1
+				if track_num == 0:
+					offset_mediaL.append(first_track_offset + pregap)	
+					next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1	
+				else:
+					offset_mediaL.append(next_frame)
+				next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1		
+				track_offset_cnt+=1	
+					
+					
+					
+					
 			if orig_file_path != '' and orig_file_path != b"":
 
 				
@@ -276,7 +303,7 @@ def parseCue(fName,*args):
 				elif isinstance(orig_file_path, bytes):
 					orig_file_path_crc32 = zlib.crc32(orig_file_path)
 				
-				orig_file_pathL.append({'orig_file_path':orig_file_path,'file_exists':orig_file_path_exist,'BitRate':bitrate,'Time':full_time,'file_crc32':orig_file_path_crc32})	
+				orig_file_pathL.append({'orig_file_path':orig_file_path,'file_exists':orig_file_path_exist,'BitRate':bitrate,'SampleRate':sample_rate,'Time':full_time,'file_crc32':orig_file_path_crc32})	
 					
 			continue
 			
@@ -290,16 +317,17 @@ def parseCue(fName,*args):
 		# Находимся в секции TRACK	и получаем новый номер трэка
 			if tracL[0].lower() == 'track' and tracL[2].lower() == 'audio':
 				track_num = int(tracL[1])
-				trackD[track_num]={'Title':'','Album':'','BitRate':0,'OrigFile':'','Time':'00:00','Performer':''}
+				trackD[track_num]={'Title':'','Album':'','BitRate':0,'OrigFile':'','Time':'00:00','Performer':'','SampleRate':0,'start_in_sec':0,'total_in_sec':0}
 				
 				
 				#Делаем проверку для multytrack, что к этому моменту для трэка > 1
 				if track_num >1:
 					orig_file_path_number = len(orig_file_pathL)
-					if orig_file_path_number > 1 and orig_file_path_number == track_num:
+					if (orig_file_path_number > 1 and orig_file_path_number == track_num) or orig_file_path_number == 1:
 						pass
 					else:	
 						is_non_compliant_eac_cue = True
+						print("non_compliant_eac_cue 331",orig_file_path_number,track_num)
 				continue
 
 
@@ -379,6 +407,9 @@ def parseCue(fName,*args):
 			lst = a.split()
 			index = lst[1]
 			
+			# Calculate track Frame offset for  final TOC
+			
+			
 			index_time = '00:'+lst[2]
 			
 			if int(index) == 0:
@@ -391,7 +422,7 @@ def parseCue(fName,*args):
 				else:
 					# регистрирует первый индекс
 					trackD[track_num]['index']=[index_time,index_time]
-				
+					
 			
 				cur_delta = myMusicStr2TimeDelta(trackD[track_num]['index'][1])-myMusicStr2TimeDelta(trackD[track_num]['index'][0])
 				
@@ -404,13 +435,29 @@ def parseCue(fName,*args):
 						logger.critical('Exception [%s] in parseCue  [at myMusicStr2TimeDelta]'%(str(e)))	
 						delta = datetime.timedelta(0)
 						
+					trackD[track_num]['start_in_sec']	= myMusicStr2TimeDelta(trackD[track_num]['index'][1]).total_seconds()
+					trackD[track_num-1]['total_in_sec']	= delta.total_seconds()
 					trackD[track_num-1]['Time'] = str(delta)[2:7]
+					
+				if track_num == 1:	
+					#1-st Frame offset = 150
+					offsetL.append(first_track_offset+pregap)			
+				if track_num > 1 and not is_cue_multy_tracks:	
+					# только для single image cue формируем список смещений таким образом. для multy tracks формирование на физическом уровне
+					# convert MSF to frames: 1 sec = 75 frames, MM(min):SS(sec):FF(frame) -> MM*60*75+SS*75+FF
+					MSF_l = lst[2].split(':')
+					offsetL.append(pregap+first_track_offset + int(MSF_l[0])*60*75 + int(MSF_l[1])*75+int(MSF_l[2]))
+					#print(track_num,index,lst[2],int(MSF_l[0])*60*75 + int(MSF_l[1])*75+int(MSF_l[2])) 
 	
 	
 	if is_cue_multy_tracks:
+		# если мультитрэк то заменяем список смещений
+		print("---------Multytracks-----------")
+		offsetL = offset_mediaL
+		lead_out_track_offset=next_frame
 		if len(exists_track_stackL) != len(orig_file_pathL):
 			is_non_compliant_eac_cue = True
-	
+			print("non_compliant_eac_cue 456")
 	
 	
 	if 'only_file' in args:
@@ -435,6 +482,7 @@ def parseCue(fName,*args):
 				trackD[a]['OrigFile'] = orig_file_pathL[0]['orig_file_path']
 				if 'with_bitrate' in args:	
 					trackD[a]['BitRate']=orig_file_pathL[0]['BitRate']
+					trackD[a]['SampleRate']=orig_file_pathL[0]['SampleRate']
 			# for Multy track replicate from orig_file_pathL	
 			elif is_cue_multy_tracks:	
 				orig_file = orig_file_pathL[a-1]['orig_file_path']
@@ -447,6 +495,7 @@ def parseCue(fName,*args):
 				
 				if 'with_bitrate' in args:	
 					trackD[a]['BitRate']=orig_file_pathL[a-1]['BitRate']	
+					trackD[a]['SampleRate']=orig_file_pathL[a-1]['SampleRate']	
 					time = str(orig_file_pathL[a-1]['Time'])
 					if time[:2]	== '0:':
 						time=time[2:7]
@@ -455,6 +504,8 @@ def parseCue(fName,*args):
 					
 		if 'with_bitrate' in args and not is_cue_multy_tracks:
 		# для вычисления времени последнего трэка нужна длина всего файла, это только с with_bitrate
+			trackD[track_num]['total_in_sec']	= full_length - myMusicStr2TimeDelta(trackD[track_num]['index'][1]).total_seconds()
+			#trackD[track_num]['start_in_sec']	= myMusicStr2TimeDelta(trackD[track_num]['index'][1]).total_seconds()
 			try:
 				delta = str(full_time - myMusicStr2TimeDelta(trackD[track_num]['index'][1]))
 			except Exception as e:
@@ -465,8 +516,11 @@ def parseCue(fName,*args):
 				logger.critical('Exception at 331 [%s] [%s] in parseCue  [myMusicStr2TimeDelta]-3'%(str(full_time),str(myMusicStr2TimeDelta(trackD[track_num]['index'][1]))))	
 				
 			
+			
+			
 			if delta[:2] == '0:':
 				delta=delta[2:7]
+			
 			trackD[track_num]['Time'] = delta
 		elif 'with_bitrate' not in args and not is_cue_multy_tracks:
 			# без длины всего образа нельзя вычислить последний трэк
@@ -478,9 +532,10 @@ def parseCue(fName,*args):
 #	for a in exists_track_stackL:
 #		print a
 	logger.debug('in parseCue - finished with [%s %s]'%(str(len(exists_track_stackL)),str(len(orig_file_pathL))))	
-	return {'trackD':trackD,'is_non_compliant_eac_cue':is_non_compliant_eac_cue,'is_cue_multy_tracks':is_cue_multy_tracks,'orig_file_pathL':orig_file_pathL,'fType':fType,'cue_tracks_number':track_num,'cue_crc32':cue_crc32,'cue_f_name':fName}
+	return {'trackD':trackD,'is_non_compliant_eac_cue':is_non_compliant_eac_cue,'is_cue_multy_tracks':is_cue_multy_tracks,'orig_file_pathL':orig_file_pathL,'fType':fType,'cue_tracks_number':track_num,'cue_crc32':cue_crc32,'cue_f_name':fName,'lead_out_track_offset':lead_out_track_offset,'offsetL':offsetL}
 	
 def simple_parseCue(fName,*args):
+	# Collect only filenames from CUE
 	if not isinstance(fName, bytes):
 		logger.critical('Exception at in simple_parseCue: Not Unicode filename')	
 		return {'Error':'Not Unicode filename'}
@@ -490,15 +545,15 @@ def simple_parseCue(fName,*args):
 		print('No logger attached at local execution')
 		pass
 		
+	char_codec = line_album_codec = line_file_codec = line_track_codec = line_perform_main_codec = line_perform_track_codec = {}	
 	fType = ''
+	
 	try:
 		f = open(fName,'r', encoding=BASE_ENCODING)
 	except Exception as e:
 		print('File not found:',fName,char_codec)
 		logger.critical('Exception at 472[%s] in parseCue'%(str(e)))	
-		return {'Error':e}
-	
-	cue_f_name_abs = fName
+		return {'Error':e, 'cue_file_name':fName }
 	
 	nonUnicode = False
 	
@@ -519,7 +574,7 @@ def simple_parseCue(fName,*args):
 		except Exception as e:	
 			logger.critical('Exception at 494[%s] in parseCue'%(str(e)))	
 			f.close()
-			return {'Error':e}
+			return {'Error':e, 'cue_file_name':fName}
 			
 	track_flag = False
 	album = ''
@@ -527,9 +582,11 @@ def simple_parseCue(fName,*args):
 	orig_file = ''
 	orig_file_path = b""
 	perform_main = ''
+	orig_file_pathL = []
 	track_num = 0
 	trackD = {}
 	got_file_info = False
+	# внутри цикла надо разделить сценарий CUE single image и cue tracks
 	for a in l:
 
 		if a.lower().strip().find('track ') == 0:
@@ -541,31 +598,30 @@ def simple_parseCue(fName,*args):
 				continue
 
 
-		if a.lower().strip().find('file ') == 0 and not track_flag:
+		if a.lower().strip().find('file ') == 0:
 			
 			
 			lst = re.split('([^"]*")(.*)("[^"]*)', a)
+			
 			if not isinstance(lst[2], bytes):
 				orig_file = bytes(lst[2],encoding = BASE_ENCODING)
 			else:
 				orig_file = lst[2]
 				
-			
-			orig_file_path = os.path.join(os.path.dirname(fName),orig_file)
-			
 			fType = os.path.splitext(orig_file)[-1][1:].decode()
-			
-			#print 'orig_file_path',orig_file_path,fType
 			if fType == '':
-				print('Error in fType:',a)
-			continue
+				logger.critical('Critical error in simple_parseCue: file ext retrieve failed for:',a)	
+			orig_file_pathL.append({'orig_file_path':os.path.join(os.path.dirname(fName),orig_file),'orig_file':orig_file,'fType':fType})	
+			
+			
 	
-	songL = []	
+	cue_songL = []	
 	for i in range(1,track_num+1):
-		songL.append(fName+b","+bytes(str(i),encoding = BASE_ENCODING))
+		# generate cue file name based tracklist for db storage and player processing
+		cue_songL.append(fName+b","+bytes(str(i),encoding = BASE_ENCODING))
 	if fType == '':
 		print('Error in fType:',orig_file_path)
-	return {'orig_file':orig_file,'orig_file_path':orig_file_path,'fType':fType,'songL':songL,'cue_tracks_number':track_num} 
+	return {'orig_file_pathL':orig_file_pathL,'songL':cue_songL,'cue_tracks_number':track_num,'cue_file_name':fName} 
 	
 def checkCue_inLibConsistenc_folder(init_dirL,*args):
 # ???? ????????? ??????????? ?? ?????? ???? ? CRC32 c ?????? CUE
@@ -814,7 +870,7 @@ def cue_check_and_error_correct(fName,separator,seqL,*args):
 	f = open(file_name_new,'w', encoding=BASE_ENCODING)
 	l = f.writelines(resL)
 	f.close()		
-	
+
 def GetTrackInfoVia_ext(filename,ftype):
 	logger.debug('in GetTrackInfoVia_ext - start [%s]'%str(ftype))
 	#logger.debug('in GetTrackInfoVia_ext, file= %s'%(str([filename])))
@@ -822,6 +878,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 	#'pL_info':pL_info
 	audio = None
 	bitrate = 0
+	sample_rate = 0
 	time = '00:00'
 	time_sec = 0
 	infoD = {}
@@ -829,13 +886,15 @@ def GetTrackInfoVia_ext(filename,ftype):
 		try:
 			
 			audio = FLAC(filename)
-			
-			if audio.info.length != 0:
+			full_length = audio.info.length
+			#print('full_length',full_length)
+			if full_length != 0:
 			
 				bitrate = int(round(float(audio.info.bitrate)/1000))
-				tmp_length = sec2hour(audio.info.length)
+				sample_rate = audio.info.sample_rate
+				tmp_length = sec2hour(full_length)
 				full_time = myMusicStr2TimeDelta(tmp_length)
-				time_sec = int(audio.info.length)
+				time_sec = int(full_length)
 				time = full_time
 			
 		except Exception as e:	
@@ -850,20 +909,21 @@ def GetTrackInfoVia_ext(filename,ftype):
 		try:
 			
 			audio = WavPack(filename)
+			full_length = audio.info.length
+			if full_length != 0:
 			
-			if audio.info.length != 0:
-			
-				bitrate = int(round(os.path.getsize(filename)*8/1000/audio.info.length))
-				tmp_length = sec2hour(audio.info.length)
+				bitrate = int(round(os.path.getsize(filename)*8/1000/full_length))
+				sample_rate = audio.info.sample_rate
+				tmp_length = sec2hour(full_length)
 				full_time = myMusicStr2TimeDelta(tmp_length)
-				time_sec = int(audio.info.length)
+				time_sec = int(full_length)
 				time = full_time
 			
 		except Exception as e:	
 			logger.critical(' 846 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
 		except IOError as e:
 			logger.critical(' 848 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
 		except :	
 			logger.critical(' 851 Exception in GetTrackInfoVia_ext wv: %s'%(str('unknown mutagen error')))	
 			
@@ -871,20 +931,21 @@ def GetTrackInfoVia_ext(filename,ftype):
 		try:
 			
 			audio = MP4(filename)
+			full_length = audio.info.length
+			if full_length != 0:
 			
-			if audio.info.length != 0:
-			
-				bitrate = int(round(os.path.getsize(filename)*8/1000/audio.info.length))
-				tmp_length = sec2hour(audio.info.length)
+				bitrate = int(round(os.path.getsize(filename)*8/1000/full_length))
+				sample_rate = audio.info.sample_rate
+				tmp_length = sec2hour(full_length)
 				full_time = myMusicStr2TimeDelta(tmp_length)
-				time_sec = int(audio.info.length)
+				time_sec = int(full_length)
 				time = full_time
 			
 		except Exception as e:	
 			logger.critical(' 887 Exception in GetTrackInfoVia_ext mp4: %s'%(str(e)))	
 		except IOError as e:
 			logger.critical(' 889 Exception in GetTrackInfoVia_ext mp4: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
 		except :	
 			logger.critical(' 851 Exception in GetTrackInfoVia_ext mp4: %s'%(str('unknown mutagen error')))			
 		
@@ -902,31 +963,30 @@ def GetTrackInfoVia_ext(filename,ftype):
 			logger.critical(' 905 Exception in GetTrackInfoVia_ext MP4 meta: %s'%(str(e)))	
 		except IOError as e:
 			logger.critical(' 907 Exception in GetTrackInfoVia_ext MP4 meta: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
 		except :	
 			logger.critical(' 891 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str('unknown mutagen error')))			
-
-
 		
 	elif ftype.lower() == 'dsf':
 		try:
 			
 			audio = DSF(filename)
+			full_length = audio.info.length
 			
+			if full_length != 0:
 			
-			if audio.info.length != 0:
-			
-				bitrate = int(round(os.path.getsize(filename)*8/1000/audio.info.length))
-				tmp_length = sec2hour(audio.info.length)
+				bitrate = int(round(os.path.getsize(filename)*8/1000/full_length))
+				sample_rate = audio.info.sample_rate
+				tmp_length = sec2hour(full_length)
 				full_time = myMusicStr2TimeDelta(tmp_length)
-				time_sec = int(audio.info.length)
+				time_sec = int(full_length)
 				time = full_time
 			
 		except Exception as e:	
 			logger.critical(' 869 Exception in GetTrackInfoVia_ext dsf: %s'%(str(e)))	
 		except IOError as e:
 			logger.critical(' 871 Exception in GetTrackInfoVia_ext dsf: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
 		except :	
 			logger.critical(' 874 Exception in GetTrackInfoVia_ext dsf: %s'%(str('unknown mutagen error')))	
 			
@@ -944,7 +1004,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 			logger.critical(' 886 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str(e)))	
 		except IOError as e:
 			logger.critical(' 888 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
 		except :	
 			logger.critical(' 891 Exception in GetTrackInfoVia_ext dsf meta: %s'%(str('unknown mutagen error')))			
 	elif ftype.lower() == 'mp3':		
@@ -952,19 +1012,18 @@ def GetTrackInfoVia_ext(filename,ftype):
 			audio = MP3(filename, ID3=EasyID3)
 		except IOError as e:
 			logger.critical('723 Exception in GetTrackInfoVia_ext: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
 		except:
 			logger.critical('Strange mp3 error at 639 myMediaLib_cue:')	
 			print('Strange mp3 error at 1524 myMediaLib:',filename)
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'time':'00:00','ftype':ftype}	
-			
-
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}	
 		
 		try:
 			bitrate = audio.info.bitrate/1000	
 		except:
 			print('audio=:',audio)		
-		
+		full_length = audio.info.length		
+		sample_rate = audio.info.sample_rate
 			
 	elif ftype == 'ape' or ftype == 'apl':                          
 		m_audio = None
@@ -972,11 +1031,13 @@ def GetTrackInfoVia_ext(filename,ftype):
 			f = open(filename,'rb')
 			m_audio = MonkeysAudioInfo(f)
 			f.close()
-			if m_audio.length != 0:
-				bitrate = int(os.path.getsize(filename)*8/1000/m_audio.length)
-			
+			full_length = m_audio.length
+			if full_length != 0:
+				bitrate = int(os.path.getsize(filename)*8/1000/full_length)
+				sample_rate = m_audio.sample_rate
+			time_sec = int(full_length)	
 		except IOError:
-			print('m_audio.error',filename, ' ---> time and avrg bitrate will not be availble')
+			print('m_audio.error',filename, ' ---> time and avrg bitrate and sample_rate will not be availble')
 			pass
 			
 			
@@ -984,10 +1045,11 @@ def GetTrackInfoVia_ext(filename,ftype):
 			audio=APEv2(filename)
 	
 		except IOError:
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'time':'00:00','time_sec':0,'ftype':ftype}	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'sample_rate':sample_rate,'time':'00:00','time_sec':0,'ftype':ftype}	
 		
 	if audio == None:
-		return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'time':'00:00','time_sec':0,'ftype':ftype}	
+		print(filename[filename.rfind('/')+1:-(len(ftype)+1)])
+		return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'sample_rate':sample_rate,'time':'00:00','time_sec':0,'ftype':ftype}	
 		
 	#logger.debug('in GetTrackInfoVia_ext - audio keys [%s]'%str(audio.keys()))	
 	#logger.debug('in GetTrackInfoVia_ext - audio keys val [%s]'%str(audio))	
@@ -1045,6 +1107,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 				
 				
 	infoD['bitrate'] = bitrate
+	infoD['sample_rate'] = sample_rate
 	
 	time = str(time)
 	if time[:2]	== '0:':
@@ -1053,6 +1116,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 	infoD['time'] = time
 	infoD['time_sec'] = time_sec
 	infoD['ftype'] = ftype
+	infoD['full_length'] = full_length
 	logger.debug('in GetTrackInfoVia_ext - [%s]'%str(infoD))
 	logger.debug('in GetTrackInfoVia_ext - finished')
 	

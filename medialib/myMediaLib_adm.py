@@ -2257,7 +2257,7 @@ def PlayListDic2SortList(sD):
 	return resL		
 	
 def checkCue_inLibConsistenc_folder(init_dirL,*args):
-# ���� ��������� ����������� �� ������ ���� � CRC32 c ������ CUE
+# BROCKEN!!!!!!!!!!!! check before. Due to simple_parseCue change
 #r = myMediaLib.collectMyMediaLib_folder(['G:\\MUSIC\\ORIGINAL_MUSIC'])
 	cnt = 0
 	allmFD = {}
@@ -2283,49 +2283,49 @@ def checkCue_inLibConsistenc_folder(init_dirL,*args):
 
 					cue_name = (root+'\\'+a)
 
-					try:	
-						origfD = simple_parseCue(cue_name)	
-					except NameError:
-						import myMediaLib
-						origfD = myMediaLib.simple_parseCue(cue_name)	
+					
+					origfD = simple_parseCue(cue_name)	
+					
+					if len(cueD['orig_file_pathL']) == 1:
 	#return {'orig_file':orig_file,'orig_file_path':orig_file_path,'fType':fType,'songL':songL} 
-	
+						single_image_cue_path = origfD['orig_file_pathL'][0]['orig_file_path']
+						fType = origfD['orig_file_pathL'][0]['fType']
 					try:
-						if os.path.exists(origfD['orig_file_path']):
-							cue_dirname = os.path.dirname(origfD['orig_file_path'])
+						if os.path.exists(single_image_cue_path):
+							cue_dirname = os.path.dirname(single_image_cue_path)
 							check_dircrc32 =  zlib.crc32(cue_dirname.lower())
 							if check_dircrc32 in cueDupl :
-								cueDupl[check_dircrc32]['dupL'].append((origfD['orig_file_path'],a)) 
+								cueDupl[check_dircrc32]['dupL'].append((single_image_cue_path,a)) 
 							else:
-								cueDupl[check_dircrc32] = {'dupL':[(origfD['orig_file_path'],a),],'dirName':cue_dirname,'cueFile':a}
+								cueDupl[check_dircrc32] = {'dupL':[(single_image_cue_path,a),],'dirName':cue_dirname,'cueFile':a}
 								
 							cue_flag = True
-							if origfD['fType'].lower() == 'flac':
+							if fType.lower() == 'flac':
 								flac_num+=1
-							elif origfD['fType'].lower() == 'ape':
+							elif fType.lower() == 'ape':
 								ape_num+=1
-							elif origfD['fType'].lower() == 'wv':
+							elif fType.lower() == 'wv':
 								wv_num+=1	
-							elif origfD['fType'].lower() == 'm4a':
+							elif fType.lower() == 'm4a':
 								m4a_num+=1	
 							else:
-								print(origfD['fType'])
-							origf = origfD['orig_file_path']
+								print(fType)
+							origf = origfD['orig_file_pathL']
 							ftype = origfD['fType']
 							crc32 = zlib.crc32(origf.lower())
 							last_modify_date = 0
 							try:
 								last_modify_date = os.stat(cue_name).st_mtime
 							except:
-								print('eroror cue time',origfD['orig_file_path'])
+								print('eroror cue time',origfD['orig_file_pathL'])
 								pass
 							cueD[crc32]={'dir':root,'filename':a,'file':origf,'ftype':ftype,'songL':origfD['songL'],'last_modify_date':last_modify_date,'cueFName':cue_name}
 						else:
 							if  zlib.crc32(cue_name) in  notRelevCue:
-								notRelevCue[zlib.crc32(cue_name)]['fL'].append(origfD['orig_file_path']) 
+								notRelevCue[zlib.crc32(cue_name)]['fL'].append(origfD['orig_file_pathL']) 
 							else:
-								notRelevCue[zlib.crc32(cue_name)] = {'fL':[origfD['orig_file_path'],],'cueFile':a}
-							#print 'Cue not relevant:',origfD['orig_file_path']
+								notRelevCue[zlib.crc32(cue_name)] = {'fL':[origfD['orig_file_pathL'],],'cueFile':a}
+							#print 'Cue not relevant:',origfD['orig_file_pathL']
 							continue
 					except:
 						print('error:',origfD)
@@ -3315,6 +3315,7 @@ def rus_name_folder_test(init_dirL,*args):
 	
 	
 def collect_albums_folders(init_dirL,*args):
+#!!! NOT USED only single cue processing
 # аналог функции myMediaLib_adm.collectMyMediaLib_folder_new(['G:\\MUSIC\\ORIGINAL_MUSIC']), только папки альбомов
 	
 	cnt = 0
@@ -3341,14 +3342,12 @@ def collect_albums_folders(init_dirL,*args):
 					ftype = ''
 					cue_name = (root+'\\'+a)
 
-					try:	
-						origfD = simple_parseCue(cue_name)	
-					except NameError:
-						import myMediaLib
-						origfD = myMediaLib.simple_parseCue(cue_name)	
+
+					origfD = simple_parseCue(cue_name)	
+					
 
 					try:
-						if os.path.exists(origfD['orig_file_path']):
+						if os.path.exists(origfD['orig_file_pathL'][0]['orig_file_path']):
 							cue_flag = True
 							
 							if root not in albumDirL:
@@ -3368,6 +3367,12 @@ def collect_albums_folders(init_dirL,*args):
 					
 				elif a[a.rfind('.'):].lower().find('.flac') >= 0:
 					ftype = 'flac'
+				elif a[a.rfind('.'):].lower().find('.dsf') >= 0:
+					ftype = 'dsf'	
+				elif a[a.rfind('.'):].lower().find('.wv') >= 0:
+					ftype = 'wv'	
+				elif a[a.rfind('.'):].lower().find('.m4a') >= 0:
+					ftype = 'm4a'	
 				elif a[a.rfind('.'):].lower().find('.mp3') >= 0:
 					ftype = 'mp3'
 				
@@ -6914,88 +6919,7 @@ def getCoverPage(url,dest_dir):
 	print(h[0].headers.dict)
 	logger.critical('Error 6944: in getCoverPage 2 - Finished')	
 	return -1		
-	
-def cue_check_and_error_correct(fName,separator,seqL,*args):
-	fType = ''
-	try:
-		f = open(fName,'r')
-	except:
-		print('File not found:',fName)
-		return None
-	l = f.readlines()
-	f.close()
-	track_flag = False
-	album = ''
-	full_time = ''
-	orig_file = ''
-	orig_file_path = ''
-	perform_main = ''
-	track_num = 0
-	trackD = {}
-	resL = []
-	got_file_info = False
-	do_job = False
-	for a in l:
-		if 'TRACK 01 AUDIO' in a:
-			do_job = True
-			
-		if not do_job:
-			resL.append(a)
-			continue
-			
-		pos = a.find('"')+1
-		if 'separate' in args:
 
-			if a.lower().strip().find('performer') == 0:
-				index = None
-				if seqL[0].lower() == 'artist':
-					index = 0
-				else:
-					index = 1
-
-				if index == None:
-					print('Error')
-					return 0
-
-
-				
-				partsL = a[pos:-2].split(separator)
-				print(partsL)
-				try:
-					line = '\t'+'PERFORMER "'+partsL[index].strip()+'"'+'\n'
-				except:
-					resL.append(a)
-					print('Eroror',a)
-					continue		
-			elif a.lower().strip().find('title') == 0:
-				index = None
-				if seqL[0].lower() == 'artist':
-					index = 1
-				else:
-					index = 0
-
-				if index == None:
-					print('Error')
-					return 0
-					
-					
-				
-				partsL = a[pos:-2].split(separator)
-				print(partsL)
-				try:
-					line = '\t'+'TITLE "'+partsL[index].strip()+'"'+'\n'
-				except:
-					resL.append(a)
-					print('Eroror',a)
-					continue	
-			else:
-				line = a
-			resL.append(line)
-	file_name_new =	'corrected_'+fName
-	f = open(file_name_new,'w')
-	l = f.writelines(resL)
-	f.close()
-	
 def get_discs_duplacates(dbPath,albumD,minimum_folder_depth,*args):
 	length_clastersD = {}
 	checkL = [' cd',' disc','(disc','(disk',' disk',' vol',' volume']
