@@ -259,7 +259,7 @@ def get_FP_and_discID_for_album(codec_path,album_path,*args):
 			total_sec = int(cueD['trackD'][num]['total_in_sec'])
 			if 'FP' in  args:
 				print("Track extact from from:",image_name,start_sec, total_sec)	
-				params = (b'ffmpeg',b'-i',b"\""+image_name+b"\"", 
+				params = (b'ffmpeg',b' -y -i',b"\""+image_name+b"\"", 
 					b'-aframes %i'%(total_sec), b'-ss %i'%(start_sec),
 					b"\""+join(album_path,new_name)+b"\"")
 				print (params)
@@ -696,7 +696,7 @@ def do_cue_2_track_split(codec_path,album_path,*args):
 	return {'RC':1,'to_be_split':to_be_split,'f_numb':f_numb,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':title_cnt,'mode':modeL,'discID':discID}		
 
 
-def do_mass_album_FP_and_AccId(codec_path,album_path,*args):	
+def do_mass_album_FP_and_AccId(codec_path,album_path,prev_fpDL,*args):	
 	# Генерация FP и AccuesticIDs по альбомам из указанной дирректории, для загрузок двойных альбомов и других массовых загрузок
 	# d=myMediaLib_adm.do_mass_album_FP_and_AccId('c:\\LocalCodecs','C:\Temp\SharedPreprCD4Lib')
 	
@@ -707,18 +707,34 @@ def do_mass_album_FP_and_AccId(codec_path,album_path,*args):
 	if not os.path.exists(album_path):
 		print('---!Album path Error:%s - not exists'%album_path)
 		return 
+		
+	fpDL = []
+	use_prev_res = False
+	last_folder = ''
+	if prev_fpDL:
+		if len(prev_fpDL) > 0:
+			last_folder = prev_fpDL[-1]['album_path']	
+			
 	
 	dirL = find_new_music_folder([album_path],[],[],'initial')
-	print("Meidia Folders structure build with folders:",len(dirL['music_folderL']))
+	print("Meidia Folders structure build with initial folders:",len(dirL['music_folderL']))
+	if last_folder:
+		for a in dirL:
+			if a == last_folder:
+				print('Last folder found')
+				dirL = dirL[dirL.index(a)+1:]
+				print("Meidia Folders structure build with updated folders:",len(dirL['music_folderL']))
 	print(dirL['music_folderL'][0])
-	fpDL = []
+	
+	
 	cnt=1
+	mode_dif = 30
 	t_all_start = time.time()
 	for a in dirL['music_folderL']:
 		fpRD = {}
 		album_path = bytes(a+'/','utf-8')
 		print("Album folder:",[album_path],type(album_path))
-		print(cnt, ' of:',len(dirL),'-->', album_path)
+		print(cnt, ' of:',len(dirL['music_folderL']),'-->', album_path)
 		t_start = time.time()
 		try:
 			cnt+=1
@@ -733,6 +749,16 @@ def do_mass_album_FP_and_AccId(codec_path,album_path,*args):
 			print("Exception with FP generation %s: \n in %s"%(str(e),str(album_path)))	
 			fpRD = {'RC':-3,'error_logL':["Exception with FP generation [%s]:  [%s]"%(str(e),str(album_path))],'album_path':album_path,'process_time': process_time}
 			fpDL.append(fpRD)	
+			
+		if cnt%mode_dif == 0:
+			fname=b'fpgen_%i.dump'%int(time.time())
+			d = ''
+			try:	
+				with open(album_path+fname, 'wb') as f:
+					d = pickle.dump(fpDL,f)
+			except Exception as e:
+				print('Error in pickle',e)
+			print('Saved temp dump in:',fname)	
 	d = ''
 	fname=b'fpgen_%i.dump'%int(time.time())
 	try:	
@@ -781,21 +807,29 @@ def do_mass_album_FP_and_AccId(codec_path,album_path,*args):
 	
 	return fpDL
 	
-def check_fpDL(fpDL):
+def check_MB_discID_in_fpDL(fpDL):
 	cnt = 0
 	for item in fpDL:
-
-		if 'disc' in item['MB_discID']:
-			if 'release-list' in item['MB_discID']['disc']: 
-				
-				print(cnt,item['MB_discID']['disc']['release-list'][0]['title'])
-				if len(item['MB_discID']['disc']['release-list']) > 1:
-					print("! Releases:",len(item['MB_discID']['disc']['release-list']))
-				cnt+=1
-			else:                
-				print('-r', end=' ')                
+		if 'MB_discID' in item:
+			if 'disc' in item['MB_discID']:
+				if 'release-list' in item['MB_discID']['disc']: 
+					if len(item['MB_discID']['disc']['release-list']) == 1:
+						print(cnt,item['MB_discID']['disc']['release-list'][0]['title'],'\n',item['album_path'],'utf-8')
+					elif len(item['MB_discID']['disc']['release-list']) > 1:
+						print(cnt, "! Releases:",len(item['MB_discID']['disc']['release-list']),'\n',item['album_path'],'utf-8')
+					else:
+						print(cnt,"MB out of data [release-list] is empty for %s: %s "%(str(item['MB_discID']['disc']['id']),str(item['album_path'],'utf-8')))
+						#return (item['MB_discID']['disc'],item['album_path'])
+					cnt+=1
+				else:                
+					print('-r', end=' ')
+					cnt+=1		
+			else:
+				continue
+				cnt+=1	
 		else:
-			continue	
+			print(cnt,"No discID in:",item['album_path'])
+			cnt+=1
 	
 def generate_FP_file_in_album(codec_path,album_path,*args):
 	print ('generate_FP_file_in_album',args)

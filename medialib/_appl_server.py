@@ -5,8 +5,7 @@ import myMediaLib_controller
 from myMediaLib_CONST import mymedialib_cfg
 import time
 import sys
-#import myMediaLib_model
-#from medialib_pages import *
+
 
 if __name__ == '__main__':
 	
