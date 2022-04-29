@@ -5,8 +5,9 @@ MediaLibManager supports various formats: flac, ape, wv, m4a, mp3, dsf. Also as 
 Controls MPD instances via web interface on Smart TV, Laptop or Smart phone
 ![MediaLibManager](/data/MediaLibManager.png)
 
-Runs on x86 platform with Debian 10 incl. docker , also possible with Raspberry Pi incl. docker
+Runs on x86 platform with Debian 10 incl. docker, also possible with Raspberry Pi incl. docker
 ## Docker compose
+Prerequisite: docker and docker-compose are intalled
 docker-compose build -> builds Apache and application images
 
 docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s)  --build-arg wsgi_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes wsgi+medialib using date timestamp
