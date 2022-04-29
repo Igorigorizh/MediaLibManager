@@ -9,6 +9,7 @@ import sqlite3
 import chardet
 import codecs
 import re
+import subprocess
 
 import discid
 
@@ -259,21 +260,24 @@ def get_FP_and_discID_for_album(codec_path,album_path,*args):
 			total_sec = int(cueD['trackD'][num]['total_in_sec'])
 			if 'FP' in  args:
 				print("Track extact from from:",image_name,start_sec, total_sec)	
-				params = (b'ffmpeg',b' -y -i',b"\""+image_name+b"\"", 
-					b'-aframes %i'%(total_sec), b'-ss %i'%(start_sec),
-					b"\""+join(album_path,new_name)+b"\"")
-				print (params)
+				ffmpeg_command = b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'% (image_name,total_sec,start_sec,join(album_path,new_name))
+					
+				#b"\""+join(album_path,new_name)+b"\"")
+					
 				
-				if prog != '' and params != ():	
+				print (ffmpeg_command)
+				
+				if prog != '' and ffmpeg_command != ():	
 					try:
 						print("Decompressing partly with:",prog)
-						r = os.spawnve(os.P_WAIT, join(codec_path,prog), params , os.environ)		
+						res = subprocess.Popen(ffmpeg_command.decode(), stderr=subprocess.PIPE ,stdout=subprocess.PIPE,shell=True)
+						out, err = res.communicate()
 					except OSError as e:
-						print('get_FP_and_discID_for_cue 232:', e, "-->",prog,params)
-						return {'RC':-1,'to_be_split':to_be_split,'f_numb':f_numb,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':title_cnt,'errorL':modeL}
+						print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
+						return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decocmpression of [%i]'%(int(num))] }
 					except Exception as e:
-						print('Error in get_FP_and_discID_for_cue235:', e, "-->", prog,params)
-						return {'RC':-1,'to_be_split':to_be_split,'f_numb':f_numb,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':title_cnt,'errorL':modeL}	
+						print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
+						return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decocmpression of [%i]'%(int(num))]}	
 				else:
 					print('Error in get_FP_and_discID_for_cue 243:', e, "-->", codec_path,prog,cueD['orig_file_pathL'][0]['orig_file_path'])
 					return{'RC':-1,'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD}		
@@ -730,6 +734,7 @@ def do_mass_album_FP_and_AccId(codec_path,album_path,prev_fpDL,*args):
 	cnt=1
 	mode_dif = 30
 	t_all_start = time.time()
+	process_time = 	0
 	for a in dirL['music_folderL']:
 		fpRD = {}
 		album_path = bytes(a+'/','utf-8')
@@ -738,6 +743,7 @@ def do_mass_album_FP_and_AccId(codec_path,album_path,prev_fpDL,*args):
 		t_start = time.time()
 		try:
 			cnt+=1
+			process_time = 0
 			fpRD = get_FP_and_discID_for_album(codec_path,album_path,*args)
 			process_time = 	int(time.time()-t_start)
 			fpRD['album_path']=album_path
