@@ -60,7 +60,6 @@ def readConfigData(fname):
 				for path in chkL:
 					if not os.path.exists(path):
 						print('Wrong  path! 3294:',[path], "-->Check in config:'audio_files_path_list='")
-						#logger.critical("Wrong  path!:'%s, '-->Check in config:audio_files_path_list="%(str([path])))
 						logger.critical("Wrong  path! -->Check in config:audio_files_path_list=")
 					else:	
 						configDict[key].append(path)
@@ -78,7 +77,7 @@ def readConfigData(fname):
 				host_s = a.split('=')[1].strip().replace('\'','\"')
 				chkD = json.loads(host_s)
 				for host_name in chkD:
-					print(chkD[host_name])
+					#print(chkD[host_name])
 					hostL = chkD[host_name].split(':')
 					configDict[key].append({'host_name':host_name,'host':hostL[0],'socket':hostL[1]})
 				continue		
