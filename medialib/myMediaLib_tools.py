@@ -10,6 +10,7 @@ import chardet
 import codecs
 import re
 import subprocess
+import asyncio
 from multiprocessing import Pool, cpu_count
 from itertools import tee
 
@@ -190,7 +191,7 @@ def get_FP_and_discID_for_album(album_path,*args):
 		except Exception as e:
 				print(e)
 				return {'RC':-1,'cueD':cueD}	
-		if 'multy' in args:
+		if 'multy' in args and 'FP' in  args:
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			image_name = cueD['orig_file_pathL'][0]['orig_file_path']
 			
@@ -198,14 +199,17 @@ def get_FP_and_discID_for_album(album_path,*args):
 			iter_image_name_1 = iter(image_name for i in range(len(cueD['trackD'])))
 			iter_dest_tmp_name_4 = iter(join(album_path,b'temp%i.wav'%(num))  for num in cueD['trackD'])
 			iter_start_sec_3 = iter(int(cueD['trackD'][num]['start_in_sec'])  for num in cueD['trackD'])
-			iter_total_sec_2 = iter(int(cueD['trackD'][num]['total_in_sec'])  for num in cueD['trackD'])
+			
+			iter_total_sec_2 = iter(fp_time_cut(int(cueD['trackD'][num]['total_in_sec']),25)	for num in cueD['trackD'])
+			
+			iter_total_sec_orig = iter(int(cueD['trackD'][num]['total_in_sec'])  for num in cueD['trackD'])
 			
 			iter_dest_tmp_name_4, iter_dest_tmp_name = tee(iter_dest_tmp_name_4)
-			command_ffmpeg = b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'
+			command_ffmpeg = b'ffmpeg -y -i "%b" -t %i -ss %i "%b"'
 						
 			# get iterator for ffmpeg command
 			iter_command_ffmpeg = map(lambda x: command_ffmpeg%x,zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4 ))
-			
+			res = ''
 			try:
 				with Pool(cpu_num) as p:
 					
@@ -213,11 +217,21 @@ def get_FP_and_discID_for_album(album_path,*args):
 					
 			except Exception as e:
 				print("Caught exception",e)
-				p.terminate()
-				p.join()
-			p.terminate()
-			convDL = [{'fname':a[1],'fp':a[0]} for a in res]
-			failed_fpL = [a[2] for a in res if a[2] != []]
+				##p.terminate()
+				##p.join()
+			
+			if res:
+				convDL_iter = zip(iter_total_sec_orig, res)
+				#a[1]:(fp,f_name,failed_fpL)
+				convDL = [{'fname':a[1][1],'fp':(a[0],a[1][0][1])} for a in convDL_iter]
+
+				#convDL = [{'fname':a[1],'fp':a[0]} for a in res]
+				failed_fpL = [a[2] for a in res if a[2] != []]
+			else:
+				convDL = []
+				failed_fpL = []
+				
+			
 		else:
 			cnt=1
 			image_name = cueD['orig_file_pathL'][0]['orig_file_path']
@@ -277,7 +291,7 @@ def get_FP_and_discID_for_album(album_path,*args):
 				return {'RC':-1,'cueD':cueD}	
 		cnt=1
 		
-		if 'multy' in args:
+		if 'multy' in args and 'FP' in  args:
 			#print('--MULTY---:',list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL'])))
 			
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
@@ -329,7 +343,7 @@ def get_FP_and_discID_for_album(album_path,*args):
 			print('------------HI-RES check scenario details------------')
 			hi_res = True	
 		
-		if 'multy' in args:
+		if 'multy' in args and 'FP' in  args:
 			#print('--MULTY---:',list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL'])))
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			try:
@@ -364,16 +378,21 @@ def get_FP_and_discID_for_album(album_path,*args):
 			
 	time_stop_diff = time.time()-t_all_start	
 	if 'FP' in  args: 
-		print("********** Album FP takes:%i sec.***********************"%(int(time_stop_diff)))	
+		print("\n********** Album FP takes:%i sec.***********************"%(int(time_stop_diff)))	
 	
-	
+	time_ACOUSTID_FP_REQ = time.time()
 	if 'ACOUSTID_FP_REQ' in args:
+		print("\n Getting Album ACOUSTID_FP_REQ from https://acoustid.org/ **********************")
 		for fp_item in convDL: 	
-			
-			response = acoustid.lookup(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta)
+			response=asyncio.run(acoustID_lookup_wrapper_parent(fp_item['fp']))
+			#response = acoustid.lookup(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta)
 			fp_item['response'] = response
+			
+		print("********** Album ACOUSTID_FP_REQ request takes:%i sec.***********************"%(int(time.time() - time_ACOUSTID_FP_REQ )))		
 	
 	TOC_src = ''
+	
+	time_discid_MB_REQ = time.time()
 	if scenarioD['cue_state']['only_tracks_wo_CUE']:
 		print("Try guess TOC from tracks list")	
 		try:
@@ -388,7 +407,6 @@ def get_FP_and_discID_for_album(album_path,*args):
 		print("Try TOC from CUE")	
 		try:
 			discID = discid.put(1,cueD['cue_tracks_number'],cueD['lead_out_track_offset'],cueD['offsetL'])
-			TOC_src = 'cue'
 			print('Cue TOC:',discID.toc_string)
 		except Exception as e:
 			if 'offsetL' not in cueD: 
@@ -396,32 +414,33 @@ def get_FP_and_discID_for_album(album_path,*args):
 			else:	
 				print("Issue with CUE TOC len(offsetL)",len(cueD['offsetL']))
 			print(e)
+	
+	if TOC_dataD['discidInput'] and discID:
+		if TOC_dataD['toc_string'] == discID.toc_string:
+			TOC_src = 'cue'
+			print("TOCs log and cue are identical")
+		else:
+			print("TOCs log and cue are NOT identical")
+			print((TOC_dataD['toc_string']))
+			TOC_src = 'log'
+			print((discID.toc_string))	
 		
-		
-	if TOC_dataD['discidInput'] and not discID:
+	if TOC_dataD['discidInput']:
 		print("Try TOC from log")
 		try:
 			log_discID = discid.put(TOC_dataD['discidInput']['First_Track'],TOC_dataD['discidInput']['Last_Track'],TOC_dataD['discidInput']['total_lead_off'],TOC_dataD['discidInput']['offsetL'])
 			print('Log Toc:',log_discID.toc_string)
-			TOC_src = 'log'
 			print("discId from log is taken for MB request")	
 		except Exception as e:
 			print("Issue with Log TOC")
 			print(e)
 			
-	if TOC_dataD['discidInput'] and discID:
-		if TOC_dataD['toc_string'] == discID.toc_string:
-			print("TOCs log and cue are identical")
-		else:
-			print("TOCs log and cue are NOT identical")
-			print((TOC_dataD['toc_string']))
-			print((discID.toc_string))
-		
 	if log_discID:
 		discID = log_discID
 
 	if 'MB_DISCID_REQ' in args:	
 		if discID:
+			
 			try:
 				MB_discID_result = musicbrainzngs.get_releases_by_discid(discID,includes=["artists","recordings","release-groups"])
 			except Exception as e:
@@ -431,10 +450,17 @@ def get_FP_and_discID_for_album(album_path,*args):
 				MB_discID_result['TOC_src'] = TOC_src
 			else:
 				print("DiskID MB - NOT detected") 	
+				
+			print("********** Album MB_DISCID_REQ MusicBrainz request takes:%i sec.***********************"%(int(time.time() - time_discid_MB_REQ )))		
 	
-	
+	print("********** Album process in total takes:%i sec.***********************"%(int(time.time() - t_all_start )))
 	
 	return{'RC':len(convDL),'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD,'MB_discID':MB_discID_result,'convDL':convDL,'discID':str(discID),'failed_fpL':failed_fpL,'guess_TOC_dataD':guess_TOC_dataD,'hi_res':hi_res}
+def fp_time_cut(x,cut_sec):
+	if x > cut_sec:
+		return cut_sec
+	else:
+		return x
 def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name):
 	#command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'(,,,new_name)				
 	failed_fpL = []
@@ -460,6 +486,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name):
 		fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
 	except  Exception as e:
 		print("Error in fp gen with:",new_name,e)
+		print('ffmpeg command:',ffmpeg_command)
 		f_name = os.path.basename(new_name)
 		os.rename(new_name,new_name.replace(f_name,bytes(str(time.time()).replace('.','_'),BASE_ENCODING)+f_name))
 		failed_fpL.append((new_name,e))
@@ -493,7 +520,7 @@ def do_mass_album_FP_and_AccId(folder_node_path,prev_fpDL,prev_music_folderL,*ar
 	fpDL = []
 	music_folderL = []
 	use_prev_res = False
-	
+	prev_fpDL_used = False
 
 	if prev_music_folderL:
 		if len(prev_music_folderL)>0:
@@ -511,6 +538,7 @@ def do_mass_album_FP_and_AccId(folder_node_path,prev_fpDL,prev_music_folderL,*ar
 			tmp_music_folderL = list(set(music_folderL) - set([a['album_path'] for a in prev_fpDL]))
 			fpDL = prev_fpDL
 			cnt = len(music_folderL) - len(tmp_music_folderL) + 1
+			prev_fpDL_used = True
 			print("Media Folders structure is recalculated from prev music_folderL with len:",len(tmp_music_folderL))
 
 		if fpDL == []:		
@@ -581,7 +609,10 @@ def do_mass_album_FP_and_AccId(folder_node_path,prev_fpDL,prev_music_folderL,*ar
 	print('Some statistics:')
 	if fpDL:
 		print("Collected: albums number %i, time pro album %i sec."%(len(fpDL),int(time_stop_diff/len(fpDL))))	
-	print("Skipped [FP is ready]:",len([a for a in fpDL if a['process_time'] < 2]))
+	if prev_fpDL_used:	
+		print("Skipped [FP is ready]:",len(prev_fpDL))
+	else:
+		print("All FP are initialy generagetd")
 	print("Error while generation FP:",len([a['RC'] for a in fpDL if a['RC'] < 0]))
 	print("Albums with bad FP:",len([a['RC'] for a in fpDL if a['RC'] < 0]))
 	print("Albums with OK FP:",len([a['RC'] for a in fpDL if a['RC'] > 0]))
@@ -2064,23 +2095,50 @@ def remove_not_exists_objects_from_DB(music_path_root):
 	
 	return {"r_not_exists_albumD":r_not_exists_albumD,"r_not_existsD":r_not_existsD,'r_albumL':r_albumL,'r_trackL':r_trackL} 
 	
-def collect_MB_release_from_responce(resp):
+def is_discId_release_in_FP_response(discId_MB_resp,acoustId_resp):
 	recordingsL = []
 	release_groupL = []
 	releasesL = []
 	mediumDL = []
-	recordings = resp['results'][0]['recordings']
-	for rcrds in recordings:
-		recordingsL.append(rcrds['id'])
-		for rel_group in rcrds['releasegroups']:
-			release_groupL.append(rel_group['id'])
+	releasesL_discId = [a['release-group']['id'] for a in discId_MB_resp['disc']['release-list']]
+	releasesL_FP = collect_MB_release_from_FP_response(acoustId_resp)['release_groupL']
+	print(releasesL_discId)
+	print(releasesL_FP)
+	
+	for a in releasesL_discId:
+		if a in releasesL_FP:
+			return True
+	return 	False	
+	
+def collect_MB_release_from_FP_response(acoustId_resp):
+	recordingsL = []
+	release_groupL = []
+	releasesL = []
+	mediumDL = []
+	for res_item in acoustId_resp['results']:
+		for rcrds in res_item['recordings']:
+			recordingsL.append(rcrds['id'])
+			for rel_group in rcrds['releasegroups']:
+				release_groupL.append(rel_group['id'])
 
-			for release in rel_group['releases']:
-				releasesL.append(release['id'])
-				for medium in release['mediums']:
-					print(medium)
-					medium['release_id'] = release['id']
-					mediumDL.append(medium)
+				for release in rel_group['releases']:
+					releasesL.append(release['id'])
+					for medium in release['mediums']:
+						#print(medium)
+						medium['release_id'] = release['id']
+						mediumDL.append(medium)
 
 
 	return{'recordingsL':recordingsL,'release_groupL':release_groupL,'releasesL':releasesL,'mediumDL':mediumDL}
+	
+def check_album_from_acoustId_resp_list(acoustId_respL):
+	return {'track_count':set([b[0]['track_count'] for b in [collect_MB_release_from_FP_responce(a['response'])['mediumDL'] for a in acoustId_respL]])}	
+	
+async def acoustID_lookup_wrapper(fp):
+    API_KEY = 'cSpUJKpD'
+    meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
+    return acoustid.lookup(API_KEY, fp[1], fp[0],meta)	
+	
+async def acoustID_lookup_wrapper_parent(fp):
+    return await acoustID_lookup_wrapper(fp)	
+	
