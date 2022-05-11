@@ -110,6 +110,7 @@ def parseCue(fName,*args):
 	orig_file_pathL = []
 	perform_main = ''
 	track_num = 0
+	next_frame = 0
 	trackD = {}
 	bitrate = 0
 	first_track_offset = 150
