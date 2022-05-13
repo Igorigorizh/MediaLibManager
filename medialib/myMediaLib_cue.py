@@ -430,7 +430,8 @@ def parseCue(fName,*args):
 				# Только для single IMAGE вычисляем длину трэка в секундах как разница между соседнмини трэками, только однофайлового CUE	
 				if track_num > 1 and not is_cue_multy_tracks:
 					try:
-						delta = myMusicStr2TimeDelta(trackD[track_num]['index'][1])-myMusicStr2TimeDelta(trackD[track_num-1]['index'][1])-cur_delta
+						#delta = myMusicStr2TimeDelta(trackD[track_num]['index'][1])-myMusicStr2TimeDelta(trackD[track_num-1]['index'][1])-cur_delta
+						delta = myMusicStr2TimeDelta(trackD[track_num]['index'][1])-myMusicStr2TimeDelta(trackD[track_num-1]['index'][1])
 					except Exception as e:	
 						print('Exception [%s] in parseCue  [at myMusicStr2TimeDelta], check time',e)
 						logger.critical('Exception [%s] in parseCue  [at myMusicStr2TimeDelta]'%(str(e)))	
