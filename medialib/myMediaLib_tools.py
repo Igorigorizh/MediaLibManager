@@ -219,13 +219,14 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 			start_t = time.time()
 			try:
 				with Pool(cpu_num) as p:
-					res = p.starmap(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params))
+					res = p.starmap_async(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params)).get()
 			except Exception as e:
-				print("Caught exception",e)
-				##p.terminate()
-				##p.join()
-			print('\n -----  album splite abd FP calc processing finished in [%i]sec'%(time.time()-start_t))
-			if res:
+				print("Caught exception in map_async 1",str(e))
+				p.terminate()
+			#	p.join()
+			p.join()	
+			print('\n -----  album splite FP calc processing finished in [%i]sec'%(time.time()-start_t))
+			try:
 				if fp_min_duration > 10:
 					convDL_iter = zip(iter_total_sec_orig, res)
 					#a[1]:(fp,f_name,failed_fpL)
@@ -234,7 +235,8 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 					convDL = [{'fname':a[1],'fp':a[0]} for a in res]
 					
 				failed_fpL = [a[2] for a in res if a[2] != []]
-			else:
+			except Exception as e:
+				print('Error ar async get:',str(e))
 				convDL = []
 				failed_fpL = []
 				
@@ -304,18 +306,19 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			try:
 				with Pool(cpu_num) as p:
-					res = p.map(worker_fingerprint, [a['orig_file_path'] for a in cueD['orig_file_pathL']])
+					res = p.map_async(worker_fingerprint, [a['orig_file_path'] for a in cueD['orig_file_pathL']]).get()
 					
 			except Exception as e:
-				print("Caught exception",e)
+				print("Caught exception in map_async 2",e)
 				p.terminate()
-				p.join()
-			p.terminate()
-			#p.join()	
+			#	p.join()
+			p.join()	
 			#print(res)
 			#return res
-				
-			convDL = [{'fname':a[1],'fp':a[0]} for a in res]
+			try:	
+				convDL = [{'fname':a[1],'fp':a[0]} for a in res]
+			except Exception as e:
+				print('Error:',str(e))	
 		else:
 			for track_item in cueD['orig_file_pathL']:
 				track = track_item['orig_file_path']
@@ -355,18 +358,17 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			try:
 				with Pool(cpu_num) as p:
-					res = p.map(worker_fingerprint, list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL'])))
+					res = p.map_async(worker_fingerprint, list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL']))).get()
 					
 			except Exception as e:
-				print("Caught exception",e)
+				print("Caught exception in map_async 3",e)
 				p.terminate()
-				p.join()
-			p.terminate()
-			#p.join()	
-			#print(res)
-			#return res
-				
-			convDL = [{'fname':a[1],'fp':a[0]} for a in res]
+			#	p.join()
+			p.join()	
+			try:	
+				convDL = [{'fname':a[1],'fp':a[0]} for a in res]
+			except Exception as e:
+				print('Error:',str(e))	
 		else:
 			for track in  scenarioD['normal_trackL']:
 				fp = []
@@ -516,14 +518,18 @@ def fp_time_cut(x,cut_sec):
 		return cut_sec
 	else:
 		return x
+def on_complete(result):
+	print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	print(result.get())
+			
 def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name,*args):
 	#command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'(,,,new_name)	
 	failed_fpL = []
-					
+	#print('in worker')				
 	f_name = os.path.basename(new_name)			
 	#print (ffmpeg_command)
 	prog = 'ffmpeg'				
-	
+	print("-")
 	try:
 		#print("Decompressing partly with:",prog)
 		res = subprocess.Popen(ffmpeg_command.decode(), stderr=subprocess.PIPE ,stdout=subprocess.PIPE,shell=True)

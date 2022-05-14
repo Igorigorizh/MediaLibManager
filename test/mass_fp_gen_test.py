@@ -11,7 +11,7 @@ if __name__ == '__main__':
                         help='nas path prefix like //192.168.1.12/folderUSB')	
 	args = parser.parse_args()
 	
-	path_cl = bytes(args.nas_path_prefix,'utf-8')+b'/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Johann Sebastian Bach/'	
+	path_cl = bytes(args.nas_path_prefix,'utf-8')+b'/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi'	
 	
 	if os.path.exists(path_cl):
 		sD = myMediaLib_tools.do_mass_album_FP_and_AccId(path_cl,0,None,None,'multy','FP','ACOUSTID_FP_REQ','MB_DISCID_REQ')		
