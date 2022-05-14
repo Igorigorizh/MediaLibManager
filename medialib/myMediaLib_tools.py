@@ -518,9 +518,7 @@ def fp_time_cut(x,cut_sec):
 		return cut_sec
 	else:
 		return x
-def on_complete(result):
-	print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-	print(result.get())
+
 			
 def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name,*args):
 	#command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'(,,,new_name)	
@@ -529,7 +527,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name,*args):
 	f_name = os.path.basename(new_name)			
 	#print (ffmpeg_command)
 	prog = 'ffmpeg'				
-	print("-")
+	
 	try:
 		#print("Decompressing partly with:",prog)
 		res = subprocess.Popen(ffmpeg_command.decode(), stderr=subprocess.PIPE ,stdout=subprocess.PIPE,shell=True)
