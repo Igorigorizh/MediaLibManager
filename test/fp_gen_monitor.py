@@ -3,8 +3,11 @@ import sys
 sys.path.insert(0,'./medialib')
 import pickle
 from flask import Flask
-
 import os
+
+dump_path = b'//192.168.1.66/OMVNasUsb/MUSIC/ORIGINAL_MUSIC/ORIGINAL_EASY/Los Incas - El Condor Pasa (1985)/fpgen_1652531874.dump'
+with open(dump_path, 'rb') as f:
+	sD = pickle.load(f)
 
 app = Flask(__name__)
 
@@ -14,9 +17,7 @@ def index():
 
 @app.route('/dump/<num>')
 def dump(num):
-	dump_path = b'//192.168.1.66/OMVNasUsb/MUSIC/ORIGINAL_MUSIC/ORIGINAL_EASY/Los Incas - El Condor Pasa (1985)/fpgen_1652531874.dump'
-	with open(dump_path, 'rb') as f:
-		sD = pickle.load(f)
+	
 	res = '---------------<BR>'    
 	cnt = 1
 	for item in sD['fpDL'][int(num)]['convDL']:
