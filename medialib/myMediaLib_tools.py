@@ -44,8 +44,8 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 def is_only_one_media_type(filesL):
 	fTypeL = []
-	media_typeL = ['flac','mp3','ape','wv','m4a','dsf']
-	if type(filesL[0])==bytes:
+	media_typeL = ['flac', 'mp3', 'ape', 'wv', 'm4a', 'dsf']
+	if type(filesL[0]) == bytes:
 		media_typeL = list(map(lambda x: bytes(x,BASE_ENCODING), media_typeL))
 
 	for orig_file in filesL:
@@ -518,28 +518,26 @@ def fp_time_cut(x,cut_sec):
 		return cut_sec
 	else:
 		return x
-def on_complete(result):
-	print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-	print(result.get())
+
 			
-def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name,*args):
-	#command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'(,,,new_name)	
+def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
+	#command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'( new_name )
 	failed_fpL = []
 	#print('in worker')				
 	f_name = os.path.basename(new_name)			
 	#print (ffmpeg_command)
 	prog = 'ffmpeg'				
-	print("-")
+	
 	try:
 		#print("Decompressing partly with:",prog)
 		res = subprocess.Popen(ffmpeg_command.decode(), stderr=subprocess.PIPE ,stdout=subprocess.PIPE,shell=True)
 		out, err = res.communicate()
 	except OSError as e:
 		print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
-		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decocmpression of [%i]'%(int(num))] }
+		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decompression of [%i]'%(int(num))] }
 	except Exception as e:
 		print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
-		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decocmpression of [%i]'%(int(num))]}	
+		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decompression of [%i]'%(int(num))]}
 	
 	fp = []
 	print("+", end=' ')
@@ -549,7 +547,6 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name,*args):
 			return (fp,f_name,failed_fpL)	
 	
 	try:
-		
 		fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
 	except  Exception as e:
 		print("Error in fp gen with:",new_name,e)
@@ -558,8 +555,6 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command,new_name,*args):
 		os.rename(new_name,new_name.replace(f_name,bytes(str(time.time()).replace('.','_'),BASE_ENCODING)+f_name))
 		failed_fpL.append((new_name,e))
 
-				
-	
 	print("*", end=' ')
 		
 	os.remove(new_name)	
@@ -574,8 +569,12 @@ def worker_fingerprint(file_path):
 	#print(fp[0],os.path.split(file_path)[-1])	
 	return (fp,os.path.split(file_path)[-1])	
 
+def count_words_at_url(url):
+    """Just an example function that's called async."""
 
-def do_mass_album_FP_and_AccId(folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	
+    return 20
+
+def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	
 	# Генерация FP и AccuesticIDs по альбомам из указанной дирректории, для загрузок двойных альбомов и других массовых загрузок
 	# d=myMediaLib_adm.do_mass_album_FP_and_AccId('c:\\LocalCodecs','C:\Temp\SharedPreprCD4Lib')
 	
@@ -2179,10 +2178,14 @@ def is_discId_release_in_FP_response(discId_MB_resp,acoustId_resp):
 	release_groupL = []
 	releasesL = []
 	mediumDL = []
+	if 'disc' not in discId_MB_resp:
+		print('Error key [disc] is missing in:',discId_MB_resp)
+		return False
 	releasesL_discId = [a['release-group']['id'] for a in discId_MB_resp['disc']['release-list']]
 	if 'results' not in acoustId_resp:
 		print('Error in:',acoustId_resp)
 		return False
+
 	releasesL_FP = collect_MB_release_from_FP_response(acoustId_resp)['release_groupL']
 	#print('discId:',releasesL_discId)
 	#print('FP:',releasesL_FP)
@@ -2217,6 +2220,20 @@ def match_discId_release_in_FP_response(discId_MB_resp,acoustId_resp,Release_Rel
 			Release_ReleaseGroupD['release-list'].append(a)		
 			
 	return 	{'release-list':Release_ReleaseGroupD['release-list'],'release-group':Release_ReleaseGroupD['release-group']}
+
+def build_FP_db_tracks_record(fpDL):
+	# база FP - будет основой формирования метаданных медиатеки. формируется полностью автоматически, с возможностью добавления набора альбомов или единичных #альбомов. 
+	# содержит статистику покрытия FP, discId, положительными резульатами запросов по FP к musicbrainz содержит ссылки по CRC32 на рабочую medialib.db3
+	# даст оценку доли автоматического и ручного ведения метаданных для рабочей medialib.db3
+	# должна содержать на начальном этапе потрэковую информацию "recording", альбомную "releases", артистов, работы "works"
+	# подготовка записи в базе FP для последующего сохранения в БД
+	# учитывать полное или частичное отсутствие FP для трэка - это позволит иметь статистику покрытия медиа коллекции FP, делать регулярный повторный расчет,
+	# иметь снимок всей медиатеки
+	for item in fpDL:
+		if item['scenarioD']['cue_state']['only_tracks_wo_CUE']:
+			for track in 'normal_trackL':
+				pass
+	return db_record	
 
 def album_FP_discid_response_validate(fpDL):
 	# валидация ответов MB и acoustId (далее просто ответы MB) для собранных потрэково и поальбомно acousticId fingerprints и discid
@@ -2271,6 +2288,12 @@ def album_FP_discid_response_validate(fpDL):
 						print('\n with MB_discID scenario issue in track %i: FP service return error. Recall FP response'%(track_index))
 					elif trac_data['response']['results'] == []:	
 						print('\n with MB_discID scenario issue in track %i: FP service result is empty. Recalculate and recheck FP'%(track_index))
+				
+				try:	
+					recordinds = collect_MB_release_from_FP_response( trac_data['response'])['recordingsL']		
+					print('Recording id:',recordinds)
+				except Exception as e:
+					print('Error in recording extraction',str(e))
 
 				track_index+=1	
 			if in_MB_discID_cnt == len(item['convDL']):
@@ -2294,7 +2317,11 @@ def album_FP_discid_response_validate(fpDL):
 					continue
 					
 				release_id_checkL.append(release_id)
-					
+				try:	
+					recordinds = collect_MB_release_from_FP_response( trac_data['response'])['recordingsL']		
+					print('Recording id:',recordinds)
+				except Exception as e:
+					print('Error in recording extraction',str(e))	
 					
 			if 	len(release_id_checkL) == len(item['convDL']) and len(list(set(release_id_checkL))) == 1:	
 				print('		release from MB resp:', set(release_id_checkL))
@@ -2335,6 +2362,7 @@ def collect_MB_release_from_FP_response(acoustId_resp):
 				return{'recordingsL':recordingsL,'release_groupL':release_groupL,'releasesL':releasesL,'mediumDL':mediumDL}
 			#else:	
 			recordingsL.append(rcrds['id'])
+			#yield rcrds['id']
 			if 'releasegroups' in rcrds:
 				
 				for rel_group in rcrds['releasegroups']:
