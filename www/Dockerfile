@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.10-slim-buster
 RUN apt-get update && apt-get install -y cifs-utils apache2 apache2-utils ssl-cert libapache2-mod-wsgi-py3 git
 RUN echo "---->" $(uname -m) "<----"
 RUN case $(uname -m) in *"arm"*) apt install -y libjpeg62-turbo-dev zlib1g-dev gcc;;esac
