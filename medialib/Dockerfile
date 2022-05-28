@@ -13,6 +13,6 @@ RUN echo "medialib build ver is ${medialib_bld_ver}"
 RUN medialib_bld_ver=${medialib_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
-EXPOSE 9001
-EXPOSE 6600
-CMD ["python", "./medialib/_appl_server.py" ]
+#EXPOSE 9001
+#EXPOSE 6600
+#CMD ["python", "./medialib/_appl_server.py" ]
