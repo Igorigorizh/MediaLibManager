@@ -182,7 +182,7 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 		prog = b'ffmpeg'
 	t_all_start = time.time()
 	failed_fpL=[]
-	cpu_num = cpu_count()
+	cpu_num = cpu_count()-1
 	if scenarioD['cue_state']['single_image_CUE']:
 		print("\n\n-------FP generation for CUE scenario:  single_image_CUE-----------")
 		try:
@@ -571,7 +571,6 @@ def worker_fingerprint(file_path):
 
 def count_words_at_url(url):
     """Just an example function that's called async."""
-
     return 20
 
 def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	

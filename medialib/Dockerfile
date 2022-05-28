@@ -13,6 +13,6 @@ RUN echo "medialib cache ver is ${CACHE_VER}"
 RUN CACHE_VER=${CACHE_VER} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
 
-EXPOSE 9001
-EXPOSE 6600
-CMD ["python", "./medialib/_appl_server.py" ]
+#EXPOSE 9001
+#EXPOSE 6600
+#CMD ["python", "./medialib/_appl_server.py" ]
