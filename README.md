@@ -7,7 +7,9 @@ Controls MPD instances asynchronously via web interface on Smart TV, Laptop or S
 
 Runs on x86 platform with Debian 10 incl. docker, also possible with Raspberry Pi incl. docker
 ## Docker compose
-Prerequisite: docker and docker-compose are intalled
+Prerequisite: docker and docker-compose are installed
+1. sudo apt install docker.io
+2.  sudo apt install-compose
 
 docker-compose build -> builds Apache and application images
 
@@ -16,6 +18,8 @@ docker-compose build --build-arg wsgi_bld_ver=$(date +%Y-%s) -> to retrive only 
 docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes in medialib service using date timestamp
 
 docker-compose up -d -> starts complete project
+docker-compose --env-file <path to docker-compose env file>  up -d
+
 ## Direct access to config, log, shares, etc
 config is placed in /var/lib/docker/volumes/medialibmanager_config
 
