@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	#parser.add_argument('--nas_path_prefix', metavar='path', required=True,
         #                help='nas path prefix like //192.168.1.12/folderUSB')	
 	#args = parser.parse_args()
-	nas_path_prefix="//RPI-NAS-OMV/OMVNasUsb"
+	nas_path_prefix="//RPI-NAS-OMV/OMVNasUSB"
 	path_cl = bytes(nas_path_prefix,'utf-8')+b'/MUSIC/ORIGINAL_MUSIC/ORIGINAL_RODINA'	
 	dump_path = bytes('//192.168.1.66/OMVNasUsb/MUSIC/ORIGINAL_MUSIC/ORIGINAL_RODINA/Федор Чистяков/2008 - Ноль - Лучшие песни/fpgen_1652646620.dump','utf-8')
 	with open(dump_path, 'rb') as f:
