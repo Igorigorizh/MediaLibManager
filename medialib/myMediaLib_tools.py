@@ -568,15 +568,25 @@ def worker_fingerprint(file_path):
 		return ((),os.path.split(file_path)[-1])
 	#print(fp[0],os.path.split(file_path)[-1])	
 	return (fp,os.path.split(file_path)[-1])	
+	
+def on_redis_rq_fail(job, connection, type,value, traceback):
+	print('fail:',job.id)
+	connection.set(job.id,'failed')	
+	
+def on_redis_rq_success(job, connection, result,*args):
+	print('success:',job.id)
+	connection.set(job.id,'success')	
 
 def count_words_at_url(url):
     """Just an example function that's called async."""
     return 20
+	
+def on_redis_rq_success(job, connection, result,*args):
+	print('success:',job.id)
+	res = {job.id}	
 
 def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	
-	# Генерация FP и AccuesticIDs по альбомам из указанной дирректории, для загрузок двойных альбомов и других массовых загрузок
-	# d=myMediaLib_adm.do_mass_album_FP_and_AccId('c:\\LocalCodecs','C:\Temp\SharedPreprCD4Lib')
-	
+	# Генерация FP и AccuesticIDs по альбомам из указанной дирректории (folder_node_path), для загрузок двойных альбомов и других массовых загрузок
 	
 	if not os.path.exists(folder_node_path):
 		print('---!Album path Error:%s - not exists'%folder_node_path)
