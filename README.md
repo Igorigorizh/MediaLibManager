@@ -17,7 +17,7 @@ Prerequisite: docker and docker-compose are installed
 
   docker-compose --env-file <path to docker-compose env file>  up -d -> starts complete project
 
-  env config exemple:
+  env config example:
     DEVICE="//192.168.1.99/NasShare"
     DRIVER_OPTIONS="username=<user_name>,password=<password>, <your SMB device connection options>"
 
