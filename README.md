@@ -11,9 +11,9 @@ Prerequisite: docker and docker-compose are installed
 
   docker-compose build -> builds Apache and application images
 
-  docker-compose build --build-arg wsgi_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes in wsgi service using date timestamp
+  docker-compose build --build-arg wsgi_bld_ver=$(date +%Y-%s) -> to retrieve only the last code changes from apache wsgi service using date timestamp
 
-  docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrive only the last code changes in medialib service using date timestamp
+  docker-compose build --build-arg medialib_bld_ver=$(date +%Y-%s) -> to retrieve only the last code changes from medialib service using date timestamp
 
   docker-compose --env-file <path to docker-compose env file>  up -d -> starts complete project
 
