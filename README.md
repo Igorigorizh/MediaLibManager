@@ -7,7 +7,7 @@ Controls MPD instances via web interface on Smart TV, Laptop or Smart phone
 
 Runs on x86 platform with Debian 10 incl. docker, also possible with Raspberry Pi incl. docker
 ## Docker compose
-Prerequisite: docker and docker-compose are installed
+Prerequisite: docker and docker-compose (compose V2) are installed
 
   docker-compose build -> builds Apache and application images
 

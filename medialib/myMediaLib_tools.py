@@ -33,14 +33,68 @@ from myMediaLib_adm import collect_albums_folders
 
 from myMediaLib_CONST import BASE_ENCODING
 from myMediaLib_CONST import mymedialib_cfg
+from myMediaLib_CONST import medialib_fp_cfg
+
+
+from functools import wraps
+
 
 import warnings
+from redis import Redis
+from configparser import ConfigParser
 
 cfgD = readConfigData(mymedialib_cfg)
+
+cfg_fp = ConfigParser()
+cfg_fp.read(medialib_fp_cfg)
 
 logger = logging.getLogger('controller_logger.tools')
 
 musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
+
+redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
+
+def redis_state_notifier(state_name='medialib:', action='progress'):
+	if action == 'progress':
+		try:
+			#print('get:',state_name)
+			redis_connection.incr(state_name, 1)
+			#print('result:',redis_connection.get(state_name))
+		except Exception as e:
+			logger.warning('Redis is not connected %s'%str(e))
+	elif action == 'init':
+		try:
+			#print('get:',state_name)
+			redis_connection.set(state_name,0)
+			#print('result:',redis_connection.get(state_name))
+		except Exception as e:
+			logger.warning('Redis is not connected %s'%str(e))		
+	elif action == 'progress-stop':
+		try:
+			#print('get:',state_name)
+			redis_connection.delete(state_name)
+		except Exception as e:
+			logger.warning('Redis is not connected %s'%str(e))
+
+class JobInternalStateRedisKeeper:
+	# запоминаем аргументы декоратора
+	def __init__(self, state_name='medialib:', action='init'):
+		self._state_name = state_name
+		self._action = action
+	
+
+	# декоратор общего назначения
+	def __call__(self, func):
+		@wraps(func)
+		def wrapper(*args, **kwargs):
+            
+			val = func(*args, **kwargs)
+			redis_state_notifier(self._state_name, self._action)
+			
+			return val
+		return wrapper
+
+
 
 def is_only_one_media_type(filesL):
 	fTypeL = []
@@ -155,7 +209,7 @@ def detect_cue_FP_scenario(album_path,*args):
 	
 	return {'RC':RC,'cue_state':cue_state,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':0,'f_numb':real_track_numb,'cueD':cueD,'normal_trackL':normal_trackL,'error_logL':error_logL}
 
-	
+#@JobInternalStateRedisKeeper(state_name='medialib-job-fp-albums-total-progress',action='progress')		
 def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 	hi_res = False
 	scenarioD = detect_cue_FP_scenario(album_path,*args)
@@ -183,6 +237,9 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 	t_all_start = time.time()
 	failed_fpL=[]
 	cpu_num = cpu_count()-1
+	redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
+	redis_state_notifier('medialib-job-fp-album-progress','init')
+	
 	if scenarioD['cue_state']['single_image_CUE']:
 		print("\n\n-------FP generation for CUE scenario:  single_image_CUE-----------")
 		try:
@@ -216,6 +273,7 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 			
 			
 			res = ''
+
 			start_t = time.time()
 			try:
 				with Pool(cpu_num) as p:
@@ -304,6 +362,8 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 			#print('--MULTY---:',list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL'])))
 			
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
+			
+			
 			try:
 				with Pool(cpu_num) as p:
 					res = p.map_async(worker_fingerprint, [a['orig_file_path'] for a in cueD['orig_file_pathL']]).get()
@@ -356,6 +416,8 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 		if 'multy' in args and 'FP' in  args:
 			#print('--MULTY---:',list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL'])))
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
+			
+			
 			try:
 				with Pool(cpu_num) as p:
 					res = p.map_async(worker_fingerprint, list(map(lambda x: str(join(album_path,x),BASE_ENCODING),scenarioD['normal_trackL']))).get()
@@ -388,7 +450,9 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 	time_stop_diff = time.time()-t_all_start	
 	if 'FP' in  args: 
 		print("\n********** Album FP takes:%i sec.***********************"%(int(time_stop_diff)))	
+	redis_state_notifier('medialib-job-fp-album-progress','progress-stop')
 	
+				
 	time_ACOUSTID_FP_REQ = time.time()
 	if 'ACOUSTID_FP_REQ' in args:
 		print("\n Getting Album ACOUSTID_FP_REQ from https://acoustid.org/ **********************")
@@ -519,7 +583,7 @@ def fp_time_cut(x,cut_sec):
 	else:
 		return x
 
-			
+#@JobInternalStateRedisKeeper(state_name='medialib-job-fp-album-progress',action='progress')		
 def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	#command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'( new_name )
 	failed_fpL = []
@@ -527,6 +591,8 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	f_name = os.path.basename(new_name)			
 	#print (ffmpeg_command)
 	prog = 'ffmpeg'				
+	
+	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	
 	try:
 		#print("Decompressing partly with:",prog)
@@ -558,15 +624,20 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	print("*", end=' ')
 		
 	os.remove(new_name)	
-	return (fp,f_name,failed_fpL)	
 	
+	return (fp,f_name,failed_fpL)
+	
+#@JobInternalStateRedisKeeper(state_name='medialib-job-fp-album-progress',action='progress')	
 def worker_fingerprint(file_path):
+	
+	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	try:
 		fp = acoustid.fingerprint_file(file_path)
 	except  Exception as e:
 		print("Error [%s] in fp gen with:"%(str(e)),file_path)
 		return ((),os.path.split(file_path)[-1])
 	#print(fp[0],os.path.split(file_path)[-1])	
+
 	return (fp,os.path.split(file_path)[-1])	
 	
 def on_redis_rq_fail(job, connection, type,value, traceback):
@@ -585,7 +656,7 @@ def on_redis_rq_success(job, connection, result,*args):
 	print('success:',job.id)
 	res = {job.id}	
 
-def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	
+def do_mass_album_FP_and_AccId(folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	
 	# Генерация FP и AccuesticIDs по альбомам из указанной дирректории (folder_node_path), для загрузок двойных альбомов и других массовых загрузок
 	
 	if not os.path.exists(folder_node_path):
@@ -611,7 +682,10 @@ def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,pr
 	
 	if prev_fpDL:
 		if len(prev_fpDL) > 0:
+			print(len(prev_fpDL),prev_fpDL[0:4])
+			
 			tmp_music_folderL = list(set(music_folderL) - set([a['album_path'] for a in prev_fpDL]))
+			
 			fpDL = prev_fpDL
 			cnt = len(music_folderL) - len(tmp_music_folderL) + 1
 			prev_fpDL_used = True
@@ -620,11 +694,13 @@ def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,pr
 		if fpDL == []:		
 			print('Error with last result folder. Not found in current folders structures')
 			return{'music_folderL':music_folderL,'last_folder':last_folder}
-	print(tmp_music_folderL[0])
+	print(tmp_music_folderL)
+	
 
 	mode_dif = 30
 	t_all_start = time.time()
 	process_time = 	0
+	redis_state_notifier('medialib-job-fp-albums-total-progress','init')
 	for album_path in tmp_music_folderL:
 		fpRD = {}
 		
@@ -664,7 +740,8 @@ def do_mass_album_FP_and_AccId(config,folder_node_path,min_duration,prev_fpDL,pr
 			except Exception as e:
 				print('Error in pickle',e)
 			print('Saved temp dump in:',fname)	
-			
+	
+	redis_state_notifier('medialib-job-fp-albums-total-progress','progress-stop')	
 	d = ''
 	fname=b'fpgen_%i.dump'%int(time.time())
 	dump_path = folder_node_path+fname
@@ -910,7 +987,8 @@ def identify_music_folder(init_dirL,*args):
 	print('Scanning for music folder: Finished in %i sec'%(int(time_stop_diff)))
 	logger.debug('in identify_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'music_folderL':music_folderL}
-	
+
+#@JobInternalStateRedisKeeper(state_name='medialib-job-folder-progress', action='init')		
 def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 	# по умолчанию ищет музыкальную папку в пересечении множеств исходного дерева папок (сохраненного в ml_folder_tree_buf_path)и узла,
 	# который содержит новые данные + если запрошено по наличию папки в таблице album из DB_folderL
@@ -950,7 +1028,11 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 			for a in dirs:
 				if i%100 == 0:
 					print(i, end=' ')
+					
 				i+=1
+				if i%10 == 0:
+					redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
+											
 				#print('---root a',[root],[a])	
 				f_l.append((root,a))
 				#f_l.append(join(root,a))
@@ -1010,6 +1092,8 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 		logger.info('in find_new_music_folder - finished: Buff saved in:%s'%(f_name))
 		return {'resBuf_save':f_name}
 	
+
+	redis_state_notifier(state_name='medialib-job-folder-progress', action='progress-stop')
 	logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
 def quick_check_medialib_utf8_issue(*args):
