@@ -7,7 +7,7 @@ Controls MPD instances asynchronously via web interface on Smart TV, Laptop or S
 
 Runs on x86 platform with Debian 10 incl. docker, also possible with Raspberry Pi incl. docker
 ## Docker compose
-Prerequisite: docker and docker-compose are installed
+Prerequisite: docker and docker-compose (compose V2) are installed
 
   docker-compose build -> builds Apache and application images
 
@@ -17,8 +17,8 @@ Prerequisite: docker and docker-compose are installed
 
   docker-compose --env-file <path to docker-compose env file>  up -d -> starts complete project
 
-  env config exemple:
-    DEVICE="//192.168.1.99/NasShare"
+  env config example:
+    DEVICE="//your-ip-address/NasShare"
     DRIVER_OPTIONS="username=<user_name>,password=<password>, <your SMB device connection options>"
 
 

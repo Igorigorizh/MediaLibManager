@@ -22,11 +22,7 @@ def application(environ, start_response):
 	#p_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9000')
 	#s_appl = xmlrpc.client.ServerProxy('http://'+str(socket.gethostname())+':9001')
 	s_appl = xmlrpc.client.ServerProxy('http://'+host_name+':9001')
-#	output = ['<pre>']
-#	output.append(pformat(environ))
-#	output.append('</pre>')
-	
-#	return output
+
 	path = ''
 	data = ''
 	if '/cover' in environ['REQUEST_URI'] or 'no-image-availabl' in environ['REQUEST_URI']:
@@ -43,10 +39,9 @@ def application(environ, start_response):
 						
 		album_crc32= environ['REQUEST_URI'][pos:pos_2]
 		image_crc32= environ['REQUEST_URI'][pos_2+1:]
-		#data = s_appl.get_image("album_images",{'album_crc32':album_crc32,'image_crc32':image_crc32}).data
 		d = s_appl.get_image("album_images",{'album_crc32':album_crc32,'image_crc32':image_crc32}).data
 		dmp = pickle.loads(d)
-		#os.path.normpath(d)
+
 		try:
 			path = str(base64.b64decode(dmp).decode('utf-8'))
 			path = os.path.normpath(path)
@@ -63,7 +58,6 @@ def application(environ, start_response):
 			pos = environ['REQUEST_URI'].find('/100_cover')+11	
 			id= environ['REQUEST_URI'][pos:]
 
-		#data = s_appl.get_image('search_icon',id).data
 		
 		d = s_appl.get_image('search_icon',id).data
 		dmp = pickle.loads(d)
@@ -123,11 +117,8 @@ def application(environ, start_response):
 			('Cache-Control','private')]				
 			start_response('200 OK', response_headers)
 			return [image]
-##		response_headers = [('Content-type', 'image/jpeg'),
-##	        	('Content-Length', str(len(data))),
-##			('Cache-Control','private')]
+
 	
 	start_response('400 OK', response_headers)
 	
 	return [data]
-##	return output

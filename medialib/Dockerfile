@@ -7,12 +7,8 @@ WORKDIR /home/medialib
 COPY requirements.txt /home/medialib/requirements.txt
 RUN pip3 install -r requirements.txt
 
-
 ARG medialib_bld_ver="unknown"
 RUN echo "medialib build ver is ${medialib_bld_ver}"
 RUN medialib_bld_ver=${medialib_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
-
-#EXPOSE 9001
-#EXPOSE 6600
-#CMD ["python", "./medialib/_appl_server.py" ]
+ENV PYTHONPATH="$PYTHONPATH:./medialib"
