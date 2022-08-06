@@ -502,12 +502,16 @@ def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
 								scoreL.append(max(l))
 					else:
 						print('Error 2-nd time in response %i'%(convDL.index(fp_item)))
-		if len(scoreL) == len(convDL):
-			print('FP score rate:',sum(scoreL)/len(convDL))
-		elif len(scoreL) < len(convDL) and len(scoreL) > 0:
-			print('FP score rate with skipped FP:',sum(scoreL)/len(scoreL),'%i of %i'%(len(scoreL),len(convDL)))
-		else:	
-			print('Wrong FP scoreL:',scoreL)
+		if 	convDL:			
+			if len(scoreL) == len(convDL):
+				print('FP score rate:',sum(scoreL)/len(convDL))
+			elif len(scoreL) < len(convDL) and len(scoreL) > 0:
+				print('FP score rate with skipped FP:',sum(scoreL)/len(scoreL),'%i of %i'%(len(scoreL),len(convDL)))
+			else:	
+				print('Wrong FP scoreL:',scoreL)
+		else:
+			print("Error: convDL is empty")
+			
 	
 		print("********** Album ACOUSTID_FP_REQ request takes:%i sec.***********************"%(int(time.time() - time_ACOUSTID_FP_REQ )))		
 	
