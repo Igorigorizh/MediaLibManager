@@ -9,7 +9,7 @@ from rq import Queue, Worker
 
 import myMediaLib_scheduler
 import pickle
-from time import sleep
+from time import sleep, time
 
 import os
 
@@ -34,8 +34,9 @@ cfg_fp = ConfigParser()
 cfg_fp.read(medialib_fp_cfg)
 
 
-redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
-q = Queue(connection=redis_connection,job_timeout='1h',description='audio_folders_generation')
+#redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
+redis_connection = Redis(host='192.168.1.65', port=cfg_fp['REDIS']['port'], db=0)
+q = Queue(connection=redis_connection,job_timeout=500,description='audio_folders_generation')
 
 def wrap_queue(f):
     @wraps(f)
@@ -47,7 +48,7 @@ def wrap_queue(f):
         return f(*args, **kwargs)
     return newqueue
 	
-new_enqueue = wrap_queue(q.enqueue)	
+#new_enqueue = wrap_queue(q.enqueue)	
 
 if __name__ == '__main__':
 	import argparse
@@ -58,14 +59,15 @@ if __name__ == '__main__':
 	#args = parser.parse_args()
 	nas_path_prefix = "//RPI-NAS-OMV/OMVNasUSB"
 	nas_path_prefix = "/home/medialib/MediaLibManager/music"
-	path_cl = bytes(nas_path_prefix,'utf-8')+b'/MUSIC/ORIGINAL_MUSIC/ORIGINAL_RODINA'	
+	#path_cl = bytes(nas_path_prefix,'utf-8')+b'/MUSIC/ORIGINAL_MUSIC/ORIGINAL_RODINA/'	
 	path_cl = bytes(nas_path_prefix,'utf-8')+b'/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'	
 	dump_path = bytes('//192.168.1.66/OMVNasUsb/MUSIC/ORIGINAL_MUSIC/ORIGINAL_RODINA/Федор Чистяков/2008 - Ноль - Лучшие песни/fpgen_1652646620.dump','utf-8')
 	#with open(dump_path, 'rb') as f:
 	#	sD_prev = pickle.load(f)
 	
 		#sD = myMediaLib_tools.do_mass_album_FP_and_AccId(path_cl,0,sD_prev['fpDL'],sD_prev['music_folderL'],'multy','FP','ACOUSTID_FP_REQ','MB_DISCID_REQ')
-	job_first = new_enqueue(myMediaLib_scheduler.music_folders_generation_scheduler, path_cl, [], [])
+	#job_first = new_enqueue(myMediaLib_scheduler.music_folders_generation_scheduler, path_cl, [], [])
+	job_first = q.enqueue(myMediaLib_scheduler.music_folders_generation_scheduler, path_cl, [], [])
 	while not job_first.result:
 		sleep(.1)
 			
@@ -74,21 +76,22 @@ if __name__ == '__main__':
 		#folderL = myMediaLib_scheduler.music_folders_generation_scheduler(path_cl,[],[])
 	redis_state_notifier('medialib-job-fp-albums-total-progress','init')	
 	for folder_name in folderL:
-		job = new_enqueue(myMediaLib_scheduler.get_FP_and_discID_for_album, folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ')
+		#job = new_enqueue(myMediaLib_scheduler.get_FP_and_discID_for_album, folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ',job_timeout='1h')
+		job = q.enqueue(myMediaLib_scheduler.get_FP_and_discID_for_album, folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ',job_timeout='1h')
 		job_list.append(job)
-	
+	start_time = time()
 	for job in job_list:	
+		album_time = time()
 		while not job.result:
-			print('Album:',redis_connection.get('medialib-job-fp-albums-total-progress'), '  Tracks:',redis_connection.get('medialib-job-fp-album-progress'))
+			print('Album:',redis_connection.get('medialib-job-fp-albums-total-progress'), '  Tracks:',redis_connection.get('medialib-job-fp-album-progress'), 'Album passed:',int(time()-album_time),'Total passed:',int(time()-start_time))
 			sleep(5)
-			if not redis_connection.get('medialib-job-fp-album-progress'):
-				break
+			
 		if 	job.is_finished:	
-			print(job.result['RC'])				
+			print("job.finished",job.id,'RC:',job.result['RC'],'keys:',job.result.keys())				
 		elif job.is_failed:	
 			print("job.failed",job.id)
 		else:
-			print("job.oter status",jo.id)
+			print("job.other status",job.id,'res:',job.result)
 		#sD = myMediaLib_scheduler.mass_FP_scheduler(folderL,0,'multy','FP','ACOUSTID_FP_REQ','MB_DISCID_REQ')
 	
 	#else:

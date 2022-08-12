@@ -15,7 +15,6 @@ from itertools import tee
 import configparser
 
 from redis import Redis
-from rq import Queue, Worker
 
 import musicbrainzngs
 import time
@@ -47,27 +46,7 @@ logger = logging.getLogger('controller_logger.scheduler')
 musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
-q = Queue(connection=redis_connection,job_timeout='1h',description='audio_folders_generation')
 
-def decorate(forig):
-    @wraps(forig)
-    def fnew(*args, **kwargs):
-        args = [Job.fetch(a.removeprefix("_reserved_"), connection=redis_connection).result if isinstance(a, str) and a.startswith("_reserved_") else a for a in args]
-        kwargs = {k:Job.fetch(v.removeprefix("_reserved_"), connection=redis_connection).result if isinstance(v, str) and v.startswith("_reserved_") else v for k,v in kwargs.items()}
-
-        return forig(*args, **kwargs)
-    return fnew
-	
-	
-def wrap_queue(f):
-    @wraps(f)
-    def newqueue(*args, **kwargs):
-        jobs = [a for a in args if isinstance(a, Job)] + [v for v in kwargs.values() if isinstance(v, Job)]
-        args = [f"_reserved_{a.id}" if isinstance(a, Job) else a for a in args]
-        kwargs = {k:f"_reserved_{v.id}" if isinstance(v, Job) else v for k,v in kwargs.items()}
-        kwargs["depends_on"] = kwargs.get("depends_on", []) + jobs
-        return f(*args, **kwargs)
-    return newqueue	
 
 def music_folders_generation_scheduler(folder_node_path, prev_fpDL,prev_music_folderL,*args):	
 	# Генерация линейного списка папок с аудио данным с учетом вложенных папок
@@ -115,7 +94,7 @@ def music_folders_generation_scheduler(folder_node_path, prev_fpDL,prev_music_fo
 	#job_folders_collect = q.enqueue('myMediaLib_tools.find_new_music_folder', [folder_node_path],[],[],'initial')
 	
 
-@decorate
+
 def mass_FP_scheduler(folderL,min_duration,*args):
 	
 	# Промежуточные статусы писать в Redis!!!!	
