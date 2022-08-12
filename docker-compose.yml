@@ -34,7 +34,7 @@ services:
     restart: always
   worker:
     image: medialib
-    command: celery worker --app=worker.celery --loglevel=info --logfile=logs/celery.log
+    command: celery --app=worker.celery worker --loglevel=info --logfile=log/celery.log
     volumes:
       - log:/home/medialib/MediaLibManager/log
       - db:/home/medialib/MediaLibManager/db
