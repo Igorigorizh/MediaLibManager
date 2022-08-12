@@ -32,18 +32,22 @@ services:
     depends_on:
       - webui 
     restart: always
-  rq-worker1:
+  worker:
     image: medialib
-    command: /usr/local/bin/rqworker --path ./medialib/ --url redis://redis --with-scheduler 
+    command: celery worker --app=worker.celery --loglevel=info --logfile=logs/celery.log
     volumes:
       - log:/home/medialib/MediaLibManager/log
       - db:/home/medialib/MediaLibManager/db
       - music:/home/medialib/MediaLibManager/music
       - config:/home/medialib/MediaLibManager/config
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0  
     depends_on:
      - redis
      - medialib
     restart: always
+   
   webui:
     build:
       context: .
@@ -59,6 +63,20 @@ services:
     ports:
       - "80:80"
     restart: always
+    
+  dashboard:
+    image: medialib
+    command:  flower --app=worker.celery --port=5555 --broker=redis://redis:6379/0
+    ports:
+      - "5556:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - medialib
+      - redis
+      - worker
+      
 volumes:
    redis_data:
    config:
