@@ -34,7 +34,8 @@ from myMediaLib_tools import get_FP_and_discID_for_album
 from myMediaLib_tools import find_new_music_folder
 from myMediaLib_tools import redis_state_notifier
 
-from rq.job import Job
+from worker import celery
+
 from functools import wraps
 
 cfgD = readConfigData(mymedialib_cfg)
@@ -47,7 +48,7 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
 
-
+@celery.task(name='myMediaLib_scheduler.music_folders_generation_scheduler')
 def music_folders_generation_scheduler(folder_node_path, prev_fpDL,prev_music_folderL,*args):	
 	# Генерация линейного списка папок с аудио данным с учетом вложенных папок
 	# Промежуточные статусы писать в Redis!!!!
