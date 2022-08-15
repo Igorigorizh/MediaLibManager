@@ -10,6 +10,9 @@ app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
 app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
 app.conf.imports = 'medialib'
+app.conf.task_serializer = 'pickle'
+app.conf.result_serializer = 'pickle'
+app.conf.accept_content = ['application/json', 'application/x-python-serialize']
 
 @app.task(name="hello")
 def hello():
@@ -33,5 +36,5 @@ def base64_convert(func):
 	
 
 	
-music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
-										
+#music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
+music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)										
