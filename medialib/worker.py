@@ -1,6 +1,7 @@
 import os
 import time
 import functools
+import base64
 
 from celery import Celery
 from myMediaLib_scheduler import music_folders_generation_scheduler
