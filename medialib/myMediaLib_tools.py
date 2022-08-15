@@ -210,7 +210,7 @@ def detect_cue_FP_scenario(album_path,*args):
 	return {'RC':RC,'cue_state':cue_state,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':0,'f_numb':real_track_numb,'cueD':cueD,'normal_trackL':normal_trackL,'error_logL':error_logL}
 
 #@JobInternalStateRedisKeeper(state_name='medialib-job-fp-albums-total-progress',action='progress')		
-def get_FP_and_discID_for_album(album_path,fp_min_duration,*args):
+def get_FP_and_discID_for_album(self, album_path,fp_min_duration,*args):
 	hi_res = False
 	scenarioD = detect_cue_FP_scenario(album_path,*args)
 	
