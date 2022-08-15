@@ -21,8 +21,14 @@ def hello():
 def base64_convert(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        #val = func(*args, **kwargs)
-        return base64.b64encode(func(*args, **kwargs))
+        val = func(*args, **kwargs)
+		if type(val) == list:
+			val = [base64.b64encode(a) for a in val]
+		elif type(val) == bytes:
+			val = base64.b64encode(val)
+		elif type(val) == dict:
+			val = [base64.b64encode(val[a]) for a in val]
+        return val
     return wrapper	
 	
 
