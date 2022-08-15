@@ -48,8 +48,8 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
 
-@celery.task(name='music_folders_generation_scheduler')
-def music_folders_generation_scheduler(folder_node_path, prev_fpDL,prev_music_folderL,*args):	
+@app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)
+def music_folders_generation_scheduler(self, folder_node_path, prev_fpDL, prev_music_folderL,*args):	
 	# Генерация линейного списка папок с аудио данным с учетом вложенных папок
 	# Промежуточные статусы писать в Redis!!!!
 	
