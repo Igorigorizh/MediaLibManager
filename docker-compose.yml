@@ -66,9 +66,9 @@ services:
     
   dashboard:
     image: medialib
-    command:  celery --app=worker.app --broker=redis://redis:6379/0 flower --port=5555 
+    command:  celery --broker=redis://redis:6379/0 flower --port=5555 --loglevel=INFO
     ports:
-      - "5555:5555"
+      - "5556:5555"
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
