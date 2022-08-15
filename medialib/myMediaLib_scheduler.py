@@ -34,7 +34,7 @@ from myMediaLib_tools import get_FP_and_discID_for_album
 from myMediaLib_tools import find_new_music_folder
 from myMediaLib_tools import redis_state_notifier
 
-from worker import celery
+from worker import app
 
 from functools import wraps
 
