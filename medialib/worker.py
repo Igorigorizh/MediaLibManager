@@ -5,7 +5,7 @@ import base64
 
 from celery import Celery
 from myMediaLib_scheduler import music_folders_generation_scheduler
-
+from myMediaLib_tools import get_FP_and_discID_for_album
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
 app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
@@ -37,4 +37,22 @@ def base64_convert(func):
 
 	
 #music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
-music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)										
+music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)	
+
+get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)									
+
+if __name__ == '__main__':
+	app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://192.168.1.65:6379")
+	app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://192.168.1.65:6379")
+	
+	task_list = []
+
+	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p2,[],[]))
+	time.sleep(2)
+	print(task_first_res.result)
+	folderL = task_first_res.result
+	for folder_name in folderL:
+		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ'))
+	
+	
