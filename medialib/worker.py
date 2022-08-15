@@ -2,7 +2,7 @@ import os
 import time
 
 from celery import Celery
-
+from myMediaLib_scheduler import music_folders_generation_scheduler
 
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
@@ -14,3 +14,6 @@ def hello():
 	time.sleep(10)
 	print("Hello there")
 	return True
+	
+	
+music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)
