@@ -236,7 +236,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,*args):
 		prog = b'ffmpeg'
 	t_all_start = time.time()
 	failed_fpL=[]
-	cpu_num = cpu_count()-1
+	cpu_num = cpu_count()-2
 	redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
 	redis_state_notifier('medialib-job-fp-album-progress','init')
 	
