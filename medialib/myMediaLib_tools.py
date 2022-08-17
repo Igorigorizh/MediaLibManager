@@ -1094,7 +1094,7 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 		#print(new_folderL)
 	# Collect music folders
 	music_folderL = []
-	file_extL = ['.flac','.mp3','.ape','wv','m4a','dsf']
+	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 	
 	i = 0
 	for new_folder in new_folderL:
