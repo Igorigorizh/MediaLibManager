@@ -39,7 +39,19 @@ def base64_convert(func):
 #music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
 music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)	
 
-get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)									
+
+@app.task
+def callback(result):
+	print('Tuta')
+	print(result)
+	
+
+get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)	
+
+def fp_multy_scheduler(app, path):
+	task_list = []
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p2,[],[]))
+	
 
 if __name__ == '__main__':
 	app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://192.168.1.65:6379")
@@ -48,13 +60,14 @@ if __name__ == '__main__':
 	task_list = []
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
-	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p2,[],[]))
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p2,[],[]),link=callback.s())
 	while not task_first_res.result:
 		time.sleep(.1)
 			
-	print(task_first_res.result)
+	#print(task_first_res.result)
 	folderL = task_first_res.result
 	for folder_name in folderL:
-		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ'))
+		#task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ'))
+		pass
 	
 	
