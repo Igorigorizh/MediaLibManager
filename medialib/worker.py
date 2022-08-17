@@ -40,7 +40,7 @@ def base64_convert(func):
 music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)	
 
 
-@app.task
+@app.task(name="callback")
 def callback(result):
 	print('Tuta')
 	print(result)
