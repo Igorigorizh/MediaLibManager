@@ -252,7 +252,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,*args):
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			image_name = cueD['orig_file_pathL'][0]['orig_file_path']
 			
-			command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
+			command_ffmpeg = b'nice -n -10 ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
 			
 			# Get 4 iterators for image name,  total_sec, start_sec, temp_file_name
 			iter_image_name_1 = iter(image_name for i in range(len(cueD['trackD'])))
