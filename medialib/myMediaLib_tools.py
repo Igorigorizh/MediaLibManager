@@ -605,7 +605,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	print("Worker before ffmmeg pid:",os.getpid())
 	try:
-		nice_value = os.nice(10)	
+		nice_value = os.nice(5)	
 		print('nice_value:',nice_value)	
 	except Exception as e:
 		print('Error in nice:',e)
@@ -649,7 +649,7 @@ def worker_fingerprint(file_path):
 	print("Worker acoustid.fingerprint pid:",os.getpid())
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	try:
-		nice_value = os.nice(10)	
+		nice_value = os.nice(5)	
 		print('nice_value:',nice_value)	
 	except Exception as e:
 		print('Error in nice:',e)
