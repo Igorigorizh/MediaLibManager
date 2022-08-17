@@ -90,7 +90,7 @@ def music_folders_generation_scheduler(self, folder_node_path, prev_fpDL, prev_m
 			print('Error with last result folder. Not found in current folders structures')
 			return{'music_folderL':music_folderL,'last_folder':last_folder}
 			
-	print(tmp_music_folderL)
+	print(tmp_music_folderL,len(tmp_music_folderL))
 	return tmp_music_folderL
 	#job_folders_collect = q.enqueue('myMediaLib_tools.find_new_music_folder', [folder_node_path],[],[],'initial')
 	
