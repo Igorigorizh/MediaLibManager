@@ -54,7 +54,7 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
 
-posix_nice_value = cfg_fp['FP_PROCESS']['posix_nice_value']
+posix_nice_value = int(cfg_fp['FP_PROCESS']['posix_nice_value'])
 
 def redis_state_notifier(state_name='medialib:', action='progress'):
 	if action == 'progress':
