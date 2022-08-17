@@ -258,7 +258,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_redice_num,
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			image_name = cueD['orig_file_pathL'][0]['orig_file_path']
 			
-			command_ffmpeg = b'nice -n -10 ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
+			command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
 			
 			# Get 4 iterators for image name,  total_sec, start_sec, temp_file_name
 			iter_image_name_1 = iter(image_name for i in range(len(cueD['trackD'])))
@@ -603,6 +603,9 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	prog = 'ffmpeg'				
 	
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
+	print("Worker before ffmmeg pid:",os.getpid())
+	nice_value = os.nice(-10)	
+	print('nice_value:,'nice_value)	
 	
 	try:
 		#print("Decompressing partly with:",prog)
@@ -622,8 +625,8 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 		if 'split_only_keep' in args[0]:
 			return (fp,f_name,failed_fpL)	
 	
-	
 	try:
+		
 		fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
 	except  Exception as e:
 		print("Error in fp gen with:",new_name,e)
@@ -640,8 +643,10 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	
 #@JobInternalStateRedisKeeper(state_name='medialib-job-fp-album-progress',action='progress')	
 def worker_fingerprint(file_path):
-	
+	print("Worker acoustid.fingerprint pid:",os.getpid())
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
+	nice_value = os.nice(-10)	
+	print('nice_value:,'nice_value)
 	try:
 		fp = acoustid.fingerprint_file(file_path)
 	except  Exception as e:
