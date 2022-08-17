@@ -616,6 +616,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 		if 'split_only_keep' in args[0]:
 			return (fp,f_name,failed_fpL)	
 	
+	
 	try:
 		fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
 	except  Exception as e:
