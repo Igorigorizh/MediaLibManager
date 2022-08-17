@@ -604,8 +604,11 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	print("Worker before ffmmeg pid:",os.getpid())
-	nice_value = os.nice(-10)	
-	print('nice_value:',nice_value)	
+	try:
+		nice_value = os.nice(-10)	
+		print('nice_value:',nice_value)	
+	except Exception as e:
+		print('Error in nice:',e)
 	
 	try:
 		#print("Decompressing partly with:",prog)
@@ -645,8 +648,12 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 def worker_fingerprint(file_path):
 	print("Worker acoustid.fingerprint pid:",os.getpid())
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
-	nice_value = os.nice(-10)	
-	print('nice_value:',nice_value)	
+	try:
+		nice_value = os.nice(-10)	
+		print('nice_value:',nice_value)	
+	except Exception as e:
+		print('Error in nice:',e)
+		
 	try:
 		fp = acoustid.fingerprint_file(file_path)
 	except  Exception as e:
