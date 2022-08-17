@@ -210,10 +210,11 @@ def detect_cue_FP_scenario(album_path,*args):
 	return {'RC':RC,'cue_state':cue_state,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':0,'f_numb':real_track_numb,'cueD':cueD,'normal_trackL':normal_trackL,'error_logL':error_logL}
 
 #@JobInternalStateRedisKeeper(state_name='medialib-job-fp-albums-total-progress',action='progress')		
-def get_FP_and_discID_for_album(self, album_path,fp_min_duration,*args):
+def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_redice_num,*args):
 	hi_res = False
 	scenarioD = detect_cue_FP_scenario(album_path,*args)
 	
+
 	TOC_dataD = get_TOC_from_log(album_path)
 	
 	guess_TOC_dataD = {}
@@ -236,7 +237,12 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,*args):
 		prog = b'ffmpeg'
 	t_all_start = time.time()
 	failed_fpL=[]
-	cpu_num = cpu_count()-2
+	if 0 < cpu_redice_num < cpu_count():
+		cpu_num = cpu_count()-cpu_redice_num
+	else:
+		cpu_redice_num = 2
+		print("Wrong CPU reduce provided, changed to ",cpu_redice_num)
+		cpu_num = cpu_count()-cpu_redice_num
 	redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
 	redis_state_notifier('medialib-job-fp-album-progress','init')
 	
