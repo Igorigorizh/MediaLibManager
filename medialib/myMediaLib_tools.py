@@ -54,6 +54,8 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
 
+posix_nice_value = cfg_fp['FP_PROCESS']['posix_nice_value']
+
 def redis_state_notifier(state_name='medialib:', action='progress'):
 	if action == 'progress':
 		try:
@@ -604,11 +606,12 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	print("Worker before ffmmeg pid:",os.getpid())
-	try:
-		nice_value = os.nice(10)	
-		print('nice_value:',nice_value)	
-	except Exception as e:
-		print('Error in nice:',e)
+	if os.name == 'posix':
+		try:
+			nice_value = os.nice(posix_nice_value)	
+			print('nice_value:',nice_value)	
+		except Exception as e:
+			print('Error in nice:',e)
 	
 	try:
 		#print("Decompressing partly with:",prog)
@@ -648,11 +651,13 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 def worker_fingerprint(file_path):
 	print("Worker acoustid.fingerprint pid:",os.getpid())
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
-	try:
-		nice_value = os.nice(10)	
-		print('nice_value:',nice_value)	
-	except Exception as e:
-		print('Error in nice:',e)
+	
+	if os.name == 'posix':
+		try:
+			nice_value = os.nice(posix_nice_value)	
+			print('nice_value:',nice_value)	
+		except Exception as e:
+			print('Error in nice:',e)
 		
 	try:
 		fp = acoustid.fingerprint_file(file_path)
