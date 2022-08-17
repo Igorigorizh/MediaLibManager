@@ -46,7 +46,7 @@ def callback(result):
 	folderL = result
 	
 	for folder_name in folderL:
-		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 'multy', 'FP'))
+		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 1, 'multy', 'FP'))
 	
 		
 	print(result)

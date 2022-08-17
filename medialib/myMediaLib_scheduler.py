@@ -112,7 +112,7 @@ def mass_FP_scheduler(folderL,min_duration,*args):
 		try:
 			cnt+=1
 			process_time = 0
-			fpRD = get_FP_and_discID_for_album(album_path,min_duration,*args)
+			fpRD = get_FP_and_discID_for_album(album_path,min_duration, 1,*args)
 			process_time = 	int(time.time()-t_start)
 			fpRD['album_path']=album_path
 			fpRD['process_time'] = process_time
