@@ -210,7 +210,7 @@ def detect_cue_FP_scenario(album_path,*args):
 	return {'RC':RC,'cue_state':cue_state,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':0,'f_numb':real_track_numb,'cueD':cueD,'normal_trackL':normal_trackL,'error_logL':error_logL}
 
 #@JobInternalStateRedisKeeper(state_name='medialib-job-fp-albums-total-progress',action='progress')		
-def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_redice_num,*args):
+def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
 	hi_res = False
 	scenarioD = detect_cue_FP_scenario(album_path,*args)
 	
@@ -237,12 +237,12 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_redice_num,
 		prog = b'ffmpeg'
 	t_all_start = time.time()
 	failed_fpL=[]
-	if 0 < cpu_redice_num < cpu_count():
-		cpu_num = cpu_count()-cpu_redice_num
+	if 0 <= cpu_reduce_num < cpu_count():
+		cpu_num = cpu_count()-cpu_reduce_num
 	else:
-		cpu_redice_num = 2
-		print("Wrong CPU reduce provided, changed to ",cpu_redice_num)
-		cpu_num = cpu_count()-cpu_redice_num
+		cpu_reduce_num = 1
+		print("Wrong CPU reduce provided, changed to ",cpu_reduce_num)
+		cpu_num = cpu_count()-cpu_reduce_num
 	redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
 	redis_state_notifier('medialib-job-fp-album-progress','init')
 	
@@ -605,7 +605,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	print("Worker before ffmmeg pid:",os.getpid())
 	try:
-		nice_value = os.nice(5)	
+		nice_value = os.nice(10)	
 		print('nice_value:',nice_value)	
 	except Exception as e:
 		print('Error in nice:',e)
@@ -649,7 +649,7 @@ def worker_fingerprint(file_path):
 	print("Worker acoustid.fingerprint pid:",os.getpid())
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	try:
-		nice_value = os.nice(5)	
+		nice_value = os.nice(10)	
 		print('nice_value:',nice_value)	
 	except Exception as e:
 		print('Error in nice:',e)
