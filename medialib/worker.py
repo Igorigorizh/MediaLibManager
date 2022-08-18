@@ -44,7 +44,7 @@ music_folders_generation_scheduler = app.task(name='music_folders_generation_sch
 @app.task(name="worker.callback_acoustID_request")
 def callback_acoustID_request(result):
 	API_KEY = 'cSpUJKpD'
-    meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
+	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	reqL = []
 	for fp_item in result['convDL']:
 		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta)
@@ -54,7 +54,7 @@ def callback_acoustID_request(result):
 def callback_FP_gen(result):
 	folderL = result
 	for folder_name in folderL:
-		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 0, 'multy', 'FP'), link=callback_acoustID_request.s())
+		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 1, 'multy', 'FP'), link=callback_acoustID_request.s())
 		
 
 	
