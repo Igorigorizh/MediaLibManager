@@ -47,7 +47,7 @@ def callback_acoustID_request(result):
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	reqL = []
 	for fp_item in result['convDL']:
-		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta)
+		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta))
 		
 
 @app.task(name="worker.callback_FP_gen")
