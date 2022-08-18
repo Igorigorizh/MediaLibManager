@@ -1,11 +1,13 @@
 import os
 import time
 import functools
+import acoustid
 import base64
 
 from celery import Celery
 from myMediaLib_scheduler import music_folders_generation_scheduler
 from myMediaLib_tools import get_FP_and_discID_for_album
+
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
 app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
@@ -39,16 +41,28 @@ def base64_convert(func):
 #music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
 music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)	
 
+@app.task(name="worker.callback_acoustID_request")
+def callback_acoustID_request(result):
 
-@app.task(name="worker.callback")
-def callback(result):
+    API_KEY = 'cSpUJKpD'
+    meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
+	reqL = []
+	for fp_item in result['convDL']:
+		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta)
+		
+
+@app.task(name="worker.callback_FP_gen")
+def callback_FP_gen(result):
 	folderL = result
 	for folder_name in folderL:
-		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 0, 'multy', 'FP'))
+		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 0, 'multy', 'FP'), link=callback_acoustID_request.s())
+		
 
 	
 
-get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)	
+get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)
+acoustid.lookup = app.task(name='acoustid.lookup',bind=True)(acoustid.lookup)
+	
 
 def fp_multy_scheduler(app, path):
 	task_list = []
@@ -64,14 +78,9 @@ if __name__ == '__main__':
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
-	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p4,[],[]),link=callback.s())
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p4,[],[]),link=callback_FP_gen.s())
 	
-	folderL = []		
-	#print(task_first_res.result)
-	if task_first_res.result:
-		folderL = task_first_res.result
-	for folder_name in folderL:
-		#task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 'multy', 'FP', 'ACOUSTID_FP_REQ', 'MB_DISCID_REQ'))
-		pass
+
+
 	
 	
