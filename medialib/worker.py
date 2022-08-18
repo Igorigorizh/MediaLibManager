@@ -43,8 +43,7 @@ music_folders_generation_scheduler = app.task(name='music_folders_generation_sch
 
 @app.task(name="worker.callback_acoustID_request")
 def callback_acoustID_request(result):
-
-    API_KEY = 'cSpUJKpD'
+	API_KEY = 'cSpUJKpD'
     meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	reqL = []
 	for fp_item in result['convDL']:
@@ -78,7 +77,7 @@ if __name__ == '__main__':
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
-	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p4,[],[]),link=callback_FP_gen.s())
+	task_first_res = app.send_task('@-new_recogn_name',(p3,[],[]),link=callback_FP_gen.s())
 	
 
 
