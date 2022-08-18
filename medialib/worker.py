@@ -48,9 +48,12 @@ def callback_acoustID_request(result):
 	reqL = []
 	print('try acoustId call')
 	for fp_item in result['convDL']:
-		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta))
+		print('fp[1]',fp_item['fp'][1])
+		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][0], fp_item['fp'][1],meta))
 		print('acoustId call:',response)	
+		
 	print('acoustId call - OK')	
+	return result['convDL']
 		
 
 @app.task(name="worker.callback_FP_gen")
