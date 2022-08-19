@@ -605,11 +605,10 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	prog = 'ffmpeg'				
 	
 	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
-	print("Worker before ffmmeg pid:",os.getpid())
+	#print("Worker before ffmmeg pid:",os.getpid())
 	if os.name == 'posix':
 		try:
 			nice_value = os.nice(posix_nice_value)	
-			print('nice_value:',nice_value)	
 		except Exception as e:
 			print('Error in nice:',e)
 	
@@ -625,7 +624,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decompression of [%i]'%(int(num))]}
 	
 	fp = []
-	print("+", end=' ')
+	#print("+", end=' ')
 	
 	if len(args)>0:
 		if 'split_only_keep' in args[0]:
@@ -641,7 +640,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 		os.rename(new_name,new_name.replace(f_name,bytes(str(time.time()).replace('.','_'),BASE_ENCODING)+f_name))
 		failed_fpL.append((new_name,e))
 
-	print("*", end=' ')
+	#print("*", end=' ')
 		
 	os.remove(new_name)	
 	
@@ -2536,6 +2535,11 @@ async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
     meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
     return acoustid.lookup(API_KEY, fp[1], fp[0],meta)	
+	
+def acoustID_lookup_celery_wrapper(self,fp):
+    API_KEY = 'cSpUJKpD'
+    meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
+    return acoustid.lookup(API_KEY, fp[1], fp[0],meta)		
 	
 async def acoustID_lookup_wrapper_parent(fp):
     return await acoustID_lookup_wrapper(fp)	
