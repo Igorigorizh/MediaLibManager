@@ -674,9 +674,6 @@ def on_redis_rq_success(job, connection, result,*args):
 	print('success:',job.id)
 	connection.set(job.id,'success')	
 
-def count_words_at_url(url):
-    """Just an example function that's called async."""
-    return 20
 	
 def on_redis_rq_success(job, connection, result,*args):
 	print('success:',job.id)
@@ -1092,22 +1089,14 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 		#print(new_folderL)
 	# Collect music folders
 	music_folderL = []
-	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 	
-	i = 0
-	for new_folder in new_folderL:
-		#print("new_folder:",[new_folder])
-		for root, dirs, files in os.walk(new_folder):
-			for a in files:
-				if os.path.splitext(a)[-1] in file_extL:
-					if root not in music_folderL:
-						#print('2 root',[root])
-						if i%100 == 0:
-							print(i, end=' ')
-						i+=1
-						music_folderL.append(root)
-
-						break
+	music_folderL = collect_media_files_in_folder_list(new_folderL)
+	
+	# check if initial folder root folder itself containes media
+	if not new_folderL and not prev_folderL and not music_folderL:
+		music_folderL = collect_media_files_in_folder_list(init_dirL)
+						
+	
 	
 	music_folderL = list(set(map(lambda x: x.replace('\\','/'),music_folderL)))	
 	if resBuf_save_file_name != '':
@@ -1122,6 +1111,26 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 	redis_state_notifier(state_name='medialib-job-folder-progress', action='progress-stop')
 	logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
+	
+def collect_media_files_in_folder_list(folderL):
+	music_folderL = []
+	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
+	i = 0
+		#print("new_folder:",[new_folder])
+	for new_folder in folderL:	
+		for root, dirs, files in os.walk(new_folder):
+			for a in files:
+				if os.path.splitext(a)[-1] in file_extL:
+					if root not in music_folderL:
+						#print('2 root',[root])
+						if i%100 == 0:
+							print(i, end=' ')
+						i+=1
+						music_folderL.append(root)
+						break
+	return 	music_folderL				
+					
+
 def quick_check_medialib_utf8_issue(*args):
 	# быстрая проверка таблиц на соответствие unicode
 	mlDL = [{'table':'album','filedL':['path','album','search_term']},
@@ -2529,17 +2538,18 @@ def  get_release_from_acoustId_resp_list_via_track_number(acoustId_respL,track_n
 			
 	return 
 		
+def acoustID_lookup_celery_wrapper(self,*fp):
+	print('fp:',fp)
+	API_KEY = 'cSpUJKpD'
+	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
+	return acoustid.lookup(API_KEY, fp[1], fp[0],meta)	
 	
 async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
     meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
     return acoustid.lookup(API_KEY, fp[1], fp[0],meta)	
 	
-def acoustID_lookup_celery_wrapper(self,fp,*args):
-	print('fp:',fp,'args:',args)
-	API_KEY = 'cSpUJKpD'
-	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
-	return acoustid.lookup(API_KEY, fp[1], fp[0],meta)		
+	
 	
 async def acoustID_lookup_wrapper_parent(fp):
     return await acoustID_lookup_wrapper(fp)	
