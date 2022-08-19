@@ -44,13 +44,15 @@ music_folders_generation_scheduler = app.task(name='music_folders_generation_sch
 
 @app.task(name="worker.callback_acoustID_request")
 def callback_acoustID_request(result):
+	#acoustID.lookup(apikey, fingerprint, duration)
 	API_KEY = 'cSpUJKpD'
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	reqL = []
 	print('try acoustId call')
 	for fp_item in result['convDL']:
 		print('fp item fp:',fp_item['fp'],fp_item['fname'])
-		response = app.send_task('acoustID_lookup_celery_wrapper',(fp_item['fp'],fp_item['fname']))
+		wrapper_args = {'fp':fp_item['fp'][1],'duration':fp_item['fp'][0],'fname':fp_item['fname']}
+		response = app.send_task('acoustID_lookup_celery_wrapper',(wrapper_args))
 		print('acoustId call:',response)	
 		
 	print('acoustId call - OK')	
@@ -81,7 +83,7 @@ if __name__ == '__main__':
 	app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://192.168.1.65:6379")
 	app.control.purge()
 	#acoustID_lookup_celery_wrapper(1,2)
-	exit(1)
+	#exit(1)
 	task_list = []
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/1983 Pink Floyd - The Final Cut'
