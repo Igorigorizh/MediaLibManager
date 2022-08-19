@@ -60,6 +60,7 @@ def callback_acoustID_request(result):
 @app.task(name="worker.callback_FP_gen")
 def callback_FP_gen(result):
 	folderL = result
+	#applicable  only for cue image scenario
 	for folder_name in folderL:
 		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 1, 'multy', 'FP'), link=callback_acoustID_request.s())
 		
