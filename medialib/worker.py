@@ -50,7 +50,7 @@ def callback_acoustID_request(result):
 	print('try acoustId call')
 	for fp_item in result['convDL']:
 		print('fp item fp:',fp_item['fp'])
-		response = app.send_task('acoustID_lookup_celery_wrapper',(fp_item['fp'][1], fp_item['fp'][0]))
+		response = app.send_task('acoustID_lookup_celery_wrapper',(fp_item['fp']))
 		print('acoustId call:',response)	
 		
 	print('acoustId call - OK')	
@@ -84,6 +84,7 @@ if __name__ == '__main__':
 	task_list = []
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/1983 Pink Floyd - The Final Cut'
+	p5 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/_HI_RES/1975 - Wish You Were Here (SACD-R)'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
 	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p4,[],[]),link=callback_FP_gen.s())
 	
