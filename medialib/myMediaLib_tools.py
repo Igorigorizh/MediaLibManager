@@ -2538,13 +2538,12 @@ def  get_release_from_acoustId_resp_list_via_track_number(acoustId_respL,track_n
 			
 	return 
 		
-def acoustID_lookup_celery_wrapper(self,**fp_kargs):
-	#acoustID.lookup(apikey, fingerprint, duration)
-	print('fp:',fp_kargs)
+def acoustID_lookup_celery_wrapper(self,*fp_args):
+	print('fp:',fp_args)
 	API_KEY = 'cSpUJKpD'
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
-	resp=acoustid.lookup(API_KEY, fp_kargs['fp'], fp_kargs['duration'],meta)
-	return {'resp':resp,'fname':fp_kargs['fname']}
+	resp=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
+	return {'resp':resp,'fname':fp_args[2]}
 	
 async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
