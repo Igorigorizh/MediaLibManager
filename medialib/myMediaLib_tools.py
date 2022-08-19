@@ -654,7 +654,6 @@ def worker_fingerprint(file_path):
 	if os.name == 'posix':
 		try:
 			nice_value = os.nice(posix_nice_value)	
-			print('nice_value:',nice_value)	
 		except Exception as e:
 			print('Error in nice:',e)
 		
