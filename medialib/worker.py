@@ -49,8 +49,8 @@ def callback_acoustID_request(result):
 	reqL = []
 	print('try acoustId call')
 	for fp_item in result['convDL']:
-		print('fp item fp:',fp_item['fp'])
-		response = app.send_task('acoustID_lookup_celery_wrapper',(fp_item['fp']))
+		print('fp item fp:',fp_item['fp'],fp_item['fname'])
+		response = app.send_task('acoustID_lookup_celery_wrapper',(fp_item['fp'],fp_item['fname']))
 		print('acoustId call:',response)	
 		
 	print('acoustId call - OK')	
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://192.168.1.65:6379")
 	app.control.purge()
 	#acoustID_lookup_celery_wrapper(1,2)
-	#exit(1)
+	exit(1)
 	task_list = []
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/1983 Pink Floyd - The Final Cut'
