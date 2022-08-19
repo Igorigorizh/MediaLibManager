@@ -462,7 +462,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	
 				
 	time_ACOUSTID_FP_REQ = time.time()
-	if 'ACOUSTID_FP_REQ' in args:
+	if 'ACOUSTID_FP_REQ' in args and 'LOCAL' in args:
 		print("\n Getting Album ACOUSTID_FP_REQ from https://acoustid.org/ **********************")
 		err_cnt = 0
 		scoreL = []
@@ -2538,11 +2538,12 @@ def  get_release_from_acoustId_resp_list_via_track_number(acoustId_respL,track_n
 			
 	return 
 		
-def acoustID_lookup_celery_wrapper(self,*fp):
+def acoustID_lookup_celery_wrapper(self,*fp,fname):
 	print('fp:',fp)
 	API_KEY = 'cSpUJKpD'
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
-	return acoustid.lookup(API_KEY, fp[1], fp[0],meta)	
+	resp=acoustid.lookup(API_KEY, fp[1], fp[0],meta)
+	return {'resp':resp,'fname':fname}
 	
 async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
