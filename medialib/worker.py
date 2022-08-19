@@ -7,6 +7,7 @@ import base64
 from celery import Celery
 from myMediaLib_scheduler import music_folders_generation_scheduler
 from myMediaLib_tools import get_FP_and_discID_for_album
+from myMediaLib_tools import acoustID_lookup_celery_wrapper
 
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
@@ -48,8 +49,8 @@ def callback_acoustID_request(result):
 	reqL = []
 	print('try acoustId call')
 	for fp_item in result['convDL']:
-		print('fp[1]',fp_item['fp'][1])
-		response = app.send_task('acoustid.lookup',(API_KEY, fp_item['fp'][0], fp_item['fp'][1],meta))
+		print('fp',fp_item['fp'])
+		response = app.send_task('acoustID_lookup_celery_wrapper',(API_KEY, fp_item['fp'][1], fp_item['fp'][0],meta))
 		print('acoustId call:',response)	
 		
 	print('acoustId call - OK')	
@@ -66,7 +67,7 @@ def callback_FP_gen(result):
 	
 
 get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)
-acoustid.lookup = app.task(name='acoustid.lookup',bind=True)(acoustid.lookup)
+acoustID_lookup_celery_wrapper = app.task(name='acoustID_lookup_celery_wrapper',bind=True)(acoustID_lookup_celery_wrapper)
 	
 
 def fp_multy_scheduler(app, path):
@@ -81,9 +82,9 @@ if __name__ == '__main__':
 	#exit(1)
 	task_list = []
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
-	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd'
+	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/_HI_RES'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
-	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p3,[],[]),link=callback_FP_gen.s())
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p4,[],[]),link=callback_FP_gen.s())
 	
 
 
