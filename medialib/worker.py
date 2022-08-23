@@ -51,7 +51,7 @@ def callback_acoustID_request(result):
 	print('try acoustId call')
 	for fp_item in result['convDL']:
 		print('fp item fp:',fp_item['fp'],fp_item['fname'])
-		wrapper_args = (fp_item['fp'][0],fp_item['fp'][1],fp_item['fname'])
+		wrapper_args = (fp_item['fp'][0],fp_item['fp'][1],fp_item['fname'],fp_item['album_path'])
 		response = app.send_task('acoustID_lookup_celery_wrapper',(wrapper_args))
 		print('acoustId call:',response)	
 		
@@ -87,9 +87,9 @@ if __name__ == '__main__':
 	task_list = []
 	p3 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar'
 	p4 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/1983 Pink Floyd - The Final Cut'
-	p5 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/_HI_RES/1975 - Wish You Were Here (SACD-R)'
+	p5 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/_HI_RES/1975 - Wish You Were Here (SACD-R)'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
-	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p4,[],[]),link=callback_FP_gen.s())
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p5,[],[]),link=callback_FP_gen.s())
 	
 
 
