@@ -288,7 +288,8 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 					res = p.starmap_async(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params)).get()
 			except Exception as e:
 				print("Caught exception in map_async 1",str(e))
-				p.terminate()
+				return {'RC':-1,'cueD':cueD}
+				#p.terminate()
 			#	p.join()
 			p.join()	
 			print('\n -----  album splite FP calc processing finished in [%i]sec'%(time.time()-start_t))
@@ -457,7 +458,8 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 			
 	time_stop_diff = time.time()-t_all_start	
 	if 'FP' in  args: 
-		print("\n********** Album FP takes:%i sec.***********************"%(int(time_stop_diff)))	
+		print("\n********** Album FP takes:%i sec.***********************"%(int(time_stop_diff)))
+		
 	redis_state_notifier('medialib-job-fp-album-progress','progress-stop')
 	
 				
@@ -588,7 +590,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	
 	print("********** Album process in total takes:%i sec.***********************"%(int(time.time() - t_all_start )))
 	
-	return{'RC':len(convDL),'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD,'MB_discID':MB_discID_result,'convDL':convDL,'discID':str(discID),'failed_fpL':failed_fpL,'guess_TOC_dataD':guess_TOC_dataD,'hi_res':hi_res}
+	return{'RC':len(convDL),'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD,'MB_discID':MB_discID_result,'convDL':convDL,'discID':str(discID),'failed_fpL':failed_fpL,'guess_TOC_dataD':guess_TOC_dataD,'hi_res':hi_res,'album_path':album_path}
 def fp_time_cut(x,cut_sec):
 	if x > cut_sec:
 		return cut_sec
@@ -2544,6 +2546,9 @@ def acoustID_lookup_celery_wrapper(self,*fp_args):
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	resp=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
 	return {'resp':resp,'fname':fp_args[2]}
+	
+	
+	
 	
 async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
