@@ -379,7 +379,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 					
 			except Exception as e:
 				print("Caught exception in map_async 2",e)
-				p.terminate()
+				return {'RC':-1,'cueD':cueD}	
 			#	p.join()
 			p.join()	
 			#print(res)
@@ -433,7 +433,8 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 					
 			except Exception as e:
 				print("Caught exception in map_async 3",e)
-				p.terminate()
+				return {'RC':-2,'normal_trackL':scenarioD['normal_trackL']}
+				#p.terminate()
 			#	p.join()
 			p.join()	
 			try:	
