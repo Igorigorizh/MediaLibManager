@@ -1096,7 +1096,7 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 	music_folderL = collect_media_files_in_folder_list(new_folderL)
 	
 	# check if initial folder root folder itself containes media
-	if not new_folderL and not prev_folderL and not music_folderL:
+	if not music_folderL:
 		music_folderL = collect_media_files_in_folder_list(init_dirL)
 						
 	
