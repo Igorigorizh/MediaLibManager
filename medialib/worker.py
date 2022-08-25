@@ -53,7 +53,7 @@ def callback_acoustID_request(result):
 		return {'RC':-4}
 	for fp_item in result['convDL']:
 		print('fp item fp:',fp_item['fp'],fp_item['fname'])
-		wrapper_args = (fp_item['fp'][0],fp_item['fp'][1],fp_item['fname'],fp_item['album_path'])
+		wrapper_args = (fp_item['fp'][0],fp_item['fp'][1],fp_item['fname'],result['album_path'])
 		response = app.send_task('acoustID_lookup_celery_wrapper',(wrapper_args))
 		print('acoustId call:',response)	
 		
