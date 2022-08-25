@@ -11,4 +11,5 @@ ARG medialib_bld_ver="unknown"
 RUN echo "medialib build ver is ${medialib_bld_ver}"
 RUN medialib_bld_ver=${medialib_bld_ver} git clone https://github.com/Igorigorizh/MediaLibManager.git
 WORKDIR /home/medialib/MediaLibManager
-ENV PYTHONPATH="/home/medialib/MediaLibManager/medialib"
+#ENV PYTHONPATH="/home/medialib/MediaLibManager/medialib"
+ENV PYTHONPATH="$PYTHONPATH:./medialib"

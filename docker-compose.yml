@@ -32,21 +32,6 @@ services:
     depends_on:
       - webui 
     restart: always
-  worker:
-    image: medialib
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0  
-    volumes:
-      - log:/home/medialib/MediaLibManager/
-      - db:/home/medialib/MediaLibManager/db
-      - music:/home/medialib/MediaLibManager/music
-      - config:/home/medialib/MediaLibManager/config  
-    command: celery --app=worker.app worker -P threads --concurrency=1 --loglevel=info --logfile=log/celery.log  
-    depends_on:
-     - redis
-     - medialib
-    restart: always
    
   webui:
     build:
@@ -63,6 +48,22 @@ services:
     ports:
       - "80:80"
     restart: always
+    
+  worker:
+    image: medialib
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0  
+    volumes:
+      - log:/home/medialib/MediaLibManager/
+      - db:/home/medialib/MediaLibManager/db
+      - music:/home/medialib/MediaLibManager/music
+      - config:/home/medialib/MediaLibManager/config  
+    command: celery --app=worker.app worker -P threads --concurrency=1 --loglevel=info --logfile=log/celery.log  
+    depends_on:
+     - redis
+     - medialib
+    restart: always 
     
   dashboard:
     image: medialib
