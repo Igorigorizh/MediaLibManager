@@ -55,7 +55,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0  
     volumes:
-      - log:/home/medialib/MediaLibManager/
+      - log:/home/medialib/MediaLibManager/log
       - db:/home/medialib/MediaLibManager/db
       - music:/home/medialib/MediaLibManager/music
       - config:/home/medialib/MediaLibManager/config  
