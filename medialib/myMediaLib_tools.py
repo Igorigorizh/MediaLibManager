@@ -2546,6 +2546,7 @@ def acoustID_lookup_celery_wrapper(self,*fp_args):
 	API_KEY = 'cSpUJKpD'
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	resp=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
+	print(resp)
 	return {'resp':resp,'fname':fp_args[2]}
 	
 	
