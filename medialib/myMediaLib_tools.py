@@ -2597,7 +2597,7 @@ def MB_get_releases_by_discid_celery_wrapper(self,*discID_arg):
 	if 'disc' not in MB_discID_result:	
 		return {'RC':-7,'error':'DiskID MB - NOT detected','MB_discID_result':MB_discID_result}
 	
-	print('Toc:',discID.toc_string)	
+		
 	return {'RC':1,'MB_discID_result':MB_discID_result}
 	
 async def acoustID_lookup_wrapper(fp):
