@@ -69,7 +69,7 @@ def callback_MB_get_releases_by_discid_request(result):
 	if 'discID' not in result:
 		return {'RC':-4}
 		
-	wrapper_args = (result['discID'])	
+	wrapper_args = ((result['discID'],))	
 	response = app.send_task('MB_get_releases_by_discid_celery_wrapper',(wrapper_args))
 	print('MB call:',response)
 	return response	
