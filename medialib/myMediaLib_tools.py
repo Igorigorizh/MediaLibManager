@@ -526,6 +526,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	
 		print("********** Album ACOUSTID_FP_REQ request takes:%i sec.***********************"%(int(time.time() - time_ACOUSTID_FP_REQ )))		
 	
+	# Выделеить в отдельную функцию
 	TOC_src = ''
 	
 	time_discid_MB_REQ = time.time()
@@ -591,7 +592,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	
 	print("********** Album process in total takes:%i sec.***********************"%(int(time.time() - t_all_start )))
 	
-	return{'RC':len(convDL),'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD,'MB_discID':MB_discID_result,'convDL':convDL,'discID':str(discID),'failed_fpL':failed_fpL,'guess_TOC_dataD':guess_TOC_dataD,'hi_res':hi_res,'album_path':album_path}
+	return{'RC':len(convDL),'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD,'MB_discID':MB_discID_result,'convDL':convDL,'discID':str(discID),'failed_fpL':failed_fpL,'guess_TOC_dataD':guess_TOC_dataD,'hi_res':hi_res,'album_path':album_path,'TOC_src':TOC_src}
 def fp_time_cut(x,cut_sec):
 	if x > cut_sec:
 		return cut_sec
@@ -2548,9 +2549,24 @@ def acoustID_lookup_celery_wrapper(self,*fp_args):
 	resp=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
 	print(resp)
 	return {'resp':resp,'fname':fp_args[2]}
-	
-	
-	
+
+def MB_get_releases_by_discid_celery_wrapper(self,*discID_arg):	
+	discID = discID_arg[0]
+	MB_discID_result = ''
+	try:
+		MB_discID_result = musicbrainzngs.get_releases_by_discid(discID,includes=["artists","recordings","release-groups"])
+	except Exception as e:
+		print(e)
+		return {'RC':-6,'error':str(e)}
+		
+	if 'disc' in MB_discID_result:	
+		print("DiskID MB - OK", MB_discID_result['disc']['id'],TOC_src) 	
+		MB_discID_result['TOC_src'] = TOC_src
+	else:
+		print("DiskID MB - NOT detected")	
+		return {'RC':-7,'error':'DiskID MB - NOT detected','MB_discID_result':MB_discID_result}
+		
+	return return {'RC':1,'MB_discID_result':MB_discID_result}
 	
 async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
