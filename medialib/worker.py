@@ -10,7 +10,7 @@ from celery import group
 from myMediaLib_scheduler import music_folders_generation_scheduler
 from myMediaLib_tools import get_FP_and_discID_for_album
 from myMediaLib_tools import acoustID_lookup_celery_wrapper
-from myMediaLib_tools import callback_MB_get_releases_by_discid_request
+from myMediaLib_tools import MB_get_releases_by_discid_celery_wrapper
 
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
@@ -40,7 +40,7 @@ def base64_convert(func):
 		return val
 	return wrapper	
 
-fp_post_processing_req = group(callback_MB_get_releases_by_discid_request.s(), callback_acoustID_request.s())	
+	
 
 	
 #music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
@@ -84,10 +84,11 @@ def callback_FP_gen(result):
 		
 
 
-
 get_FP_and_discID_for_album = app.task(name='get_FP_and_discID_for_album',bind=True)(get_FP_and_discID_for_album)
 acoustID_lookup_celery_wrapper = app.task(name='acoustID_lookup_celery_wrapper',bind=True)(acoustID_lookup_celery_wrapper)
 MB_get_releases_by_discid_celery_wrapper = app.task(name='MB_get_releases_by_discid_celery_wrapper',bind=True)(MB_get_releases_by_discid_celery_wrapper)	
+
+fp_post_processing_req = group(callback_MB_get_releases_by_discid_request.s(), callback_acoustID_request.s())
 
 def fp_multy_scheduler(app, path):
 	task_list = []

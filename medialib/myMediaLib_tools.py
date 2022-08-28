@@ -2543,12 +2543,47 @@ def  get_release_from_acoustId_resp_list_via_track_number(acoustId_respL,track_n
 	return 
 		
 def acoustID_lookup_celery_wrapper(self,*fp_args):
+	scoreL = fp_item = []
+	err_cnt = 0
+	
 	print('fp:',fp_args)
 	API_KEY = 'cSpUJKpD'
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
-	resp=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
-	print(resp)
-	return {'resp':resp,'fname':fp_args[2]}
+	response=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
+	print(response)
+	
+	# if 'error' in response:
+		# err_cnt+=1
+	# else:
+		# if 'results' in response:
+			# l = [item['score'] for item in response['results']  if 'score' in item]
+			# if l != []:
+				# scoreL.append(max(l))
+	# if response == {'results': [], 'status': 'ok'}:
+		# duration_init = fp_args[0]
+		# fp_item = list(fp_args)
+		# print('\n Empty FP response. duration [%s], trying to guess duration'%str(duration_init))
+		# for i in range(1,10):
+			# fp_item[0] = fp_item[0] - i
+			# response=acoustid.lookup(API_KEY, fp_item[1], fp_item[0],meta)
+			# if response != {'results': [], 'status': 'ok'}:
+				# if 'results' in response:
+					# print('Succeceed with duration:',fp_item['fp'][0])
+					# l = [item['score'] for item in response['results']  if 'score' in item]
+					# if l != []:
+						# scoreL.append(max(l))
+						
+					# break
+		# if response == {'results': [], 'status': 'ok'}:		
+			# fp_item['fp'][0] = duration_init
+					
+		# fp_item['response'] = response
+	
+	
+	
+	
+	
+	return {'response':response,'fname':fp_args[2]}
 
 def MB_get_releases_by_discid_celery_wrapper(self,*discID_arg):	
 	discID = discID_arg[0]
@@ -2559,14 +2594,10 @@ def MB_get_releases_by_discid_celery_wrapper(self,*discID_arg):
 		print(e)
 		return {'RC':-6,'error':str(e)}
 		
-	if 'disc' in MB_discID_result:	
-		print("DiskID MB - OK", MB_discID_result['disc']['id'],TOC_src) 	
-		MB_discID_result['TOC_src'] = TOC_src
-	else:
-		print("DiskID MB - NOT detected")	
+	if 'disc' not in MB_discID_result:	
 		return {'RC':-7,'error':'DiskID MB - NOT detected','MB_discID_result':MB_discID_result}
 		
-	return return {'RC':1,'MB_discID_result':MB_discID_result}
+	return {'RC':1,'MB_discID_result':MB_discID_result}
 	
 async def acoustID_lookup_wrapper(fp):
     API_KEY = 'cSpUJKpD'
