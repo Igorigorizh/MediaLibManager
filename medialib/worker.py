@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	p6 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/Pink Floyd - Dark Side Of The Moon (1973) [MFSL UDCD II 517]/'
 	#task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p6,[],[]),link=callback_FP_gen.s())
 	path = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC'
-	task_first_res = app.send_task('find_new_music_folder',([path],[],[],'initial'))
+	task_first_res = app.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial'))
 	print(task_first_res,type(task_first_res))
 	
 	
