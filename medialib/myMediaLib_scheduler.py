@@ -69,7 +69,7 @@ def music_folders_generation_scheduler(self, folder_node_path, prev_fpDL, prev_m
 			music_folderL = prev_music_folderL
 			print("Media Folders structure is taken from prev music_folderL with len:",len(music_folderL))
 	else:	
-		dirL = find_new_music_folder([folder_node_path],[],[],'initial')
+		dirL = find_new_music_folder(self,[folder_node_path],[],[],'initial')
 		music_folderL = list(map(lambda x: bytes(x+'/',BASE_ENCODING),dirL['music_folderL']))
 		print("Media folders structure build with initial folders:",len(music_folderL))
 	
