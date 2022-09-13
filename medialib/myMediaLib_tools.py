@@ -41,6 +41,7 @@ from functools import wraps
 
 import warnings
 from redis import Redis
+from celery_progress.backend import ProgressRecorder
 from configparser import ConfigParser
 
 cfgD = readConfigData(mymedialib_cfg)
@@ -212,7 +213,7 @@ def detect_cue_FP_scenario(album_path,*args):
 	return {'RC':RC,'cue_state':cue_state,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':0,'f_numb':real_track_numb,'cueD':cueD,'normal_trackL':normal_trackL,'error_logL':error_logL}
 
 #@JobInternalStateRedisKeeper(state_name='medialib-job-fp-albums-total-progress',action='progress')		
-def get_FP_and_discID_for_album(album_path,fp_min_duration,cpu_reduce_num,*args):
+def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
 	hi_res = False
 	scenarioD = detect_cue_FP_scenario(album_path,*args)
 	
@@ -1016,6 +1017,8 @@ def identify_music_folder(init_dirL,*args):
 	return {'music_folderL':music_folderL}
 
 def bulld_subfolders_list(self,init_dirL):
+	progress_recorder = ProgressRecorder(self)
+	progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
 	i = 0
 	t = time.time()
 	for init_dir in init_dirL:
@@ -1026,7 +1029,9 @@ def bulld_subfolders_list(self,init_dirL):
 					
 				i+=1
 				if i%10 == 0:
-					redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
+					#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
+					if self:
+						progress_recorder.set_progress(i + 1, i + 100, description=progress_recorder_descr)
 
 				yield(Path(root).as_posix(),a)
 	print("Time passed:",time.time()-t)			
@@ -1034,7 +1039,7 @@ def bulld_subfolders_list(self,init_dirL):
 
 	
 #@JobInternalStateRedisKeeper(state_name='medialib-job-folder-progress', action='init')		
-def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
+def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
 	# по умолчанию ищет музыкальную папку в пересечении множеств исходного дерева папок (сохраненного в ml_folder_tree_buf_path)и узла,
 	# который содержит новые данные + если запрошено по наличию папки в таблице album из DB_folderL
 	
@@ -1068,19 +1073,21 @@ def find_new_music_folder(init_dirL, prev_folderL, DB_folderL,*args):
 	i = 0
 	t = time.time()
 	print("Folders scanning ...")
-	for init_dir in init_dirL:
-		for root, dirs, files in os.walk(init_dir):
-			for a in dirs:
-				if i%100 == 0:
-					print(i, end=' ')
+	# for init_dir in init_dirL:
+		# for root, dirs, files in os.walk(init_dir):
+			# for a in dirs:
+				# if i%100 == 0:
+					# print(i, end=' ')
 					
-				i+=1
-				if i%10 == 0:
-					redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
+				# i+=1
+				# if i%10 == 0:
+					# redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
 											
-				#print('---root a',[root],[a])	
-				f_l.append((root,a))
-				#f_l.append(join(root,a))
+				# #print('---root a',[root],[a])	
+				# f_l.append((root,a))
+				# #f_l.append(join(root,a))
+				
+	f_l= tuple(bulld_subfolders_list(self,init_dirL))			
 	print()
 	time_stop_diff = time.time()-t
 	print('Takes sec:',time_stop_diff)

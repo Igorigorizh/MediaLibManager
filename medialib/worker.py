@@ -11,6 +11,7 @@ from myMediaLib_scheduler import music_folders_generation_scheduler
 from myMediaLib_tools import get_FP_and_discID_for_album
 from myMediaLib_tools import acoustID_lookup_celery_wrapper
 from myMediaLib_tools import MB_get_releases_by_discid_celery_wrapper
+from myMediaLib_tools import find_new_music_folder
 
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
@@ -44,7 +45,12 @@ def base64_convert(func):
 
 	
 #music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(base64_convert(music_folders_generation_scheduler))
-music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)	
+music_folders_generation_scheduler = app.task(name='music_folders_generation_scheduler-new_recogn_name',serializer='json',bind=True)(music_folders_generation_scheduler)
+
+
+find_new_music_folder = app.task(name='find_new_music_folder-new_recogn_name',serializer='json',bind=True)(find_new_music_folder)
+
+	
 
 @app.task(name="worker.callback_acoustID_request")
 def callback_acoustID_request(result):
@@ -107,7 +113,9 @@ if __name__ == '__main__':
 	p5 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/_HI_RES/1975 - Wish You Were Here (SACD-R)'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
 	p6 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/Pink Floyd - Dark Side Of The Moon (1973) [MFSL UDCD II 517]/'
-	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p6,[],[]),link=callback_FP_gen.s())
+	#task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p6,[],[]),link=callback_FP_gen.s())
+	path = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC'
+	task_first_res = app.send_task('find_new_music_folder',([path],[],[],'initial'))
 	print(task_first_res,type(task_first_res))
 	
 	
