@@ -1020,7 +1020,6 @@ def bulld_subfolders_list(self,init_dirL):
 	progress_recorder = ProgressRecorder(self)
 	progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
 	i = 0
-	t = time.time()
 	for init_dir in init_dirL:
 		for root, dirs, files in os.walk(init_dir):
 			for a in dirs:
@@ -1028,14 +1027,16 @@ def bulld_subfolders_list(self,init_dirL):
 					print(i, end=' ')
 					
 				i+=1
-				if i%10 == 0:
-					#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
-					if self:
+				if self:
+					if i%10 == 0:
+						#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
 						progress_recorder.set_progress(i + 1, i + 100, description=progress_recorder_descr)
 
 				yield(Path(root).as_posix(),a)
-	print("Time passed:",time.time()-t)			
-	return
+	if self:
+		#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
+		progress_recorder.set_progress(i, i, description=progress_recorder_descr)
+	return	
 
 	
 #@JobInternalStateRedisKeeper(state_name='medialib-job-folder-progress', action='init')		
