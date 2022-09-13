@@ -1112,11 +1112,11 @@ def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
 	# Collect music folders
 	music_folderL = []
 	
-	music_folderL = collect_media_files_in_folder_list(new_folderL)
+	music_folderL = collect_media_files_in_folder_list(self,new_folderL)
 	
 	# check if initial folder root folder itself containes media
 	if not music_folderL:
-		music_folderL = collect_media_files_in_folder_list(init_dirL)
+		music_folderL = collect_media_files_in_folder_list(self, init_dirL)
 						
 	
 	
