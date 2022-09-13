@@ -19,6 +19,7 @@ Prerequisite: docker and docker-compose (compose V2) are installed
 
   env config example:
     DEVICE="//your-ip-address/NasShare"
+
     DRIVER_OPTIONS="username=<user_name>,password=<password>, <your SMB device connection options>"
 
 
