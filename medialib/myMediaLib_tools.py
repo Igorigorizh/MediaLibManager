@@ -1017,6 +1017,11 @@ def identify_music_folder(init_dirL,*args):
 	return {'music_folderL':music_folderL}
 
 def bulld_subfolders_list(self,init_dirL):
+	#1. job run
+	#task_first_res = c_a.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial')) 
+	#2. get progress results 
+	#res = celery_progress.backend.Progress(task_first_res).get_info()
+	# if res['state'] == 'PROGRESS': ....
 	progress_recorder = ProgressRecorder(self)
 	progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
 	i = 0
@@ -1074,20 +1079,7 @@ def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
 	i = 0
 	t = time.time()
 	print("Folders scanning ...")
-	# for init_dir in init_dirL:
-		# for root, dirs, files in os.walk(init_dir):
-			# for a in dirs:
-				# if i%100 == 0:
-					# print(i, end=' ')
-					
-				# i+=1
-				# if i%10 == 0:
-					# redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
-											
-				# #print('---root a',[root],[a])	
-				# f_l.append((root,a))
-				# #f_l.append(join(root,a))
-				
+	
 	f_l= tuple(bulld_subfolders_list(self,init_dirL))			
 	print()
 	time_stop_diff = time.time()-t
@@ -1142,8 +1134,10 @@ def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
 	logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
 	
-def collect_media_files_in_folder_list(folderL):
+def collect_media_files_in_folder_list(self, folderL):
 	music_folderL = []
+	progress_recorder = ProgressRecorder(self)
+	progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
 	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 	i = 0
 		#print("new_folder:",[new_folder])
@@ -1153,8 +1147,10 @@ def collect_media_files_in_folder_list(folderL):
 				if os.path.splitext(a)[-1] in file_extL:
 					if root not in music_folderL:
 						#print('2 root',[root])
-						if i%100 == 0:
-							print(i, end=' ')
+						if self:
+							if i%100 == 0:
+								print(i, end=' ')
+								progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)
 						i+=1
 						music_folderL.append(root)
 						break
