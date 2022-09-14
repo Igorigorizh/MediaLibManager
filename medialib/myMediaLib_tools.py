@@ -216,7 +216,7 @@ def detect_cue_FP_scenario(album_path,*args):
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
 	hi_res = False
 	scenarioD = detect_cue_FP_scenario(album_path,*args)
-	
+	print('Self:',type(self))
 
 	TOC_dataD = get_TOC_from_log(album_path)
 	
@@ -1155,7 +1155,9 @@ def collect_media_files_in_folder_list(self, folderL):
 		if self:
 			if i%10 == 0:
 				progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)				
-		i+=1		
+		i+=1	
+	if self:
+		progress_recorder.set_progress(i, len(folderL), description=progress_recorder_descr)		
 	return 	music_folderL				
 					
 
