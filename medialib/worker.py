@@ -6,6 +6,7 @@ import base64
 
 from celery import Celery
 from celery import group
+from celery_progress.backend import ProgressRecorder
 
 from myMediaLib_scheduler import music_folders_generation_scheduler
 from myMediaLib_tools import get_FP_and_discID_for_album
@@ -84,9 +85,15 @@ def callback_MB_get_releases_by_discid_request(result):
 def callback_FP_gen(result):
 	folderL = result
 	#applicable  only for cue image scenario
+	
+	print(result.app.task.Task)
+	progress_recorder = ProgressRecorder(task_first_res.app.Task)
+	progress_recorder_descr = 'medialib-job-fp-generation-progress'
+	i = 0
 	for folder_name in folderL:
-		# group(callback_acoustID_request.s(), add.s(4, 4))	
+		progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)
 		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 1, 'multy', 'FP'), link=fp_post_processing_req)
+		i+=1
 		
 
 
@@ -113,9 +120,9 @@ if __name__ == '__main__':
 	p5 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/_HI_RES/1975 - Wish You Were Here (SACD-R)'
 	p2 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/Vivaldi/Antonio Vivaldi - 19 Sinfonias and Concertos for Strings and Continuo/'
 	p6 = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC/ORIGINAL_ROCK/Pink Floyd/Pink Floyd - Dark Side Of The Moon (1973) [MFSL UDCD II 517]/'
-	#task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p3,[],[]),link=callback_FP_gen.s())
+	task_first_res = app.send_task('music_folders_generation_scheduler-new_recogn_name',(p3,[],[]),link=callback_FP_gen.s())
 	path = '/home/medialib/MediaLibManager/music/MUSIC/ORIGINAL_MUSIC'
-	task_first_res = app.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial'))
+	#task_first_res = app.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial'))
 	#task_folders_list = app.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial'),link=callback_find_new_music_folder.s())
 	print(task_first_res,type(task_first_res))
 	
