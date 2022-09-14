@@ -89,6 +89,7 @@ def callback_FP_gen(self,result):
 	
 	progress_recorder = ProgressRecorder(self)
 	progress_recorder_descr = 'medialib-job-fp-generation-progress'
+	print('C Self:',self)
 	i = 0
 	for folder_name in folderL:
 		progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)

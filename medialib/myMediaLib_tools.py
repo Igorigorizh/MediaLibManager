@@ -671,18 +671,6 @@ def worker_fingerprint(file_path):
 
 	return (fp,os.path.split(file_path)[-1])	
 	
-def on_redis_rq_fail(job, connection, type,value, traceback):
-	print('fail:',job.id)
-	connection.set(job.id,'failed')	
-	
-def on_redis_rq_success(job, connection, result,*args):
-	print('success:',job.id)
-	connection.set(job.id,'success')	
-
-	
-def on_redis_rq_success(job, connection, result,*args):
-	print('success:',job.id)
-	res = {job.id}	
 
 def do_mass_album_FP_and_AccId(folder_node_path,min_duration,prev_fpDL,prev_music_folderL,*args):	
 	# Генерация FP и AccuesticIDs по альбомам из указанной дирректории (folder_node_path), для загрузок двойных альбомов и других массовых загрузок
