@@ -86,8 +86,8 @@ def callback_FP_gen(result):
 	folderL = result
 	#applicable  only for cue image scenario
 	
-	print(result.app.task.Task)
-	progress_recorder = ProgressRecorder(task_first_res.app.Task)
+	print(callback_FP_gen,type(callback_FP_gen))
+	progress_recorder = ProgressRecorder(callback_FP_gen)
 	progress_recorder_descr = 'medialib-job-fp-generation-progress'
 	i = 0
 	for folder_name in folderL:
