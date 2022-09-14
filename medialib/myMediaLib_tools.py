@@ -1022,8 +1022,9 @@ def bulld_subfolders_list(self,init_dirL):
 	#2. get progress results 
 	#res = celery_progress.backend.Progress(task_first_res).get_info()
 	# if res['state'] == 'PROGRESS': ....
-	progress_recorder = ProgressRecorder(self)
-	progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
+	if self:
+		progress_recorder = ProgressRecorder(self)
+		progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
 	i = 0
 	for init_dir in init_dirL:
 		for root, dirs, files in os.walk(init_dir):
@@ -1136,8 +1137,9 @@ def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
 	
 def collect_media_files_in_folder_list(self, folderL):
 	music_folderL = []
-	progress_recorder = ProgressRecorder(self)
-	progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
+	if self:
+		progress_recorder = ProgressRecorder(self)
+		progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
 	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 	i = 0
 		#print("new_folder:",[new_folder])
@@ -1146,14 +1148,14 @@ def collect_media_files_in_folder_list(self, folderL):
 			for a in files:
 				if os.path.splitext(a)[-1] in file_extL:
 					if root not in music_folderL:
-						#print('2 root',[root])
-						if self:
-							if i%100 == 0:
-								print(i, end=' ')
-								progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)
-						i+=1
 						music_folderL.append(root)
 						break
+		if i%100 == 0:
+			print(i, end=' ')				
+		if self:
+			if i%10 == 0:
+				progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)				
+		i+=1		
 	return 	music_folderL				
 					
 

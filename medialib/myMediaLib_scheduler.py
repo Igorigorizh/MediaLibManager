@@ -96,37 +96,4 @@ def music_folders_generation_scheduler(self, folder_node_path, prev_fpDL, prev_m
 	
 
 
-def mass_FP_scheduler(folderL,min_duration,*args):
-	
-	# Промежуточные статусы писать в Redis!!!!	
-	cnt=1	
-	fpDL = []
-	t_all_start = time.time()
-	process_time = 	0
-	redis_state_notifier('medialib-job-fp-albums-total-progress','init')
-	for album_path in folderL:
-		fpRD = {}
-		
-		print(cnt, ' of:',len(folderL),'--> Album folder:', [album_path])
-		t_start = time.time()
-		try:
-			cnt+=1
-			process_time = 0
-			fpRD = get_FP_and_discID_for_album(album_path,min_duration, 1,*args)
-			process_time = 	int(time.time()-t_start)
-			fpRD['album_path']=album_path
-			fpRD['process_time'] = process_time
-			fpDL.append(fpRD)	
-			print('album finished in:',	process_time, "time since starting the job:",int(time.time()-t_all_start))
-			print('\n-------------------   Validation ------------------')
-			validatedD = album_FP_discid_response_validate([fpRD])
-			print()
-		except Exception as e:	
-			print("Exception with FP generation [%s]: \n in %s"%(str(e),str(album_path)))	
-			fpRD = {'RC':-3,'error_logL':["Exception with FP generation [%s]:  [%s]"%(str(e),str(album_path))],'album_path':album_path,'process_time': process_time}
-			fpDL.append(fpRD)	
-
-	
-	redis_state_notifier('medialib-job-fp-albums-total-progress','progress-stop')
-
 	
