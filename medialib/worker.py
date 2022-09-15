@@ -81,20 +81,13 @@ def callback_MB_get_releases_by_discid_request(result):
 	print('MB call:',response)
 	return response	
 
-@app.task(name="worker.callback_FP_gen",bind=True)
-def callback_FP_gen(self,result):
+@app.task(name="worker.callback_FP_gen")
+def callback_FP_gen(result):
 	folderL = result
 	#applicable  only for cue image scenario
-	
-	
-	progress_recorder = ProgressRecorder(self)
-	progress_recorder_descr = 'medialib-job-fp-generation-progress'
-	print('C Self:',self)
-	i = 0
 	for folder_name in folderL:
-		progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)
 		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 1, 'multy', 'FP'), link=fp_post_processing_req)
-		i+=1
+
 		
 
 

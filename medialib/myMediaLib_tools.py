@@ -282,11 +282,15 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 			
 			
 			res = ''
+			if self:
+				progress_recorder = ProgressRecorder(self)
+				progress_recorder_descr = 'medialib-job-folder-FP-album:'+str(album_path)
+				progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
 
 			start_t = time.time()
 			try:
 				with Pool(cpu_num) as p:
-					res = p.starmap_async(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params)).get()
+					res = p.starmap_async(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params,)).get()
 			except Exception as e:
 				print("Caught exception in map_async 1",str(e))
 				return {'RC':-1,'cueD':cueD}
