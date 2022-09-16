@@ -1,4 +1,12 @@
-/medialib/_pycache_
+/medialib/__pycache__
+/test/__pycache__
+/test/db/__pycache__
+/test/db/models/__pycache__
+/test/db/repository/__pycache__
+/test/apis/__pycache__
+/test/apis/version1/__pycache__
+/test/core/__pycache__
+/test/utils/__pycache__
 /venv
 /db
 /log
