@@ -55,7 +55,7 @@
 							'view_template':'debug_page',
 							'view_method':'send_HtmlPage_debug',
 							'view_elem_id_Dic':{'frame3':'','gen_page_elements':'','main_page_elements':'','curState':'','play_status':0,'albumL':'',
-																		'tagsL':'','albumD':'','cfgD':'','medialibD':'', 'mpdHostL':''}},			
+																		'tagsL':'','albumD':'','cfgD':'','medialibD':'', 'mlFolderTreeBuf':'', 'mpdHostL':''}},			
 							
 				'admin_page':{'model_update_method':'do_nothing',
 							'view_template':'admin_page',	

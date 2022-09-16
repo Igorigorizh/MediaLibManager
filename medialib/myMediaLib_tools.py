@@ -13,6 +13,7 @@ import subprocess
 import asyncio
 from multiprocessing import Pool, cpu_count
 from itertools import tee
+import json
 
 import discid
 
@@ -1008,21 +1009,31 @@ def identify_music_folder(init_dirL,*args):
 	logger.debug('in identify_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'music_folderL':music_folderL}
 
-def bulld_subfolders_list(self,init_dirL):
+def bulld_subfolders_list(self, init_dirL, *args):
 	#1. job run
 	#task_first_res = c_a.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial')) 
 	#2. get progress results 
 	#res = celery_progress.backend.Progress(task_first_res).get_info()
 	# if res['state'] == 'PROGRESS': ....
+	resL = []
 	if self:
 		progress_recorder = ProgressRecorder(self)
 		progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
-	i = 0
+
 	for init_dir in init_dirL:
+		if 'verbose' in args:
+			if not os.path.exists(init_dir):
+				print(init_dir,'  Not exists')
+				continue
+			else:
+				print(init_dir,'  Ok')
+		i = 0		
 		for root, dirs, files in os.walk(init_dir):
 			for a in dirs:
-				if i%100 == 0:
-					print(i, end=' ')
+				if 'verbose' in args:
+					if i%100 == 0:
+						print(i, end=' ',flush=True)
+					
 					
 				i+=1
 				if self:
@@ -1031,10 +1042,11 @@ def bulld_subfolders_list(self,init_dirL):
 						progress_recorder.set_progress(i + 1, i + 100, description=progress_recorder_descr)
 
 				yield(Path(root).as_posix(),a)
+				#resL.append((Path(root).as_posix(),a))	
 	if self:
 		#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
 		progress_recorder.set_progress(i, i, description=progress_recorder_descr)
-	return	
+	return
 
 	
 #@JobInternalStateRedisKeeper(state_name='medialib-job-folder-progress', action='init')		
@@ -2627,5 +2639,30 @@ async def acoustID_lookup_wrapper(fp):
 	
 async def acoustID_lookup_wrapper_parent(fp):
     return await acoustID_lookup_wrapper(fp)	
+
+if __name__ == '__main__':
+	import argparse
+	job_list = []
+	parser = argparse.ArgumentParser(description='media lib tools')
+	parser.add_argument('ml_folder_tree', metavar='saves medialib folders as pickled object, taking the path from config',
+                        help='ml_folder_tree')	
+	args = parser.parse_args()	
+	
+	cfg_fp.read(medialib_fp_cfg)
+	nas_path_prefix = cfg_fp['FOLDERS']['nas_path_prefix']
+	ml_folder_tree_buf_path = cfg_fp['FOLDERS']['ml_folder_tree_buf_path']
+	audio_files_path_list = cfg_fp['FOLDERS']['audio_files_path_list']
+	
+	dirL = json.loads(cfg_fp.get('FOLDERS',"audio_files_path_list"))
+	
+	creation_time = time.time()
+	#res = bulld_subfolders_list(None,dirL,'verbose')
+	res = tuple(bulld_subfolders_list(None,dirL,'verbose'))
+	print('Passed:', time.time()-creation_time)
+	try:
+		with open(ml_folder_tree_buf_path+'1', 'wb') as f:
+			d = pickle.dump({'folder_list':res,'NewFolderL':[],'music_folderL':[],'creation_time':creation_time},f)
+	except Exception as e:
+		print('Error in pickle',e)				
 	
 	

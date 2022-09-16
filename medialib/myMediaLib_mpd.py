@@ -450,7 +450,7 @@ async def load_mpd_playlist_via_pathL(mpdHandle,host,socket,pathTupelL, isCue,*a
 	return {'mpdHandle':'','errorLog':errorLog}
 
 async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folder,uri_file):
-	logger.debug('in check_update_mpd_db [%s]- Start'%(str(uri_file)))
+	logger.debug('in check_update_mpd_db [%s] [%s]- Start'%(str(uri_file),str(uri_check_node_folder)))
 	#get folder URI
 	uri_folder = ''
 	isInMpdDb = False
@@ -476,10 +476,10 @@ async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folde
 			return isInMpdDb
 
 	uri_folder = os.path.dirname(uri_file)
-
+	logger.debug('in check_update_mpd_db uri_folder[%s]'%(str(uri_folder)))
 	while uri_folder != '' and uri_folder != uri_check_node_folder and not isFolderInMpdDb:
-		uri_folder = os.path.dirname(uri_folder)
-
+		
+		
 		try:
 			resL= await mpdHandle.find('base',uri_folder)
 		except  mpd.base.CommandError as e:
@@ -491,14 +491,22 @@ async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folde
 		for a in resL:
 			if uri_folder in a['file']:
 				isFolderInMpdDb = True
+				print('res in while=',a)
 				break
 		if isFolderInMpdDb:
 			break
-	#print(uri_folder)
+			
+		uri_folder = os.path.dirname(uri_folder)
+		logger.debug('in check_update_mpd_db uri_folder continues check[%s]'%(str(uri_folder)))
+		
+	print('After while:',uri_folder,isFolderInMpdDb)
+	if not isFolderInMpdDb:
+		logger.debug('in check_update_mpd_db root [%s] is taken for update'%(str(uri_folder)))
 	try:
 		res = await mpdHandle.update(uri_folder)
+		print('After update res:',res,uri_folder)
 	except  mpd.base.CommandError as e:
-		logger.critical('MPD  Error: in check_update_mpd_db update [%s]'%(str(e)))
+		logger.critical('MPD  Error: in check_update_mpd_db update [%s], folder:[%s]'%(str(e),str(uri_folder)))
 	try:	
 		status_mpd = await mpdHandle.status()
 	except  mpd.base.CommandError as e:

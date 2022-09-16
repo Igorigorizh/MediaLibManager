@@ -236,7 +236,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 								  		  
 	def get_modelDic(self,view_elem_id_Dic,PlayControl_CurStatusD):
 		# Интерфес к модели: метод применяется для того чтобы получить из модели данные характеризующие состояние плеера и приложения
-		# тут не предпологается никаких вычислений, только получение уже готовый структур
+		# тут не предпологается никаких вычислений, только получение уже готовых структур
 		# извлечение и вычисление происходят например в функции get_data_for_player_context
 		
 		self.__logger.info('in begin of get_modelDic [%s] START OK.'%(str(list(view_elem_id_Dic.keys()))))
@@ -246,6 +246,19 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		dbPath = self.__model_instance.getMediaLibPlayProcessContext()['dbPath'] 
 		self.__logger.debug('get_modelDic tracking--->')
 		cnt = 0
+		if 'mlFolderTreeBuf' in view_elem_id_Dic:
+			self.__logger.debug('-------tracking------>mlFolderTreeBuf')
+			modelDic['mlFolderTreeBuf'] = self.__model_instance.getMLFolderTreeAll_BufD()
+			if modelDic['mlFolderTreeBuf'] == {}:
+				cfgD = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')
+				resBuf_ml_folder_tree_buf_path = cfgD['ml_folder_tree_buf_path']
+				with open(resBuf_ml_folder_tree_buf_path, 'rb') as f:
+					Obj = pickle.load(f)
+					print(Obj.keys())
+				
+				self.__model_instance.setMLFolderTreeAll_BufD(Obj)
+				modelDic['mlFolderTreeBuf'] = Obj
+										
 		if 'tag_name' in view_elem_id_Dic:
 			self.__logger.debug('-------tracking------>tag_name')
 			try:
@@ -4271,6 +4284,8 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			if MLFolderTreeAll_BufD == {}:
 				f = open(resBuf_ml_folder_tree_buf_path,'rb')
 				Obj = pickle.load(f)
+				print(Obj.keys())
+				
 				f.close()
 				self.__model_instance.setMLFolderTreeAll_BufD(Obj)
 				MLFolderTreeAll_BufD = Obj
@@ -4280,7 +4295,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 				if with_db_folder_check:
 					DB_PathL = getFolderPathL_fromDB_viaTermL(dbPath,None,[sel_dir],audioFilesPathRoot)
 				
-				res = find_new_music_folder([sel_dir], MLFolderTreeAll_BufD['folder_list'],DB_PathL)
+				res = find_new_music_folder(None,[sel_dir], MLFolderTreeAll_BufD['folder_list'],DB_PathL)
 				try:
 					self.__logger.debug('3952 in get_tracks_4_selected_folder: after find_new_music_folder %s '%(str([res])))	
 				except Exception as e:
