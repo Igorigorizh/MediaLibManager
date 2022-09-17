@@ -14,6 +14,7 @@ import time
 import asyncio
 import logging
 from mpd.asyncio import MPDClient
+import mpd
 import os
 import sys
 import pickle
@@ -478,24 +479,30 @@ async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folde
 	uri_folder = os.path.dirname(uri_file)
 	logger.debug('in check_update_mpd_db uri_folder[%s]'%(str(uri_folder)))
 	while uri_folder != '' and uri_folder != uri_check_node_folder and not isFolderInMpdDb:
-		
+		print(1)
 		
 		try:
 			resL= await mpdHandle.find('base',uri_folder)
+			print('ok')
 		except  mpd.base.CommandError as e:
 			if 'No such directory' in str(e):
-				print('No such directory')
+				logger.warning('Warning: in check_update_mpd_db uri_folder find [%s]'%(str(e)))
 				uri_folder = os.path.dirname(uri_folder)
+				logger.warning('Warning: in check_update_mpd_db uri_folder find update to parent [%s]'%(str(uri_folder)))
 				continue
-
+			else:
+				logger.critical('MPD  Error: in check_update_mpd_db find[%s]'%(str(e)))
+		print(2)
 		for a in resL:
 			if uri_folder in a['file']:
 				isFolderInMpdDb = True
-				print('res in while=',a)
+				#print('res in while=',a)
+				logger.debug('in check_update_mpd_db uri_folder [%s] found in mpd db'%(str(uri_folder)))
 				break
 		if isFolderInMpdDb:
+			print('4976: Loop exit')
 			break
-			
+		print(3)	
 		uri_folder = os.path.dirname(uri_folder)
 		logger.debug('in check_update_mpd_db uri_folder continues check[%s]'%(str(uri_folder)))
 		
@@ -504,7 +511,7 @@ async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folde
 		logger.debug('in check_update_mpd_db root [%s] is taken for update'%(str(uri_folder)))
 	try:
 		res = await mpdHandle.update(uri_folder)
-		print('After update res:',res,uri_folder)
+		logger.debug('in check_update_mpd_db MPD scheduled update for[%s], job:[%s]'%(str(uri_folder),str(res)))
 	except  mpd.base.CommandError as e:
 		logger.critical('MPD  Error: in check_update_mpd_db update [%s], folder:[%s]'%(str(e),str(uri_folder)))
 	try:	
@@ -513,14 +520,15 @@ async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folde
 		logger.critical('MPD  Error: in check_update_mpd_db status [%s]'%(str(e)))	
 		
 	while 'updating_db' in status_mpd:
-		print(status_mpd['updating_db'])
+		print(status_mpd['updating_db'],status_mpd)
 		time.sleep(3)
 		try:	
 			status_mpd = await mpdHandle.status()
 		except  mpd.base.CommandError as e:
-			logger.critical('MPD  Error: in check_update_mpd_db status [%s]'%(str(e)))	
+			logger.critical('MPD  Error: in check_update_mpd_db status [%s]'%(str(e)))
+		logger.debug('in check_update_mpd_db mpd db update is still running [%s] '%(str(status_mpd['updating_db'])))		
 		
-	logger.debug('in check_update_mpd_db - Updating MPD DB')
+	logger.debug('in check_update_mpd_db - Updated MPD DB')
 	#check existence
 	try:
 		resL = await mpdHandle.find('file',uri_file)
@@ -542,7 +550,7 @@ async def check_update_mpd_db(mpdHandle,mpd_host,mpd_socket,uri_check_node_folde
 	for a in resL:
 		if a['file'] == uri_file:
 			isInMpdDb = True
-			logger.debug('in check_update_mpd_db - In db after update - OK Finished')
+			logger.debug('in check_update_mpd_db - In db after update - OK uri_file Finished')
 			mpdHandle.disconnect()	
 			return isInMpdDb
 	
