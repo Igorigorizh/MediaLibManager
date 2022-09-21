@@ -1167,12 +1167,13 @@ def generate_play_list_from_fileData(trackLD,album_crc32,track_crc32,audioFilesP
 							print('before2:==========') 
 							# в конце замена замена по байт строке, т.к. следующая операция с os.path	
 							cue_item = os.path.relpath(trackLD[a]['cue_f_name_abs'],audioFilesPathRoot).replace(b"\\",b"/")
-							print(cue_item) 
+							print('before3:==========', cue_item) 
 							trackL.append((os.path.join(mpdMusicPathPrefix,cue_item).decode('utf-8'),int(trackLD[a]['cueNameIndx'])-1))
 					except Exception as e:
 						logger.critical('Error: in generate_play_list_from_fileData [%s]'%str(e))
 						logger.critical('Error: in generate_play_list_from_fileData skipped [%s]'%str(a))
 						logger.critical('Error: in generate_play_list_from_fileData skipped [%s]'%(trackLD[a]['file']))
+						logger.critical('Error: in generate_play_list_from_fileData skipped keys [%s]'%(str(trackLD[a].keys())))
 						continue
 				else:
 					if audioFilesPathRoot in trackLD[a]['file']:
@@ -1188,7 +1189,7 @@ def generate_play_list_from_fileData(trackLD,album_crc32,track_crc32,audioFilesP
 		#cue_file = trackL[0][:pos]
 		#print cue_file
 		trackL.sort(key=operator.itemgetter(1))
-		logger.debug('in generate_play_list_from_fileData - cue Finished')
+		logger.debug('in generate_play_list_from_fileData - cue Finished [%s]'%(str(len(trackL))))
 		return trackL
 			
 		 

@@ -424,6 +424,7 @@ async def load_mpd_playlist_via_pathL(mpdHandle,host,socket,pathTupelL, isCue,*a
 		
 	
 	for track_item in pathTupelL:
+		print("-----------in load_mpd_playlist_via_pathL",track_item)
 		if isCue:
 			try:
 				await mpdHandle.load(track_item[0],track_item[1])

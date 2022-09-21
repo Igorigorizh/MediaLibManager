@@ -78,9 +78,6 @@ def music_folders_generation_scheduler(self, folder_node_path, prev_fpDL, prev_m
 	
 	if prev_fpDL:
 		if len(prev_fpDL) > 0:
-			print(len(prev_fpDL),prev_fpDL[0:4])
-			
-			tmp_music_folderL = list(set(music_folderL) - set([a['album_path'] for a in prev_fpDL]))
 			
 			fpDL = prev_fpDL
 			cnt = len(music_folderL) - len(tmp_music_folderL) + 1
