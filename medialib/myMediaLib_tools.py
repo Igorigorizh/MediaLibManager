@@ -1008,6 +1008,8 @@ def identify_music_folder(init_dirL,*args):
 	print('Scanning for music folder: Finished in %i sec'%(int(time_stop_diff)))
 	logger.debug('in identify_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'music_folderL':music_folderL}
+	
+
 
 def bulld_subfolders_list(self, init_dirL, *args):
 	#1. job run
@@ -1022,6 +1024,7 @@ def bulld_subfolders_list(self, init_dirL, *args):
 
 	for init_dir in init_dirL:
 		if 'verbose' in args:
+			print()
 			if not os.path.exists(init_dir):
 				print(init_dir,'  Not exists')
 				continue
@@ -1048,6 +1051,21 @@ def bulld_subfolders_list(self, init_dirL, *args):
 		progress_recorder.set_progress(i, i, description=progress_recorder_descr)
 	return
 
+def find_new_music_folder_simple(self,init_dirL,*args):
+	# similar to find_new_music_folder but more simple withou db filter and pickle
+	logger.info('in find_new_music_folder_simple - start')
+	folders_list = tuple(bulld_subfolders_list(None,dirL,'verbose'))	
+	t = time.time()
+	print()
+	print('Passed:',time.time()-t)
+	joined_folder_list = list(set([join(a[0],a[1]) for a in folders_list]))
+	joined_folder_list.sort()
+	t = time.time()
+	music_folderL = collect_media_files_in_folder_list(self,joined_folder_list,'verbose')
+	print()
+	print('Passed:',int(time.time() - t))
+	logger.debug('in find_new_music_folder_simple found[%s]- finished'%str(len(music_folderL)))
+	return {'folder_list':folders_list,'NewFolderL':joined_folder_list,'music_folderL':music_folderL}
 	
 #@JobInternalStateRedisKeeper(state_name='medialib-job-folder-progress', action='init')		
 def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
@@ -1139,7 +1157,7 @@ def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
 	logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
 	return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
 	
-def collect_media_files_in_folder_list(self, folderL):
+def collect_media_files_in_folder_list(self, folderL,*args):
 	music_folderL = []
 	if self:
 		progress_recorder = ProgressRecorder(self)
@@ -1152,10 +1170,11 @@ def collect_media_files_in_folder_list(self, folderL):
 			for a in files:
 				if os.path.splitext(a)[-1] in file_extL:
 					if root not in music_folderL:
-						music_folderL.append(root)
+						music_folderL.append(Path(root).as_posix())
 						break
-		if i%100 == 0:
-			print(i, end=' ')				
+		if 'verbose' in args:
+			if i%100 == 0:
+				print(i, end=' ',flush=True)				
 		if self:
 			if i%10 == 0:
 				progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)				
@@ -2657,11 +2676,12 @@ if __name__ == '__main__':
 	
 	creation_time = time.time()
 	#res = bulld_subfolders_list(None,dirL,'verbose')
-	res = tuple(bulld_subfolders_list(None,dirL,'verbose'))
+	folders_list_obj = find_new_music_folder_simple(None,dirL)
+	print()
 	print('Passed:', time.time()-creation_time)
 	try:
-		with open(ml_folder_tree_buf_path+'1', 'wb') as f:
-			d = pickle.dump({'folder_list':res,'NewFolderL':[],'music_folderL':[],'creation_time':creation_time},f)
+		with open(ml_folder_tree_buf_path, 'wb') as f:
+			d = pickle.dump({'folder_list':folders_list_obj['folder_list'],'NewFolderL':folders_list_obj['NewFolderL'],'music_folderL':folders_list_obj['music_folderL'],'creation_time':creation_time},f)
 	except Exception as e:
 		print('Error in pickle',e)				
 	
