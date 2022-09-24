@@ -86,7 +86,7 @@ def callback_FP_gen(result):
 	folderL = result
 	#applicable  only for cue image scenario
 	for folder_name in folderL:
-		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 2, 'multy', 'FP'), link=fp_post_processing_req)
+		task_fp_res = app.send_task('get_FP_and_discID_for_album',(folder_name, 0, 3, 'FP'), link=fp_post_processing_req)
 
 		
 

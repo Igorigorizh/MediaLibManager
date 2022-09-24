@@ -117,7 +117,12 @@ def check_job_status_via_result(result):
 	print('Sub tasks:',len(result.children))
 	if len(result.children) == 1:
 		for a in range(100):
-			res = celery_progress.backend.Progress(result.children[0]).get_info()
+			try:
+				res = celery_progress.backend.Progress(result.children[0]).get_info()
+			except Exception as e:
+				print('Error',e,a)
+				continue
+				
 			if res['state'] == 'SUCCESS':
 				break
 			if res['state'] == 'PROGRESS':
@@ -134,7 +139,7 @@ def check_job_status_via_result(result):
 				try:
 					print(task_item.state,task_item.task_id)
 				except:
-					print('Celery connectio error')
+					print('Celery connection error')
                 
 				if task_item.state == 'PROGRESS':
 					res_item = celery_progress.backend.Progress(task_item).get_info()
