@@ -537,6 +537,11 @@ def parseCue(fName,*args):
 	return {'trackD':trackD,'is_non_compliant_eac_cue':is_non_compliant_eac_cue,'is_cue_multy_tracks':is_cue_multy_tracks,'orig_file_pathL':orig_file_pathL,'fType':fType,'cue_tracks_number':track_num,'cue_crc32':cue_crc32,'cue_f_name':fName,'lead_out_track_offset':lead_out_track_offset,'offsetL':offsetL}
 	
 def simple_parseCue(fName,*args):
+	"""
+		Gets 
+	
+	
+	"""
 	# Collect only filenames from CUE
 	if not isinstance(fName, bytes):
 		logger.critical('Exception at in simple_parseCue: Not Unicode filename')	
@@ -975,8 +980,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 			audio = DSF(filename)
 			full_length = audio.info.length
 			
-			if full_length != 0:
-			
+			if full_length != 0:		
 				bitrate = int(round(os.path.getsize(filename)*8/1000/full_length))
 				sample_rate = audio.info.sample_rate
 				tmp_length = sec2hour(full_length)

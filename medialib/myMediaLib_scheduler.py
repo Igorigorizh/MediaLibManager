@@ -104,6 +104,9 @@ def get_fp_overall_progress(root_task):
 	return int((i/total_task_num)*100)
 
 def check_job_status_via_result(result):
+	#1. task_first_res = c_a.send_task('music_folders_generation_scheduler-new_recogn_name',(p3,[],[]),link=callback_FP_gen.s())
+	#2. check_job_status_via_result(task_first_res)
+	res = {'state':'INIT'}
 	for a in range(100):
         
 		res = celery_progress.backend.Progress(result).get_info()
@@ -114,30 +117,39 @@ def check_job_status_via_result(result):
 		else:
 			print(res['state'],end=' ')
 		time.sleep(3)
-	print('Sub tasks:',len(result.children))
+	print()	
+	print('Sub tasks level 2:',len(result.children))
+	res = {'state':'INIT'}
 	if len(result.children) == 1:
-		for a in range(100):
+		i = 0
+		while res['state'] != 'SUCCESS':
 			try:
 				res = celery_progress.backend.Progress(result.children[0]).get_info()
 			except Exception as e:
-				print('Error',e,a)
+				print('Error',e,i)
+				time.sleep(3)
 				continue
 				
 			if res['state'] == 'SUCCESS':
+				print(res['state'], 'First Found')
 				break
 			if res['state'] == 'PROGRESS':
+				print()
+				print(res['state'],end=' ')
 				print(res['progress']['percent'],res['progress']['description'],res['progress']['current'])
 			else:
 				print(res['state'],end=' ')
 			time.sleep(3)
+			i+=1
 			
 		if len(result.children[0].children) >=1:
 			total_task_num = len(result.children[0].children)
-			print('Sub tasks:',total_task_num)
+			print('Sub tasks level 3:',total_task_num)
 			i = 0
 			for task_item in result.children[0].children:
 				try:
-					print(task_item.state,task_item.task_id)
+					#print()
+					print(task_item.state,task_item.task_id,end=' ')
 				except:
 					print('Celery connection error')
                 
@@ -148,7 +160,10 @@ def check_job_status_via_result(result):
 					res_item = celery_progress.backend.Progress(task_item).get_info()
 					print(res_item['result']['RC'])	
 					i+=1
+				else:
+					print()
 				#time.sleep(.1)	
+			print()	
 			print('Progress:', get_fp_overall_progress(result.children[0]))
 
 	
