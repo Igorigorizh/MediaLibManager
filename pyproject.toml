@@ -1,16 +1,12 @@
-[tool.poetry]
-name = "MedialibManager"
-version = "2.9.7"
-description = "Audio media manager"
-authors = ["Igor Izhov"]
-license = "MIT"
+[project]
+name='MediaLibManager'
+version='2.9.10'
+description='Music metadata managing, navigation and playing Service'
+requires-python = ">=3.7"
+dynamic = ["version"]
+dependencies = [
+    "mutagen",
+    "chardet",
+    'importlib-metadata>="3.7"'
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-mutagen = "^1.45.1"
-
-[tool.poetry.dev-dependencies]
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
