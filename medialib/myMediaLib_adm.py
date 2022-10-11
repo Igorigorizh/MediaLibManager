@@ -25,24 +25,16 @@ from random import randint
 import logging
 from bs4 import BeautifulStoneSoup
 
-import acoustid
-import mutagen
 
-#import mktoc
-
-import musicbrainzngs
-
-from myMediaLib_cue import parseCue
-from myMediaLib_cue import simple_parseCue
-from myMediaLib_cue import GetTrackInfoVia_ext
-from myMediaLib_init import readConfigData
+from medialib.myMediaLib_cue import parseCue
+from medialib.myMediaLib_cue import simple_parseCue
+from medialib.myMediaLib_cue import GetTrackInfoVia_ext
+from medialib.myMediaLib_init import readConfigData
 from functools import reduce
 
 
-musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
-
-from myMediaLib_CONST import BASE_ENCODING
-from myMediaLib_CONST import mymedialib_cfg
+from  medialib import BASE_ENCODING
+from  medialib import mymedialib_cfg
 
 #import win32security
 #from ntsecuritycon import * 

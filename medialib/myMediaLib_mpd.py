@@ -1,14 +1,14 @@
-from myMediaLib_init import readConfigData
+from medialib.myMediaLib_init import readConfigData
 
-from myMediaLib_adm import db_request_wrapper
-from myMediaLib_adm import getDbIdL_viaTagId
-from myMediaLib_adm import getDbIdL_viaAlbumCRC32
-from myMediaLib_adm import getDbIdL_viaAlbumCRC32_List
-from myMediaLib_adm import getDbIdL_viaArtistCRC32_List
-from myMediaLib_adm import getArtist_Album_relationD_and_simpleMetaD_viaCRC32L
-from myMediaLib_adm import getAll_Related_to_main_Artist_fromDB
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL
-from myMediaLib_adm import getAlbumD_fromDB
+from medialib.myMediaLib_adm import db_request_wrapper
+from medialib.myMediaLib_adm import getDbIdL_viaTagId
+from medialib.myMediaLib_adm import getDbIdL_viaAlbumCRC32
+from medialib.myMediaLib_adm import getDbIdL_viaAlbumCRC32_List
+from medialib.myMediaLib_adm import getDbIdL_viaArtistCRC32_List
+from medialib.myMediaLib_adm import getArtist_Album_relationD_and_simpleMetaD_viaCRC32L
+from medialib.myMediaLib_adm import getAll_Related_to_main_Artist_fromDB
+from medialib.myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL
+from medialib.myMediaLib_adm import getAlbumD_fromDB
 
 import time
 import asyncio
@@ -25,8 +25,8 @@ from os.path import join
 from os import curdir, sep,getcwd 
 
 
-from myMediaLib_CONST import BASE_ENCODING
-from myMediaLib_CONST import mymedialib_cfg
+from medialib import BASE_ENCODING
+from medialib import mymedialib_cfg
 
 cfgD = readConfigData(mymedialib_cfg)
 logger = logging.getLogger('controller_logger.mpd_lib')

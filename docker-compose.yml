@@ -25,7 +25,7 @@ services:
     expose:
      - "9001"
      - "6600"
-    command: python ./medialib/_appl_server.py
+    command: python run_medialib.py
     ports:
       - "9001:9001" 
       - "6600:6600"

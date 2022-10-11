@@ -1,17 +1,13 @@
 import xmlrpc.client, socket
-import myMediaLib_adm
-import myMediaLib_init
-import myMediaLib_controller
-from myMediaLib_CONST import mymedialib_cfg
+#from medialib import myMediaLib_adm
+from medialib.myMediaLib_init import readConfigData
+from medialib.myMediaLib_controller import MediaLib_Application_RPC_server
+from medialib import mymedialib_cfg
 import time
 import sys
 
-
-if __name__ == '__main__':
-	
-#	PlayerContr_serv = PlayerController()
-#	PlayerContr_serv.runPlayerServer()
-	cfgD = myMediaLib_init.readConfigData(mymedialib_cfg)
+def main():
+	cfgD = readConfigData(mymedialib_cfg)
 	
 	port = cfgD['appl_cntrl_port']
 	dbl_appl = xmlrpc.client.ServerProxy('http://%s:%s'%(str(socket.gethostname()),str(port)))		
@@ -25,7 +21,7 @@ if __name__ == '__main__':
 	except Exception as e:
 		#print e
 
-		ApplContr_serv = myMediaLib_controller.MediaLib_Application_RPC_server()
+		ApplContr_serv = MediaLib_Application_RPC_server()
 #	ApplContr_serv = myMediaLib_model.MediaLibPlayProcess()
 
 
@@ -42,4 +38,8 @@ if __name__ == '__main__':
 #''.encode('utf8')
 #	print 'ststus:',ApplContr_serv.getMediaLibPlayProcessContext()
 		ApplContr_serv.runApplServer()
+
+if __name__ == '__main__':
+	main()	
+
 	

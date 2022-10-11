@@ -11,6 +11,7 @@ import collections
 from os import curdir, sep,getcwd
 import os.path
 
+from mutagen import File
 from mutagen.apev2 import APEv2, error
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
@@ -18,12 +19,9 @@ from mutagen.flac import FLAC
 from mutagen.wavpack import WavPack, error as WavPackError
 from mutagen.dsf import DSF
 from mutagen.mp4 import MP4	
-
 from mutagen.monkeysaudio import MonkeysAudioInfo
 
-import mutagen
-
-from myMediaLib_CONST import BASE_ENCODING
+from medialib import BASE_ENCODING
 
 logger = logging.getLogger('controller_logger.cue')
 
@@ -958,7 +956,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 		
 		try:
 			
-			audio = mutagen.File(filename)
+			audio = File(filename)
 			infoD['title'] = audio['\xa9nam'][0]
 			infoD['artist'] = audio['\xa9ART'][0]
 			infoD['album'] = audio['\xa9alb'][0]
@@ -998,7 +996,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 			
 		try:
 			
-			audio = mutagen.File(filename)
+			audio = File(filename)
 			infoD['title'] = audio['TIT2'].text[0]
 			infoD['artist'] = audio['TPE1'].text[0]
 			infoD['album'] = audio['TALB'].text[0]
