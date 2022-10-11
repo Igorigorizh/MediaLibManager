@@ -1,12 +1,20 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name='MediaLibManager'
 version='2.9.10'
 description='Music metadata managing, navigation and playing Service'
 requires-python = ">=3.7"
-dynamic = ["version"]
+
 dependencies = [
     "mutagen",
     "chardet",
     'importlib-metadata>="3.7"'
 ]
+
+[tool.setuptools.packages.find]
+include = ["medialib"]  # package names should match these glob patterns (["*"] by default)
+
 
