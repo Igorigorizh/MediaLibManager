@@ -17,45 +17,38 @@ import socket
 from os import curdir, sep,getcwd
 import re
 import shutil
-from mutagen.apev2 import APEv2, error
-from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-from mutagen.flac import FLAC
-from mutagen.monkeysaudio import MonkeysAudioInfo
+
 #from rss_processing_adm import urlopenWithCheck
 from bs4 import BeautifulStoneSoup
 import base64
 
-from myMediaLib_init import readConfigData
-from myMediaLib_init import loadTemplates_viaCFG
-from myMediaLib_init import loadCommandRouting
+from medialib.myMediaLib_init import readConfigData
+from medialib.myMediaLib_init import loadTemplates_viaCFG
+from medialib.myMediaLib_init import loadCommandRouting
 
-from myMediaLib_adm import  getPlaylistsfromXML                 
-from myMediaLib_adm import  getPlaylistGroupRelDic
+from medialib.myMediaLib_adm import  getPlaylistsfromXML                 
+from medialib.myMediaLib_adm import  getPlaylistGroupRelDic
+from medialib.myMediaLib_adm import  getMedialibDb_Indexes
+from medialib.myMediaLib_adm import  createPlayList_fromMetaDataD
+from medialib.myMediaLib_adm import  Tag_Assignement_and_save
+from medialib.myMediaLib_adm import  getCurrentMetaData_fromDB_via_pL_pos
+from medialib.myMediaLib_adm import  getCurrentMetaData_fromDB_via_DbIdL
+from medialib.myMediaLib_adm import  getDbIdL_w_folderL_filter
+from medialib.myMediaLib_adm import  get_all_artists_in_metaD
+from medialib.myMediaLib_adm import  createPlayList_viaTagId
+from medialib.myMediaLib_adm import  createPlayList_viaAlbumCRC32
+from medialib.myMediaLib_adm import  createPlayList_viaArtistCRC32
+from medialib.myMediaLib_adm import  createNewTag_inDB
+from medialib.myMediaLib_adm import  getTrackList
+from medialib.myMediaLib_adm import  getCurrentMetaData_fromDB_via_CRC32L
+from medialib.myMediaLib_adm import  searchMediaLib_MetaData
+from medialib.myMediaLib_adm import  saveArtistD_intoDB
+from medialib.myMediaLib_adm import  getAll_Main_Artist_fromDB
+from medialib.myMediaLib_adm import  getMedialibAlbum_Indexes
+from medialib.myMediaLib_adm import  getVirtualAlbum_Indexes
+from medialib.myMediaLib_adm import  getAlbumD_fromDB
 
 
-import myMediaLib_adm
-from myMediaLib_adm import getMedialibDb_Indexes
-from myMediaLib_adm import createPlayList_fromMetaDataD
-from myMediaLib_adm import Tag_Assignement_and_save
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_pL_pos
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL
-from myMediaLib_adm import getDbIdL_w_folderL_filter
-from myMediaLib_adm import get_all_artists_in_metaD
-from myMediaLib_adm import createPlayList_viaTagId
-from myMediaLib_adm import createPlayList_viaAlbumCRC32
-from myMediaLib_adm import createPlayList_viaArtistCRC32
-from myMediaLib_adm import createNewTag_inDB
-from myMediaLib_adm import getTrackList
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_CRC32L
-from myMediaLib_adm import searchMediaLib_MetaData
-from myMediaLib_adm import saveArtistD_intoDB
-from myMediaLib_adm import getAll_Main_Artist_fromDB
-from myMediaLib_adm import getMedialibAlbum_Indexes
-from myMediaLib_adm import getVirtualAlbum_Indexes
-from myMediaLib_adm import getAlbumD_fromDB
-
-import mutagen
 import pickle
 import time
 import zlib
@@ -63,7 +56,7 @@ import datetime
 import sqlite3
 
 logger = logging.getLogger('controller_logger.Model')
-from myMediaLib_CONST import mymedialib_cfg
+from medialib import mymedialib_cfg
 
 import http.server
 

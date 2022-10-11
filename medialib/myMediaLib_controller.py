@@ -7,11 +7,11 @@ from xmlrpc.server import SimpleXMLRPCServer
 import time
 import base64
 
-from myMediaLib_init import readConfigData
-from myMediaLib_init import loadTemplates_viaCFG
-from myMediaLib_init import loadCommandRouting
+from medialib.myMediaLib_init import readConfigData
+from medialib.myMediaLib_init import loadTemplates_viaCFG
+from medialib.myMediaLib_init import loadCommandRouting
 
-from myMediaLib_model import MediaLibPlayProcess_singletone_Wrapper
+from medialib.myMediaLib_model import MediaLibPlayProcess_singletone_Wrapper
 
 import pickle
 import zlib
@@ -31,111 +31,111 @@ from ipaddress import ip_address
 import cProfile
 import pstats
 
-from myMediaLib_adm import getMedialibDb_Indexes
-from myMediaLib_adm import createPlayList_fromMetaDataD
-from myMediaLib_adm import Tag_Assignement_and_save
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_pL_pos
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL
-from myMediaLib_adm import get_all_artists_in_metaD
+from medialib.myMediaLib_adm import getMedialibDb_Indexes
+from medialib.myMediaLib_adm import createPlayList_fromMetaDataD
+from medialib.myMediaLib_adm import Tag_Assignement_and_save
+from medialib.myMediaLib_adm import getCurrentMetaData_fromDB_via_pL_pos
+from medialib.myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL
+from medialib.myMediaLib_adm import get_all_artists_in_metaD
 
-from myMediaLib_adm import createPlayList_viaTagId
-from myMediaLib_adm import createPlayList_viaAlbumCRC32
-from myMediaLib_adm import createPlayList_viaArtistCRC32
-from myMediaLib_adm import createPlayList_viaTrackCRC32L
-from myMediaLib_adm import createPlayList_viaTagId_cast
-from myMediaLib_adm import createPlayList_viaAlbumCRC32_cast
+from medialib.myMediaLib_adm import createPlayList_viaTagId
+from medialib.myMediaLib_adm import createPlayList_viaAlbumCRC32
+from medialib.myMediaLib_adm import createPlayList_viaArtistCRC32
+from medialib.myMediaLib_adm import createPlayList_viaTrackCRC32L
+from medialib.myMediaLib_adm import createPlayList_viaTagId_cast
+from medialib.myMediaLib_adm import createPlayList_viaAlbumCRC32_cast
 
-from myMediaLib_adm import getDbIDL_via_CRC32L
+from medialib.myMediaLib_adm import getDbIDL_via_CRC32L
 
-from myMediaLib_adm import createNewTag_inDB
-from myMediaLib_adm import getTrackList
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_CRC32L
-from myMediaLib_adm import searchMediaLib_MetaData
-from myMediaLib_adm import saveArtistD_intoDB
-from myMediaLib_adm import saveAlbum_simple_intoDB
-from myMediaLib_adm import saveAlbum_intoDB_via_artistD
-from myMediaLib_adm import findTags_via_TrackId
-from myMediaLib_adm import findCateg_via_ObjectId
-from myMediaLib_adm import DistinctAlbums_from_metaD
-from myMediaLib_adm import get_AllTags_asDic
-from myMediaLib_adm import getDbIdL_viaTagId
-from myMediaLib_adm import getArtistDbIdL_viaTagId
-from myMediaLib_adm import Tag_Assignement_delta_update
-from myMediaLib_adm import triggerBatchJob_via_event
-from myMediaLib_adm import delete_Empty_Tag_inDB
-from myMediaLib_adm import getAll_Main_Artist_fromDB
-from myMediaLib_adm import get_artist_ref_relation_type
-from myMediaLib_adm import getArtistD_fromDB
-from myMediaLib_adm import getAlbumD_fromDB
-from myMediaLib_adm import getAll_Related_to_main_Artist_fromDB
-from myMediaLib_adm import artist_album_categorisation_and_save
-from myMediaLib_adm import getArtistAlbum_indexL_viaCategId
-from myMediaLib_adm import getTag_indexL_viaCategId
-from myMediaLib_adm import checkReplicaMapping
-from myMediaLib_adm import getCoverPage
-from myMediaLib_adm import getArtist_Album_metaD_fromDB
-from myMediaLib_adm import getAlbumArtist_dbId_CRC32_mapping
-from myMediaLib_adm import Tag_to_Categ_save
+from medialib.myMediaLib_adm import createNewTag_inDB
+from medialib.myMediaLib_adm import getTrackList
+from medialib.myMediaLib_adm import getCurrentMetaData_fromDB_via_CRC32L
+from medialib.myMediaLib_adm import searchMediaLib_MetaData
+from medialib.myMediaLib_adm import saveArtistD_intoDB
+from medialib.myMediaLib_adm import saveAlbum_simple_intoDB
+from medialib.myMediaLib_adm import saveAlbum_intoDB_via_artistD
+from medialib.myMediaLib_adm import findTags_via_TrackId
+from medialib.myMediaLib_adm import findCateg_via_ObjectId
+from medialib.myMediaLib_adm import DistinctAlbums_from_metaD
+from medialib.myMediaLib_adm import get_AllTags_asDic
+from medialib.myMediaLib_adm import getDbIdL_viaTagId
+from medialib.myMediaLib_adm import getArtistDbIdL_viaTagId
+from medialib.myMediaLib_adm import Tag_Assignement_delta_update
+from medialib.myMediaLib_adm import triggerBatchJob_via_event
+from medialib.myMediaLib_adm import delete_Empty_Tag_inDB
+from medialib.myMediaLib_adm import getAll_Main_Artist_fromDB
+from medialib.myMediaLib_adm import get_artist_ref_relation_type
+from medialib.myMediaLib_adm import getArtistD_fromDB
+from medialib.myMediaLib_adm import getAlbumD_fromDB
+from medialib.myMediaLib_adm import getAll_Related_to_main_Artist_fromDB
+from medialib.myMediaLib_adm import artist_album_categorisation_and_save
+from medialib.myMediaLib_adm import getArtistAlbum_indexL_viaCategId
+from medialib.myMediaLib_adm import getTag_indexL_viaCategId
+from medialib.myMediaLib_adm import checkReplicaMapping
+from medialib.myMediaLib_adm import getCoverPage
+from medialib.myMediaLib_adm import getArtist_Album_metaD_fromDB
+from medialib.myMediaLib_adm import getAlbumArtist_dbId_CRC32_mapping
+from medialib.myMediaLib_adm import Tag_to_Categ_save
 
-from myMediaLib_adm import getArtist_Album_relationD_and_simpleMetaD_viaCRC32L
-from myMediaLib_adm import artist_album_categorisation_delete
-from myMediaLib_adm import getArtist_Album_list_db_via_search_term
-from myMediaLib_adm import getAlbum_list_db_via_AAT_search_term
-from myMediaLib_adm import restore_Album_Artist_relation
-from myMediaLib_adm import delete_Album_Artist_relation
-from myMediaLib_adm import set_Albums_relation
-from myMediaLib_adm import delete_album_via_DbIdL
-from myMediaLib_adm import delete_Albums_relation
-from myMediaLib_adm import set_Artist_relation
-from myMediaLib_adm import delete_Artist_relation
+from medialib.myMediaLib_adm import getArtist_Album_relationD_and_simpleMetaD_viaCRC32L
+from medialib.myMediaLib_adm import artist_album_categorisation_delete
+from medialib.myMediaLib_adm import getArtist_Album_list_db_via_search_term
+from medialib.myMediaLib_adm import getAlbum_list_db_via_AAT_search_term
+from medialib.myMediaLib_adm import restore_Album_Artist_relation
+from medialib.myMediaLib_adm import delete_Album_Artist_relation
+from medialib.myMediaLib_adm import set_Albums_relation
+from medialib.myMediaLib_adm import delete_album_via_DbIdL
+from medialib.myMediaLib_adm import delete_Albums_relation
+from medialib.myMediaLib_adm import set_Artist_relation
+from medialib.myMediaLib_adm import delete_Artist_relation
 
-from myMediaLib_adm import delete_Artist
+from medialib.myMediaLib_adm import delete_Artist
 
-from myMediaLib_adm import check_loaded_albums_2_lib
-from myMediaLib_adm import getDbIdL_viaAlbumCRC32_List
-from myMediaLib_adm import collect_images_for_album
-from myMediaLib_adm import getFolderAlbumD_fromDB
+from medialib.myMediaLib_adm import check_loaded_albums_2_lib
+from medialib.myMediaLib_adm import getDbIdL_viaAlbumCRC32_List
+from medialib.myMediaLib_adm import collect_images_for_album
+from medialib.myMediaLib_adm import getFolderAlbumD_fromDB
 
-from myMediaLib_adm import getDbIdL_viaAlbumCRC32
-from myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL_alterntv
-from myMediaLib_adm import getAlbum_parentObjects
+from medialib.myMediaLib_adm import getDbIdL_viaAlbumCRC32
+from medialib.myMediaLib_adm import getCurrentMetaData_fromDB_via_DbIdL_alterntv
+from medialib.myMediaLib_adm import getAlbum_parentObjects
 
-from myMediaLib_adm import getArtist_relation_metaD
-from myMediaLib_adm import getAlbum_relation_metaD
-from myMediaLib_adm import modifyArtist_viaCRC32
-from myMediaLib_adm import modifyAlbum_viaCRC32
-from myMediaLib_adm import getDbIdL_w_folderL_filter
-from myMediaLib_adm import get_discs_duplacates
-from myMediaLib_adm import saveLibClast_to_DB_unicode
-from myMediaLib_adm import delete_tracks_via_DbIdL
-from myMediaLib_adm import validate_ArtistAlbumLibClast_from_DB
+from medialib.myMediaLib_adm import getArtist_relation_metaD
+from medialib.myMediaLib_adm import getAlbum_relation_metaD
+from medialib.myMediaLib_adm import modifyArtist_viaCRC32
+from medialib.myMediaLib_adm import modifyAlbum_viaCRC32
+from medialib.myMediaLib_adm import getDbIdL_w_folderL_filter
+from medialib.myMediaLib_adm import get_discs_duplacates
+from medialib.myMediaLib_adm import saveLibClast_to_DB_unicode
+from medialib.myMediaLib_adm import delete_tracks_via_DbIdL
+from medialib.myMediaLib_adm import validate_ArtistAlbumLibClast_from_DB
 
-from myMediaLib_adm import getCategoryProfileDic
-from myMediaLib_adm import registerRadio
-from myMediaLib_adm import mediaLib_intoDb_Load_withUpdateCheck
-from myMediaLib_adm import getFolderPathL_fromDB_viaTermL
+from medialib.myMediaLib_adm import getCategoryProfileDic
+from medialib.myMediaLib_adm import registerRadio
+from medialib.myMediaLib_adm import mediaLib_intoDb_Load_withUpdateCheck
+from medialib.myMediaLib_adm import getFolderPathL_fromDB_viaTermL
 
-from myMediaLib_mpd import load_mpd_playlist_via_tag_num
-from myMediaLib_mpd import load_mpd_playlist_viaTrackCRC32L
-from myMediaLib_mpd import load_mpd_playlist_via_pathL
-from myMediaLib_mpd import check_update_mpd_db
-from myMediaLib_mpd import get_mpd_playlist_as_crc32L
+from medialib.myMediaLib_mpd import load_mpd_playlist_via_tag_num
+from medialib.myMediaLib_mpd import load_mpd_playlist_viaTrackCRC32L
+from medialib.myMediaLib_mpd import load_mpd_playlist_via_pathL
+from medialib.myMediaLib_mpd import check_update_mpd_db
+from medialib.myMediaLib_mpd import get_mpd_playlist_as_crc32L
 
-from myMediaLib_mpd import get_mpd_status
-from myMediaLib_mpd import get_mpd_playlistinfo
+from medialib.myMediaLib_mpd import get_mpd_status
+from medialib.myMediaLib_mpd import get_mpd_playlistinfo
 
-from myMediaLib_tools import find_new_music_folder
-from myMediaLib_tools import identify_music_folder
-from myMediaLib_tools import get_parent_folder_stackL
+from medialib.myMediaLib_tools import find_new_music_folder
+from medialib.myMediaLib_tools import identify_music_folder
+from medialib.myMediaLib_tools import get_parent_folder_stackL
 
-from myMediaLib_cue import generate_play_list_from_fileData
+from medialib.myMediaLib_cue import generate_play_list_from_fileData
 
 from PIL import Image
 import json
 import logging
 
-from myMediaLib_CONST import BASE_ENCODING
-from myMediaLib_CONST import mymedialib_cfg
+from  medialib import BASE_ENCODING
+from  medialib import mymedialib_cfg
 from pathlib import Path, PosixPath, WindowsPath, PurePosixPath 
 def is_ip(address):
     return address.replace('.', '').isnumeric()
@@ -207,7 +207,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 			self.__logger.info('View instance Initialiazin')
 			self.__instance_VIEW = MediaLib_ViewGen()
 		except:
-			from myMedialib_view import MediaLib_ViewGen
+			from medialib.myMedialib_view import MediaLib_ViewGen
 			self.__instance_VIEW = MediaLib_ViewGen()
 		
 		ignor_namesL = ['__doc__', '__module__', 'self_func']

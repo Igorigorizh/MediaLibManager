@@ -21,18 +21,18 @@ import time
 import logging
 from pathlib import Path
 
-from myMediaLib_init import readConfigData
+from medialib.myMediaLib_init import readConfigData
 
-from myMediaLib_CONST import BASE_ENCODING
-from myMediaLib_CONST import mymedialib_cfg
-from myMediaLib_CONST import medialib_fp_cfg
+from medialib import BASE_ENCODING
+from medialib import mymedialib_cfg
+from medialib import medialib_fp_cfg
 
 from configparser import ConfigParser
 
 import warnings
-from myMediaLib_tools import get_FP_and_discID_for_album
-from myMediaLib_tools import find_new_music_folder
-from myMediaLib_tools import redis_state_notifier
+from medialib.myMediaLib_tools import get_FP_and_discID_for_album
+from medialib.myMediaLib_tools import find_new_music_folder
+from medialib.myMediaLib_tools import redis_state_notifier
 
 #from worker import app
 

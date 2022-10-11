@@ -23,18 +23,18 @@ import logging
 import ast
 from pathlib import Path
 
-from myMediaLib_init import readConfigData
+from medialib.myMediaLib_init import readConfigData
 
-from myMediaLib_cue import simple_parseCue
-from myMediaLib_cue import parseCue
-from myMediaLib_cue import GetTrackInfoVia_ext
-from myMediaLib_adm import getFolderAlbumD_fromDB
-from myMediaLib_adm import db_request_wrapper
-from myMediaLib_adm import collect_albums_folders
+from medialib.myMediaLib_cue import simple_parseCue
+from medialib.myMediaLib_cue import parseCue
+from medialib.myMediaLib_cue import GetTrackInfoVia_ext
+from medialib.myMediaLib_adm import getFolderAlbumD_fromDB
+from medialib.myMediaLib_adm import db_request_wrapper
+from medialib.myMediaLib_adm import collect_albums_folders
 
-from myMediaLib_CONST import BASE_ENCODING
-from myMediaLib_CONST import mymedialib_cfg
-from myMediaLib_CONST import medialib_fp_cfg
+from medialib import BASE_ENCODING
+from medialib import mymedialib_cfg
+from medialib import medialib_fp_cfg
 
 
 from functools import wraps

@@ -1,6 +1,6 @@
 # # -*- coding: cp1251 -*-
 #-*- coding: utf-8 -*-
-#import  wx
+
 
 import xmlrpc.client
 from xmlrpc.server import SimpleXMLRPCServer
@@ -13,16 +13,11 @@ import os
 import chardet
 from string import Template
 
-import myMediaLib_model
-#from myMediaLib_adm import searchMediaLib_MetaData
-#from myMediaLib_adm import get_all_artists_in_metaD
-#from myMediaLib_adm import getArtistD_fromDB
-#from myMediaLib_adm import getAll_Main_Artist_fromDB
-#from myMediaLib_adm import getAll_Related_to_main_Artist_fromDB
-from myMediaLib_adm import split_2_fix_lines
 
-from myMediaLib_model import MediaLibPlayProcess_singletone_Wrapper
-from myMediaLib_model import str2_RusLine
+from medialib.myMediaLib_adm import split_2_fix_lines
+
+from medialib.myMediaLib_model import MediaLibPlayProcess_singletone_Wrapper
+from medialib.myMediaLib_model import str2_RusLine
 
 # forward':{'model_update_method':'forward','view_method':'ajax_main_page_update','view_elem_id_Dic':{'refresh_time':0}},
 #'revind':{'model_update_method':'forward',	'view_method':'ajax_main_page_update','view_elem_id_Dic':{'refresh_time':0}},	

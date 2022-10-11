@@ -8,11 +8,11 @@ from celery import Celery
 from celery import group
 from celery_progress.backend import ProgressRecorder
 
-from myMediaLib_scheduler import music_folders_generation_scheduler
-from myMediaLib_tools import get_FP_and_discID_for_album
-from myMediaLib_tools import acoustID_lookup_celery_wrapper
-from myMediaLib_tools import MB_get_releases_by_discid_celery_wrapper
-from myMediaLib_tools import find_new_music_folder
+from medialib.myMediaLib_scheduler import music_folders_generation_scheduler
+from medialib.myMediaLib_tools import get_FP_and_discID_for_album
+from medialib.myMediaLib_tools import acoustID_lookup_celery_wrapper
+from medialib.myMediaLib_tools import MB_get_releases_by_discid_celery_wrapper
+from medialib.myMediaLib_tools import find_new_music_folder
 
 app = Celery(__name__)
 app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
