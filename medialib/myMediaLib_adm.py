@@ -16,6 +16,7 @@ import chardet
 import itertools
 
 from os.path import join
+from pathlib import Path
 
 import collections
 import shutil
@@ -530,7 +531,7 @@ def collectAllMetaData(allmFD):
 			logger.debug('in collectAllMetaData: before GetTrackInfoVia_ext call: filename %s'%(str([origname])))
 			metaD = GetTrackInfoVia_ext(origname,allmFD[a]['ftype'])
 		except Exception as e:
-			logger.critical('Exception in collectAllMetaData: %s'%(str(e)))
+			logger.critical('534 Exception in collectAllMetaData: %s'%(str(e)))
 			errorLog.append({'message':'collectAllMetaData: Error after GetTrackInfoVia_ext args','Error':str(e),'args':origname,'key':a,'data':allmFD[a]})
 			continue
 		artist = ''
@@ -540,7 +541,7 @@ def collectAllMetaData(allmFD):
 		try:						
 			metaD['artist_CRC32']= zlib.crc32(metaD['artist'].lower().strip().encode(BASE_ENCODING))
 		except Exception as e:
-			logger.critical('Exception in collectAllMetaData: %s'%(str(e)))
+			logger.critical('544 Exception in collectAllMetaData: %s'%(str(e)))
 			metaD['artist_CRC32']=999
 			print('crc32 error:',artist)
 			errorLog.append({'message':'collectAllMetaData: Error after crc32','Error':str(e),'args':origname,'key':a,'data':allmFD[a],'metaD':metaD,'artist':artist})
@@ -3581,6 +3582,7 @@ def collectMyMediaLib_folder_new(init_dirL,audioFilesPathRoot,*args):
 				if	ftype != None:
 
 					orig_fname = os.path.join(root,a)
+					orig_fname = orig_fname.replace(b"\\",b"/")
 					fname_rel = os.path.relpath(orig_fname,audioFilesPathRoot).replace(b"\\",b"/")
 
 					#print type(root),type(a),type(orig_fname)

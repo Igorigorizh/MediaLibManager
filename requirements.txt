@@ -29,3 +29,4 @@ Jinja2==3.0.3
 uvicorn[standard]
 python-multipart
 sqlalchemy
+pytest==7.1.2
