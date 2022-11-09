@@ -1,4 +1,7 @@
 /medialib/__pycache__
+/medialib/build
+/medialib/dist
+/medialib/medialib.egg-info
 /test/__pycache__
 /test/db/__pycache__
 /test/db/models/__pycache__
@@ -12,4 +15,8 @@
 /log
 /config
 *.xml
+*.pyc
+*.cue
+*.flac
 ./__pycache__
+

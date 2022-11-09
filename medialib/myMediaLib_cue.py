@@ -10,6 +10,7 @@ import collections
 
 from os import curdir, sep,getcwd
 import os.path
+from pathlib import Path
 
 from mutagen import File
 from mutagen.apev2 import APEv2, error
@@ -912,25 +913,37 @@ def GetTrackInfoVia_ext(filename,ftype):
 			
 	elif ftype.lower() == 'wv':
 		try:
-			
 			audio = WavPack(filename)
-			full_length = audio.info.length
-			if full_length != 0:
-			
-				bitrate = int(round(os.path.getsize(filename)*8/1000/full_length))
-				sample_rate = audio.info.sample_rate
-				tmp_length = sec2hour(full_length)
-				full_time = myMusicStr2TimeDelta(tmp_length)
-				time_sec = int(full_length)
-				time = full_time
-			
-		except Exception as e:	
-			logger.critical(' 846 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
-		except IOError as e:
-			logger.critical(' 848 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":0,'sample_rate':0,'time':'00:00','ftype':ftype}
-		except :	
-			logger.critical(' 851 Exception in GetTrackInfoVia_ext wv: %s'%(str('unknown mutagen error')))	
+		except Exception as e :
+			print('WavPack data error reading',filename)
+			logger.critical('GetTrackInfoVia_ext: WavPack data error reading %s'%(str(filename)))	
+			logger.critical('919 Exception in GetTrackInfoVia_ext: WavPack %s'%(str(e)))	
+		#	return {'Error':e,'error path':filename}
+		if audio:	
+			try:
+				full_length = audio.info.length
+				if full_length != 0:
+					bitrate = int(round(os.path.getsize(filename)*8/1000/full_length))
+					sample_rate = audio.info.sample_rate
+					tmp_length = sec2hour(full_length)
+					full_time = myMusicStr2TimeDelta(tmp_length)
+					time_sec = int(full_length)
+					time = full_time
+				
+			except Exception as e:	
+				logger.critical(' 846 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
+			except IOError as e:
+				logger.critical(' 848 Exception in GetTrackInfoVia_ext wv: %s'%(str(e)))	
+				return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],
+						"artist":b"No Artist", 
+						"album":b"No Album",
+						"bitrate":0,
+						'sample_rate':0,
+						'time':'00:00',
+						'ftype':ftype
+						}
+			except :	
+				logger.critical(' 851 Exception in GetTrackInfoVia_ext wv: %s'%(str('unknown mutagen error')))	
 			
 	elif ftype.lower() == 'm4a':
 		try:
@@ -1049,7 +1062,7 @@ def GetTrackInfoVia_ext(filename,ftype):
 			audio=APEv2(filename)
 	
 		except IOError:
-			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'sample_rate':sample_rate,'time':'00:00','time_sec':0,'ftype':ftype}	
+			return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":b"No Artist","album":b"No Album","bitrate":bitrate,'sample_rate':sample_rate,'time':"00:00",'time_sec':0,'ftype':ftype}	
 		
 	if audio == None:
 		print(filename[filename.rfind('/')+1:-(len(ftype)+1)])
