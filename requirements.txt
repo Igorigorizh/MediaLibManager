@@ -30,4 +30,5 @@ uvicorn[standard]
 python-multipart
 sqlalchemy
 pytest==7.1.2
+pytest-cov
 pyyaml
