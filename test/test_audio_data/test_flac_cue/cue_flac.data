@@ -1,0 +1,354 @@
+cue_crc32: 3365552379
+cue_f_name: !!binary |
+  Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmN1ZQ==
+cue_tracks_number: 21
+fType: flac
+is_cue_multy_tracks: false
+is_non_compliant_eac_cue: false
+lead_out_track_offset: 0
+offsetL:
+- 150
+- 13796
+- 19195
+- 28158
+- 49872
+- 63838
+- 77119
+- 93068
+- 112570
+- 121823
+- 135029
+- 149156
+- 162853
+- 173235
+- 183936
+- 194204
+- 208832
+- 217565
+- 229319
+- 245875
+- 259311
+orig_file_pathL:
+- BitRate: 0
+  SampleRate: 0
+  Time: ''
+  file_crc32: 1817953138
+  file_exists: true
+  orig_file_path: !!binary |
+    Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+trackD:
+  1:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:01
+    Title: 'RV 411 Concerto F-dur : I. Allegro'
+    index:
+    - 00:00:00:00
+    - 00:00:00:00
+    start_in_sec: 0
+    total_in_sec: 181.946667
+  2:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 01:11
+    Title: 'RV 411 Concerto F-dur : II. Largo'
+    index:
+    - 00:03:01:71
+    - 00:03:01:71
+    start_in_sec: 181.946667
+    total_in_sec: 71.986666
+  3:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 01:59
+    Title: 'RV 411 Concerto F-dur : III. Allegro Molto'
+    index:
+    - 00:04:13:70
+    - 00:04:13:70
+    start_in_sec: 253.933333
+    total_in_sec: 119.506667
+  4:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 04:49
+    Title: 'RV 401 Concerto c-moll : I. Allegro Non Molto (Andante Poco Mosso)'
+    index:
+    - 00:06:13:33
+    - 00:06:13:33
+    start_in_sec: 373.44
+    total_in_sec: 289.52
+  5:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:06
+    Title: 'RV 401 Concerto c-moll : II. Adagio'
+    index:
+    - 00:11:02:72
+    - 00:11:02:72
+    start_in_sec: 662.96
+    total_in_sec: 186.213333
+  6:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:57
+    Title: 'RV 401 Concerto c-moll : III. Allegro Ma Non Molto'
+    index:
+    - 00:14:09:13
+    - 00:14:09:13
+    start_in_sec: 849.173333
+    total_in_sec: 177.08
+  7:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:32
+    Title: 'RV 408 Concerto Es-dur : I. Allegro Non Molto'
+    index:
+    - 00:17:06:19
+    - 00:17:06:19
+    start_in_sec: 1026.253333
+    total_in_sec: 212.653334
+  8:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 04:20
+    Title: 'RV 408 Concerto Es-dur : II. Largo'
+    index:
+    - 00:20:38:68
+    - 00:20:38:68
+    start_in_sec: 1238.906667
+    total_in_sec: 260.026666
+  9:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:03
+    Title: 'RV 408 Concerto Es-dur : III. Allegro'
+    index:
+    - 00:24:58:70
+    - 00:24:58:70
+    start_in_sec: 1498.933333
+    total_in_sec: 123.373334
+  10:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:56
+    Title: 'RV 417 Concerto g-moll : I. Allegro'
+    index:
+    - 00:27:02:23
+    - 00:27:02:23
+    start_in_sec: 1622.306667
+    total_in_sec: 176.08
+  11:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:08
+    Title: 'RV 417 Concerto g-moll : II. Andante'
+    index:
+    - 00:29:58:29
+    - 00:29:58:29
+    start_in_sec: 1798.386667
+    total_in_sec: 188.36
+  12:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:02
+    Title: 'RV 417 Concerto g-moll : III. Allegro'
+    index:
+    - 00:33:06:56
+    - 00:33:06:56
+    start_in_sec: 1986.746667
+    total_in_sec: 182.626666
+  13:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:18
+    Title: 'RV 399 Concerto C-dur : I. Allegro'
+    index:
+    - 00:36:09:28
+    - 00:36:09:28
+    start_in_sec: 2169.373333
+    total_in_sec: 138.426667
+  14:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:22
+    Title: 'RV 399 Concerto C-dur : II. Largo'
+    index:
+    - 00:38:27:60
+    - 00:38:27:60
+    start_in_sec: 2307.8
+    total_in_sec: 142.68
+  15:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:16
+    Title: 'RV 399 Concerto C-dur : III. Allegro'
+    index:
+    - 00:40:50:36
+    - 00:40:50:36
+    start_in_sec: 2450.48
+    total_in_sec: 136.906667
+  16:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:15
+    Title: 'RV 403 Concerto D-dur : I. Allegro'
+    index:
+    - 00:43:07:29
+    - 00:43:07:29
+    start_in_sec: 2587.386667
+    total_in_sec: 195.04
+  17:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 01:56
+    Title: 'RV 403 Concerto D-dur : II. Andante E Spiritoso'
+    index:
+    - 00:46:22:32
+    - 00:46:22:32
+    start_in_sec: 2782.426667
+    total_in_sec: 116.44
+  18:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:36
+    Title: 'RV 403 Concerto D-dur : III. Allegro'
+    index:
+    - 00:48:18:65
+    - 00:48:18:65
+    start_in_sec: 2898.866667
+    total_in_sec: 156.72
+  19:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 03:40
+    Title: 'RV 422 Concerto a-moll : I. Allegro'
+    index:
+    - 00:50:55:44
+    - 00:50:55:44
+    start_in_sec: 3055.586667
+    total_in_sec: 220.746666
+  20:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: Christophe Coin & Il Giardino Armonico
+    Performer_CRC32: 149458347
+    SampleRate: 0
+    Time: 02:59
+    Title: 'RV 422 Concerto a-moll : II. Largo Cantabile'
+    index:
+    - 00:54:36:25
+    - 00:54:36:25
+    start_in_sec: 3276.333333
+    total_in_sec: 179.146667
+  21:
+    Album: 'Vivaldi: Concerti per Violoncello II'
+    BitRate: 0
+    OrigFile: !!binary |
+      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Performer: ''
+    Performer_CRC32: 0
+    SampleRate: 0
+    Time: 00:00
+    Title: 'RV 422 Concerto a-moll : III. Allegro'
+    index:
+    - 00:57:35:36
+    - 00:57:35:36
+    start_in_sec: 3455.48
+    total_in_sec: 0
