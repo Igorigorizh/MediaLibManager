@@ -17,10 +17,8 @@ def test_flac_parseCue():
 	assert parseCue(cue_flac_file) == cue_flac_data_file_expected
 
 
-
 def test_flac_parseCue_with_bitrate():
 	assert parseCue(cue_flac_file, 'with_bitrate') == cue_flac_data_file_br_expected
-
 
 
 def test_flac_simple_parseCue():
@@ -29,7 +27,6 @@ def test_flac_simple_parseCue():
 
 def test_wavpack_parseCue():
 	assert parseCue(cue_wavpack_file) == cue_wavpack_data_file_expected
-
 
 
 def test_wavpack_parseCue_with_bitrate():
