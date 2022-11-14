@@ -4,6 +4,7 @@ from . import flac_file_data_expected
 from . import cue_flac_data_file_expected
 from . import cue_flac_data_file_br_expected
 from . import cue_flac_simple_data_file_expected
+from . import cue_flac_file_no_unicode
 
 from . import cue_wavpack_file
 from . import cue_wavpack_data_file_expected
@@ -24,6 +25,8 @@ def test_flac_parseCue_with_bitrate():
 def test_flac_simple_parseCue():
 	assert simple_parseCue(cue_flac_file) == cue_flac_simple_data_file_expected
 
+def test_flac_no_unicode_simple_parseCue():
+	assert simple_parseCue(cue_flac_file_no_unicode) == {'Error':'Not Unicode filename'}
 
 def test_wavpack_parseCue():
 	assert parseCue(cue_wavpack_file) == cue_wavpack_data_file_expected
