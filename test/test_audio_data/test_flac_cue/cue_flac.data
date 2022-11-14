@@ -1,6 +1,6 @@
-cue_crc32: 3365552379
+cue_crc32: 959550532
 cue_f_name: !!binary |
-  Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmN1ZQ==
+  Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuY3Vl
 cue_tracks_number: 21
 fType: flac
 is_cue_multy_tracks: false
@@ -32,16 +32,16 @@ orig_file_pathL:
 - BitRate: 0
   SampleRate: 0
   Time: ''
-  file_crc32: 1817953138
+  file_crc32: 930399931
   file_exists: true
   orig_file_path: !!binary |
-    Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
 trackD:
   1:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -56,7 +56,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -71,7 +71,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -86,7 +86,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -101,7 +101,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -116,7 +116,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -131,7 +131,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -146,7 +146,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -161,7 +161,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -176,7 +176,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -191,7 +191,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -206,7 +206,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -221,7 +221,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -236,7 +236,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -251,7 +251,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -266,7 +266,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -281,7 +281,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -296,7 +296,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -311,7 +311,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -326,7 +326,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: Christophe Coin & Il Giardino Armonico
     Performer_CRC32: 149458347
     SampleRate: 0
@@ -341,7 +341,7 @@ trackD:
     Album: 'Vivaldi: Concerti per Violoncello II'
     BitRate: 0
     OrigFile: !!binary |
-      Li90ZXN0X2F1ZGlvX2RhdGEvdGVzdF9mbGFjX2N1ZS90ZXN0LmZsYWM=
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
     Performer: ''
     Performer_CRC32: 0
     SampleRate: 0

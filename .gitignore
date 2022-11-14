@@ -16,8 +16,6 @@
 /config
 *.xml
 *.pyc
-*.cue
-*.flac
 ./__pycache__
 .coverage
 
