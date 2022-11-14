@@ -15,6 +15,7 @@ cfg.read(medialib_test_cfg)
 flac_file = cfg['AUDIO_DATA_PATH']['flac_file'].encode(BASE_ENCODING)
 flac_file_data = cfg['TEST_DATA_PATH']['flac_file_data'].encode(BASE_ENCODING)
 cue_flac_file = cfg['AUDIO_DATA_PATH']['cue_flac'].encode(BASE_ENCODING)
+cue_flac_file_no_unicode = cfg['AUDIO_DATA_PATH']['cue_flac']
 cue_flac_data_file = cfg['TEST_DATA_PATH']['cue_flac_data']
 cue_flac_data_br_file = cfg['TEST_DATA_PATH']['cue_flac_data_br']
 cue_flac_simple_data_file = cfg['TEST_DATA_PATH']['cue_flac_simple_data']

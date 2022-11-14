@@ -51,7 +51,7 @@ def parseCue(fName,*args):
 	# в режиме only_file в single image возвращает количество cue_tracks_number = 0 => чтобы узнать реальное количество трэков
 	# надо вызывать без параметров
 	#
-	#Имена файлов необходимо возвращать в абсолютном формате, т.к. затем абсолютные имена буду использоваться для извлечения других данных
+	#Имена файлов необходимо возвращать в абсолютном формате, т.к. затем абсолютные имена будут использоваться для извлечения других данных
 	if not isinstance(fName, bytes):
 		logger.critical('Exception at in parseCue: only unicode byte string allowed')	
 		return {'Error':'Not Unicode filename'}
@@ -62,14 +62,7 @@ def parseCue(fName,*args):
 		pass
 	char_codec = line_album_codec = line_file_codec = line_track_codec = line_perform_main_codec = line_perform_track_codec = {}
 	cue_crc32 = 0
-	#if not isinstance(fName, str):
-	#	char_codec = chardet.detect(fName)
-	#	try:
-	#		fName = fName.decode(char_codec['encoding'])
-			
-	#	except Exception as e:
-	#		logger.critical('Exception at 50 [%s] in parseCue'%(str(e)))	
-	#		return {'Error':e}
+
 		
 	# since it not known how data encoded inside we provide both scenariouus with/without UTF 	
 	try:
@@ -185,8 +178,6 @@ def parseCue(fName,*args):
 				track_flag = False
 			lst = re.split('([^"]*")(.*)("[^"]*)', a)
 			line_file_codec = chardet.detect(bytes(lst[2],encoding = BASE_ENCODING))
-			#print line_file_codec
-			#print
 			
 			if not isinstance(lst[2], bytes):
 				orig_file = bytes(lst[2],encoding = BASE_ENCODING)
@@ -241,7 +232,6 @@ def parseCue(fName,*args):
 						print('probably MonkeysAudioHeaderError_2',orig_file_path)	
 						logger.critical('Exception at 151 [%s] in parseCue  [MonkeysAudioHeaderError_2]'%(str(e)))	
 						return {'Error':e}
-						#print full_time
 					
 						
 				elif fType.lower() == 'flac':	
@@ -292,9 +282,6 @@ def parseCue(fName,*args):
 				next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1		
 				track_offset_cnt+=1	
 					
-					
-					
-					
 			if orig_file_path != '' and orig_file_path != b"":
 
 				
@@ -342,8 +329,6 @@ def parseCue(fName,*args):
 			lst = re.split('([^"]*")(.*)("[^"]*)', a)
 			try:
 				line_perform_main_codec = chardet.detect(bytes(lst[2],encoding = BASE_ENCODING))
-				#perform_main = lst[2].strip().decode(line_perform_main_codec['encoding'])
-				#perform_main = lst[2].strip().decode(most_codec)
 				perform_main = lst[2].strip()
 			except UnicodeDecodeError as e:	
 				perform_main = lst[2].strip().decode(BASE_ENCODING)
@@ -363,10 +348,9 @@ def parseCue(fName,*args):
 				logger.critical('Exception [%s] in parseCue  [at title chardet-2]'%(str([a,track_num])))	
 				print('parseCue Error: line',track_num)
 				return {'Error':str(e),'ErrorData':[lst,a,track_num]}
-#			raw_input(a)
+
 			try:
-				#trackD[track_num]['Title']=lst[2].strip().decode(line_track_codec['encoding'])
-				#trackD[track_num]['Title']=lst[2].strip().decode(most_codec)
+
 				trackD[track_num]['Title']=lst[2].strip()
 			except UnicodeDecodeError as e:
 				trackD[track_num]['Title']=lst[2].strip().decode(BASE_ENCODING)
@@ -375,7 +359,6 @@ def parseCue(fName,*args):
 				trackD[track_num]['TitleUndecode']=lst[2]
 				
 			try:		
-				#trackD[track_num]['Album']=album.decode(line_album_codec['encoding'])
 				trackD[track_num]['Album']=album
 			except UnicodeDecodeError as e:
 				trackD[track_num]['Album']=album.decode(BASE_ENCODING)
@@ -389,10 +372,7 @@ def parseCue(fName,*args):
 			lst = re.split('([^"]*")(.*)("[^"]*)', a)
 			line_perform_track_codec = chardet.detect(bytes(lst[2],encoding = BASE_ENCODING))
 			try:
-				#trackD[track_num]['Performer']=lst[2].strip().decode(line_perform_track_codec['encoding'])
-				#trackD[track_num]['Performer']=lst[2].strip().decode(most_codec)
 				trackD[track_num]['Performer']=lst[2].strip()
-#				print lst
 			except Exception as e:
 				logger.critical('Exception [%s] in parseCue  [at performer]'%(str(e)))	
 				pass
@@ -408,8 +388,6 @@ def parseCue(fName,*args):
 			index = lst[1]
 			
 			# Calculate track Frame offset for  final TOC
-			
-			
 			index_time = '00:'+lst[2]
 			
 			if int(index) == 0:
@@ -516,9 +494,6 @@ def parseCue(fName,*args):
 				logger.critical('Exception at 331 [%s] in parseCue  [myMusicStr2TimeDelta]-2'%(fName))	
 				logger.critical('Exception at 331 [%s] [%s] in parseCue  [myMusicStr2TimeDelta]-3'%(str(full_time),str(myMusicStr2TimeDelta(trackD[track_num]['index'][1]))))	
 				
-			
-			
-			
 			if delta[:2] == '0:':
 				delta=delta[2:7]
 			
@@ -537,9 +512,7 @@ def parseCue(fName,*args):
 	
 def simple_parseCue(fName,*args):
 	"""
-		Gets 
-	
-	
+		Gets track list from cue with relative file path
 	"""
 	# Collect only filenames from CUE
 	if not isinstance(fName, bytes):
@@ -617,7 +590,7 @@ def simple_parseCue(fName,*args):
 			fType = os.path.splitext(orig_file)[-1][1:].decode()
 			if fType == '':
 				logger.critical('Critical error in simple_parseCue: file ext retrieve failed for:',a)	
-			orig_file_pathL.append({'orig_file_path':os.path.join(os.path.dirname(fName),orig_file),'orig_file':orig_file,'fType':fType})	
+			orig_file_pathL.append({'orig_file_path':os.path.join(os.path.dirname(fName)+b'/',orig_file),'orig_file':orig_file,'fType':fType})	
 			
 			
 	
@@ -628,254 +601,7 @@ def simple_parseCue(fName,*args):
 	if fType == '':
 		print('Error in fType:',orig_file_path)
 	return {'orig_file_pathL':orig_file_pathL,'songL':cue_songL,'cue_tracks_number':track_num,'cue_file_name':fName} 
-	
-def checkCue_inLibConsistenc_folder(init_dirL,*args):
-# ???? ????????? ??????????? ?? ?????? ???? ? CRC32 c ?????? CUE
-#r = myMediaLib.collectMyMediaLib_folder(['G:\\MUSIC\\ORIGINAL_MUSIC'])
-	cnt = 0
-	allmFD = {}
-	cueD = {}
-	cueDupl = {}
-	notRelevCue = {}
-	cueDupResD = {}
-	flac_no_cueL = []
-	ape_num = wv_num = flac_num = m4a_num = all_alb_cnt = flac_no_cue_num = 0
-	for init_dir in init_dirL:
-		for root, dirs, files in os.walk(init_dir):
-			cue_flag = False
-			origf = ''
-			ftype = ''
 
-			for a in files:
-			       #if a.find('.ape') > 0 or a.find('.flac')
-				#if "image" in a:
-				#	print a  
-				#if "ergole" in a:
-				#	print a   
-				cue_flag = False
-				#if a[a.rfind('.'):].lower().find('.cue') >= 0:
-				if '.cue' in a:
-					origf = ''
-					ftype = ''
-					
-					try:
-						cue_name = (root+'/'+a)
-				
-					except Exception as e:
-						logger.critical('in checkCue_inLibConsistenc_folder - Exception  [%s]'%(str(e)))
-
-
-					try:	
-						origfD = simple_parseCue(cue_name)	
-					except NameError:
-						import myMediaLib
-						origfD = myMediaLib.simple_parseCue(cue_name)	
-	#return {'orig_file':orig_file,'orig_file_path':orig_file_path,'fType':fType,'songL':songL} 
-	
-					try:
-						if os.path.exists(origfD['orig_file_path']):
-							cue_dirname = os.path.dirname(origfD['orig_file_path'])
-							check_dircrc32 =  zlib.crc32(cue_dirname.lower())
-							if check_dircrc32 in cueDupl :
-								cueDupl[check_dircrc32]['dupL'].append((origfD['orig_file_path'],a)) 
-							else:
-								cueDupl[check_dircrc32] = {'dupL':[(origfD['orig_file_path'],a),],'dirName':cue_dirname,'cueFile':a}
-								
-							cue_flag = True
-							if origfD['fType'].lower() == 'flac':
-								flac_num+=1
-							elif origfD['fType'].lower() == 'ape':
-								ape_num+=1
-							elif origfD['fType'].lower() == 'wv':
-								wv_num+=1
-							elif origfD['fType'].lower() == 'm4a':
-								m4a_num+=1	
-							else:
-								print(origfD['fType'])
-							origf = origfD['orig_file_path']
-							ftype = origfD['fType']
-							crc32 = zlib.crc32(origf.lower())
-							last_modify_date = 0
-							try:
-								last_modify_date = os.stat(cue_name).st_mtime
-							except:
-								print('eroror cue time',origfD['orig_file_path'])
-								pass
-							cueD[crc32]={'dir':root,'filename':a,'file':origf,'ftype':ftype,'songL':origfD['songL'],'last_modify_date':last_modify_date,'cueFName':cue_name}
-						else:
-							if  zlib.crc32(cue_name) in  notRelevCue:
-								notRelevCue[zlib.crc32(cue_name)]['fL'].append(origfD['orig_file_path']) 
-							else:
-								notRelevCue[zlib.crc32(cue_name)] = {'fL':[origfD['orig_file_path'],],'cueFile':a}
-							#print 'Cue not relevant:',origfD['orig_file_path']
-							continue
-					except:
-						print('error:',origfD)
-					#break
-			
-			continue
-			
-			for a in files:
-				
-				ftype = None
-				if a[a.rfind('.'):].lower().find('.ape') >= 0:
-					ftype = 'ape'
-					
-				elif a[a.rfind('.'):].lower().find('.flac') >= 0:
-					ftype = 'flac'
-				elif a[a.rfind('.'):].lower().find('.mp3') >= 0:
-					ftype = 'mp3'
-				elif a[a.rfind('.'):].lower().find('.wv') >= 0:
-					ftype = 'wv'	
-				elif a[a.rfind('.'):].lower().find('.m4a') >= 0:
-					ftype = 'm4a'
-				if	ftype != None:
-					fname = (root+'/'+a).lower() 
-					orig_fname = root+'/'+a 
-					
-					crc32 = zlib.crc32(fname)
-					#if crc32 == 1133272172:
-					#	return fname
-					last_modify_date = 0
-					try:
-						last_modify_date = os.stat(orig_fname).st_mtime
-					except:
-						pass
-					
-					
-					pos = root.rfind('/')
-					
-					album = root[pos+1:]
-					#print root
-					if crc32 in cueD:
-						for b in cueD[crc32]['songL']:
-							crc32_i = zlib.crc32((b).lower())
-							pos = b.rfind(',')
-							allmFD[crc32_i] = {'orig_fname':cueD[crc32]['file'],'last_modify_date':cueD[crc32]['last_modify_date'],'album':album,'album_crc32':zlib.crc32((root).lower()),'file':b.lower(),'cueNameIndx':b[:pos],'ftype':ftype,'cue':'X'}
-					else:
-						allmFD[crc32] = {'orig_fname':orig_fname,'last_modify_date':last_modify_date,'album':album,'album_crc32':zlib.crc32((root).lower()),'file':fname,'ftype':ftype,'cueNameIndx':None}
-			
-			if 'stat' not in args:
-				continue
-				
-			for a in files:
-			
-				if a[a.rfind('.'):].find('.mp3') >= 0:
-					all_alb_cnt += 1
-					break
-				elif a[a.rfind('.'):].find('.ape') >= 0:
-					all_alb_cnt += 1
-					break
-				elif a[a.rfind('.'):].find('.wv') >= 0:
-					all_alb_cnt += 1
-					break	
-				elif a[a.rfind('.'):].find('.m4a') >= 0:
-					all_alb_cnt += 1
-					break	
-				elif a[a.rfind('.'):].find('.flac') >= 0:
-					if not cue_flag:
-						flac_no_cue_num +=1
-						flac_no_cueL.append(root)
-					else:
-						#print 'cue',
-						pass
-					all_alb_cnt += 1
-					break
-			cnt+=1
-			if cnt%100 == 0:
-				print('.',len(allmFD), end=' ')
-				
-	for a in cueDupl:
-		if len(cueDupl[a]['dupL'])>1:
-			cueDupResD[a] = cueDupl[a]
-	return 	{'cueDupl':cueDupResD,'notRelevCue':notRelevCue}	
-	
-	if 'stat' in args:
-		print()
-		print('cueL:',len(cueD),'ape_num:',ape_num,'wv_num:',wv_num,'m4a_num:',m4a_num,'flac_num:',flac_num,'flac_no_cue_num:',flac_no_cue_num,'all_alb_cnt:',all_alb_cnt)
-		return {'allmFD':allmFD,'cueL':cueD,'flac_no_cueL':flac_no_cueL,'ape_num':ape_num,'flac_num':flac_num,'all_alb_cnt':all_alb_cnt,'flac_no_cue_num':flac_no_cue_num}
-	else:
-		return {'allmFD':allmFD,'cueL':cueD}		
-def cue_check_and_error_correct(fName,separator,seqL,*args):
-	fType = ''
-	try:
-		f = open(fName,'r', encoding=BASE_ENCODING)
-	except:
-		print('File not found:',fName)
-		return None
-	l = f.readlines()
-	f.close()
-	track_flag = False
-	album = ''
-	full_time = ''
-	orig_file = ''
-	orig_file_path = ''
-	perform_main = ''
-	track_num = 0
-	trackD = {}
-	resL = []
-	got_file_info = False
-	do_job = False
-	for a in l:
-		if 'TRACK 01 AUDIO' in a:
-			do_job = True
-			
-		if not do_job:
-			resL.append(a)
-			continue
-			
-		pos = a.find('"')+1
-		if 'separate' in args:
-
-			if a.lower().strip().find('performer') == 0:
-				index = None
-				if seqL[0].lower() == 'artist':
-					index = 0
-				else:
-					index = 1
-
-				if index == None:
-					print('Error')
-					return 0
-
-
-				
-				partsL = a[pos:-2].split(separator)
-				print(partsL)
-				try:
-					line = '\t'+'PERFORMER "'+partsL[index].strip()+'"'+'\n'
-				except:
-					resL.append(a)
-					print('Eroror',a)
-					continue		
-			elif a.lower().strip().find('title') == 0:
-				index = None
-				if seqL[0].lower() == 'artist':
-					index = 1
-				else:
-					index = 0
-
-				if index == None:
-					print('Error')
-					return 0
-					
-					
-				
-				partsL = a[pos:-2].split(separator)
-				print(partsL)
-				try:
-					line = '\t'+'TITLE "'+partsL[index].strip()+'"'+'\n'
-				except:
-					resL.append(a)
-					print('Eroror',a)
-					continue	
-			else:
-				line = a
-			resL.append(line)
-	file_name_new =	'corrected_'+fName
-	f = open(file_name_new,'w', encoding=BASE_ENCODING)
-	l = f.writelines(resL)
-	f.close()		
 
 def GetTrackInfoVia_ext(filename,ftype):
 	logger.debug('in GetTrackInfoVia_ext - start [%s]'%str(ftype))
@@ -1068,13 +794,6 @@ def GetTrackInfoVia_ext(filename,ftype):
 		print(filename[filename.rfind('/')+1:-(len(ftype)+1)])
 		return {"title":filename[filename.rfind('/')+1:-(len(ftype)+1)],"artist":'No Artist',"album":'No Album',"bitrate":bitrate,'sample_rate':sample_rate,'time':'00:00','time_sec':0,'ftype':ftype}	
 		
-	#logger.debug('in GetTrackInfoVia_ext - audio keys [%s]'%str(audio.keys()))	
-	#logger.debug('in GetTrackInfoVia_ext - audio keys val [%s]'%str(audio))	
-	
-		#if a == 0:
-		#	time = cur_time
-		#else:
-		#	time = '00:00'
 				
 	audio_keys = ['title','artist','album','tracknumber','date','genre']
 	if ftype == 'ape' or ftype == 'apl':
@@ -1095,7 +814,6 @@ def GetTrackInfoVia_ext(filename,ftype):
 			logger.critical('Error in GetTrackInfoVia_ext mp3:[%s]'%str(e))	
 
 			time_sec = 0
-	#return audio	
 	for c in audio_keys:
 		if ftype ==	'dsf':
 			break
@@ -1196,9 +914,7 @@ def generate_play_list_from_fileData(trackLD,album_crc32,track_crc32,audioFilesP
 						print(mpd_file)
 						trackL.append((os.path.join(mpdMusicPathPrefix,mpd_file).decode('utf-8'),0))
 					
-				#print trackLD[a]['file']
-	#print(len(trackL),'isCue',is_cue)
-	# if CUE then simple run cue with winamp
+	
 	if is_cue and len(trackL) > 0:
 		#pos = trackL[0].rfind(',')
 		#cue_file = trackL[0][:pos]
@@ -1207,8 +923,6 @@ def generate_play_list_from_fileData(trackLD,album_crc32,track_crc32,audioFilesP
 		logger.debug('in generate_play_list_from_fileData - cue Finished [%s]'%(str(len(trackL))))
 		return trackL
 			
-		 
-		
 	if not is_cue and  len(trackL) > 0:
 		trackL.sort(key=operator.itemgetter(0))
 		logger.debug('in generate_play_list_from_fileData - not cue Finished')

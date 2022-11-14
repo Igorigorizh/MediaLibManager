@@ -6,7 +6,7 @@ orig_file_pathL:
   orig_file: !!binary |
     dGVzdC5mbGFj
   orig_file_path: !!binary |
-    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlXHRlc3QuZmxhYw==
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuZmxhYw==
 songL:
 - !!binary |
   Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlL3Rlc3QuY3VlLDE=
