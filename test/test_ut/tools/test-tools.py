@@ -1,7 +1,7 @@
 import wave, struct
 import time
 	
-def generate_wav_silent_copy(fname_src,fname_dest):
+def generate_wav_silent_copy(fname_src, fname_dest):
 	""" Generates silent copy of input wav file
 		Uses for cue single image tests. File size after recoding to flac, wv, ape etc.. significantly less than original wav
 
@@ -10,7 +10,7 @@ def generate_wav_silent_copy(fname_src,fname_dest):
 		nchannels, sampwidth, framerate, nframes, _, _ = wavefile.getparams()	
 	
 	# copy audio properties to output file	
-	obj = wave.open(fname_dest,'w')	
+	obj = wave.open(fname_dest, 'w')	
 	obj.setnchannels(nchannels)
 	obj.setsampwidth(sampwidth)
 	obj.setframerate(framerate)
@@ -34,10 +34,9 @@ def generate_wav_silent_copy(fname_src,fname_dest):
 if __name__ == '__main__':
 	import argparse	
 	parser = argparse.ArgumentParser(description='media lib tools wav silent copy')	
-	parser.add_argument('src_wav', metavar='source wave file',
-                        help='src_wav')	
-	parser.add_argument('dest_wav', metavar='silence copy wave file',
-                        help='dest_wav')						
+	parser.add_argument('-src', 
+                        help='-src', action='store')	
+	parser.add_argument('-dst', 
+                        help='-dst', action='store')						
 	args = parser.parse_args()
-	print(args)	
-	generate_wav_silent_copy(args.src_wav,args.dest_wav)
+	generate_wav_silent_copy(args.src,args.dst)

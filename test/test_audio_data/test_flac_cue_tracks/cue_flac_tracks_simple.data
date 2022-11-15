@@ -1,0 +1,33 @@
+cue_file_name: !!binary |
+  Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy90ZXN0X2ZsYWNfY3Vl
+  X3RyYWNrcy5jdWU=
+cue_tracks_number: 3
+orig_file_pathL:
+- fType: flac
+  orig_file: !!binary |
+    MDEgLSB0ZXN0X3MuZmxhYw==
+  orig_file_path: !!binary |
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMSAtIHRlc3Rfcy5m
+    bGFj
+- fType: flac
+  orig_file: !!binary |
+    MDIgLSB0ZXN0X3MuZmxhYw==
+  orig_file_path: !!binary |
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMiAtIHRlc3Rfcy5m
+    bGFj
+- fType: flac
+  orig_file: !!binary |
+    MDMgLSB0ZXN0X3MuZmxhYw==
+  orig_file_path: !!binary |
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMyAtIHRlc3Rfcy5m
+    bGFj
+songL:
+- !!binary |
+  Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy90ZXN0X2ZsYWNfY3Vl
+  X3RyYWNrcy5jdWUsMQ==
+- !!binary |
+  Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy90ZXN0X2ZsYWNfY3Vl
+  X3RyYWNrcy5jdWUsMg==
+- !!binary |
+  Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy90ZXN0X2ZsYWNfY3Vl
+  X3RyYWNrcy5jdWUsMw==
