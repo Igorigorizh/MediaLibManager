@@ -1,0 +1,96 @@
+cue_crc32: 1055827453
+cue_f_name: !!binary |
+  Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy90ZXN0X2ZsYWNfY3Vl
+  X3RyYWNrcy5jdWU=
+cue_tracks_number: 3
+fType: flac
+is_cue_multy_tracks: true
+is_non_compliant_eac_cue: false
+lead_out_track_offset: 38852
+offsetL:
+- 150
+- 9498
+- 20215
+orig_file_pathL:
+- BitRate: 1
+  SampleRate: 44100
+  Time: !!python/object/apply:datetime.timedelta
+  - 0
+  - 124
+  - 0
+  file_crc32: 2013042889
+  file_exists: true
+  orig_file_path: !!binary |
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMSAtIHRlc3Rfcy5m
+    bGFj
+- BitRate: 1
+  SampleRate: 44100
+  Time: !!python/object/apply:datetime.timedelta
+  - 0
+  - 142
+  - 0
+  file_crc32: 1719792304
+  file_exists: true
+  orig_file_path: !!binary |
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMiAtIHRlc3Rfcy5m
+    bGFj
+- BitRate: 1
+  SampleRate: 44100
+  Time: !!python/object/apply:datetime.timedelta
+  - 0
+  - 248
+  - 0
+  file_crc32: 3749325144
+  file_exists: true
+  orig_file_path: !!binary |
+    Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMyAtIHRlc3Rfcy5m
+    bGFj
+trackD:
+  1:
+    Album: Once Upon A Time In Hollywood
+    BitRate: 1
+    OrigFile: !!binary |
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMSAtIHRlc3Rfcy5m
+      bGFj
+    Performer: Roy Head & The Traits
+    Performer_CRC32: 1160201998
+    SampleRate: 44100
+    Time: 02:04
+    Title: Treat Her Right
+    index:
+    - 00:00:00:00
+    - 00:00:00:00
+    start_in_sec: 0
+    total_in_sec: 0
+  2:
+    Album: Once Upon A Time In Hollywood
+    BitRate: 1
+    OrigFile: !!binary |
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMiAtIHRlc3Rfcy5m
+      bGFj
+    Performer: The Bob Seger System
+    Performer_CRC32: 3103831094
+    SampleRate: 44100
+    Time: 02:22
+    Title: Ramblin' Gamblin' Man
+    index:
+    - 00:00:00:00
+    - 00:00:00:00
+    start_in_sec: 0
+    total_in_sec: 0
+  3:
+    Album: Once Upon A Time In Hollywood
+    BitRate: 1
+    OrigFile: !!binary |
+      Li90ZXN0L3Rlc3RfYXVkaW9fZGF0YS90ZXN0X2ZsYWNfY3VlX3RyYWNrcy8wMyAtIHRlc3Rfcy5m
+      bGFj
+    Performer: Deep Purple
+    Performer_CRC32: 2451186880
+    SampleRate: 44100
+    Time: 04:08
+    Title: Hush
+    index:
+    - 00:00:00:00
+    - 00:00:00:00
+    start_in_sec: 0
+    total_in_sec: 0
