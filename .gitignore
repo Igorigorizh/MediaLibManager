@@ -10,6 +10,7 @@
 /test/apis/version1/__pycache__
 /test/core/__pycache__
 /test/utils/__pycache__
+/test/test_audio_data2
 /venv
 /db
 /log
