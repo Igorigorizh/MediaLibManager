@@ -124,8 +124,7 @@ from medialib.myMediaLib_mpd import get_mpd_playlist_as_crc32L
 from medialib.myMediaLib_mpd import get_mpd_status
 from medialib.myMediaLib_mpd import get_mpd_playlistinfo
 
-from medialib.myMediaLib_fs_util import find_new_music_folder
-from medialib.myMediaLib_fs_util import identify_music_folder
+from medialib.myMediaLib_fs_util import Media_FileSystem_Helper as mfsh
 from medialib.myMediaLib_fs_util import get_parent_folder_stackL
 
 from medialib.myMediaLib_cue import generate_play_list_from_fileData
@@ -137,6 +136,11 @@ import logging
 from  medialib import BASE_ENCODING
 from  medialib import mymedialib_cfg
 from pathlib import Path, PosixPath, WindowsPath, PurePosixPath 
+
+# monkey patch for old code reuse
+find_new_music_folder = mfsh().find_new_music_folder
+find_new_music_folder_simple = mfsh().find_new_music_folder_simple
+
 def is_ip(address):
     return address.replace('.', '').isnumeric()
 

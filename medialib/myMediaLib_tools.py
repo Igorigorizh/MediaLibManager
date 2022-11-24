@@ -31,8 +31,11 @@ from medialib.myMediaLib_adm import getFolderAlbumD_fromDB
 from medialib.myMediaLib_adm import db_request_wrapper
 from medialib.myMediaLib_adm import collect_albums_folders
 
-from medialib.myMediaLib_fs_util import find_new_music_folder
-from medialib.myMediaLib_fs_util import find_new_music_folder_simple
+from medialib.myMediaLib_fs_util import Media_FileSystem_Helper as mfsh
+find_new_music_folder = mfsh().find_new_music_folder
+find_new_music_folder_simple = mfsh().find_new_music_folder_simple
+#from medialib.myMediaLib_fs_util import find_new_music_folder
+#from medialib.myMediaLib_fs_util import find_new_music_folder_simple
 
 
 from medialib import BASE_ENCODING
@@ -47,6 +50,8 @@ import warnings
 #from redis import Redis
 #from celery_progress.backend import ProgressRecorder
 from configparser import ConfigParser
+
+
 
 cfgD = readConfigData(mymedialib_cfg)
 
