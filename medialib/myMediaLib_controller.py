@@ -124,9 +124,9 @@ from medialib.myMediaLib_mpd import get_mpd_playlist_as_crc32L
 from medialib.myMediaLib_mpd import get_mpd_status
 from medialib.myMediaLib_mpd import get_mpd_playlistinfo
 
-from medialib.myMediaLib_tools import find_new_music_folder
-from medialib.myMediaLib_tools import identify_music_folder
-from medialib.myMediaLib_tools import get_parent_folder_stackL
+from medialib.myMediaLib_fs_util import find_new_music_folder
+from medialib.myMediaLib_fs_util import identify_music_folder
+from medialib.myMediaLib_fs_util import get_parent_folder_stackL
 
 from medialib.myMediaLib_cue import generate_play_list_from_fileData
 
@@ -4235,7 +4235,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 		return 1
 		
 	def get_tracks_4_selected_folder(self,commandD):	
-		# Сбор метаданных для закладки Tracks и упаковка в JSON структуру
+		# Сбор метаданных для закладки Tracks и упаковка в JSON структуру __modelDic['tracks_preload_proc_buf_db']
 		self.__logger.debug('3740 get_tracks_4_selected_folder: [%s] '%(str(commandD)))
 		cfgD = readConfigData(mymedialib_cfg)
 		audioFilesPathRoot = self.__model_instance.MediaLibPlayProcessDic_viaKey('configDict','local')['audioFilesPathRoot']
@@ -4295,7 +4295,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
 				if with_db_folder_check:
 					DB_PathL = getFolderPathL_fromDB_viaTermL(dbPath,None,[sel_dir],audioFilesPathRoot)
 				
-				res = find_new_music_folder(None,[sel_dir], MLFolderTreeAll_BufD['folder_list'],DB_PathL)
+				res = find_new_music_folder([sel_dir], MLFolderTreeAll_BufD['folder_list'],DB_PathL)
 				try:
 					self.__logger.debug('3952 in get_tracks_4_selected_folder: after find_new_music_folder %s '%(str([res])))	
 				except Exception as e:
