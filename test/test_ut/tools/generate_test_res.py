@@ -1,10 +1,10 @@
 import os
 import sys
 
-from .. import cue_ape_file
-from .. import cue_flac_file
-from .. import cue_flac_tracks_file
-from .. import flac_file
+from test_ut import cue_ape_file
+from test_ut import cue_flac_file
+from test_ut import cue_flac_tracks_file
+from test_ut import flac_file
 from .. import cue_wavpack_file
 from .. import BASE_ENCODING
 import test

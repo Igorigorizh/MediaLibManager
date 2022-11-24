@@ -20,7 +20,6 @@ import discid
 import musicbrainzngs
 import time
 import logging
-import ast
 from pathlib import Path
 
 from medialib.myMediaLib_init import readConfigData
@@ -32,6 +31,10 @@ from medialib.myMediaLib_adm import getFolderAlbumD_fromDB
 from medialib.myMediaLib_adm import db_request_wrapper
 from medialib.myMediaLib_adm import collect_albums_folders
 
+from medialib.myMediaLib_fs_util import find_new_music_folder
+from medialib.myMediaLib_fs_util import find_new_music_folder_simple
+
+
 from medialib import BASE_ENCODING
 from medialib import mymedialib_cfg
 from medialib import medialib_fp_cfg
@@ -41,8 +44,8 @@ from functools import wraps
 
 
 import warnings
-from redis import Redis
-from celery_progress.backend import ProgressRecorder
+#from redis import Redis
+#from celery_progress.backend import ProgressRecorder
 from configparser import ConfigParser
 
 cfgD = readConfigData(mymedialib_cfg)
@@ -54,51 +57,8 @@ logger = logging.getLogger('controller_logger.tools')
 
 musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
-redis_connection = Redis(host=cfg_fp['REDIS']['host'], port=cfg_fp['REDIS']['port'], db=0)
 
 posix_nice_value = int(cfg_fp['FP_PROCESS']['posix_nice_value'])
-
-def redis_state_notifier(state_name='medialib:', action='progress'):
-	if action == 'progress':
-		try:
-			#print('get:',state_name)
-			redis_connection.incr(state_name, 1)
-			#print('result:',redis_connection.get(state_name))
-		except Exception as e:
-			logger.warning('Redis is not connected %s'%str(e))
-	elif action == 'init':
-		try:
-			#print('get:',state_name)
-			redis_connection.set(state_name,0)
-			#print('result:',redis_connection.get(state_name))
-		except Exception as e:
-			logger.warning('Redis is not connected %s'%str(e))		
-	elif action == 'progress-stop':
-		try:
-			#print('get:',state_name)
-			redis_connection.delete(state_name)
-		except Exception as e:
-			logger.warning('Redis is not connected %s'%str(e))
-
-class JobInternalStateRedisKeeper:
-	# запоминаем аргументы декоратора
-	def __init__(self, state_name='medialib:', action='init'):
-		self._state_name = state_name
-		self._action = action
-	
-
-	# декоратор общего назначения
-	def __call__(self, func):
-		@wraps(func)
-		def wrapper(*args, **kwargs):
-            
-			val = func(*args, **kwargs)
-			redis_state_notifier(self._state_name, self._action)
-			
-			return val
-		return wrapper
-
-
 
 def is_only_one_media_type(filesL):
 	fTypeL = []
@@ -247,8 +207,8 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 		cpu_reduce_num = 1
 		print("Wrong CPU reduce provided, changed to ",cpu_reduce_num)
 		cpu_num = cpu_count()-cpu_reduce_num
-	redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
-	redis_state_notifier('medialib-job-fp-album-progress','init')
+	#redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
+	#redis_state_notifier('medialib-job-fp-album-progress','init')
 	
 	if scenarioD['cue_state']['single_image_CUE']:
 		print("\n\n-------FP generation for CUE scenario:  single_image_CUE-----------")
@@ -484,7 +444,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	if 'FP' in  args: 
 		print("\n********** Album FP takes:%i sec.***********************"%(int(time_stop_diff)))
 		
-	redis_state_notifier('medialib-job-fp-album-progress','progress-stop')
+	#redis_state_notifier('medialib-job-fp-album-progress','progress-stop')
 	
 				
 	time_ACOUSTID_FP_REQ = time.time()
@@ -631,7 +591,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 	#print (ffmpeg_command)
 	prog = 'ffmpeg'				
 	
-	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
+	#redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	#print("Worker before ffmmeg pid:",os.getpid())
 	if os.name == 'posix':
 		try:
@@ -676,7 +636,7 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 #@JobInternalStateRedisKeeper(state_name='medialib-job-fp-album-progress',action='progress')	
 def worker_fingerprint(file_path):
 	print("Worker acoustid.fingerprint pid:",os.getpid())
-	redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
+	#redis_state_notifier(state_name='medialib-job-fp-album-progress',action='progress')
 	
 	if os.name == 'posix':
 		try:
@@ -738,7 +698,7 @@ def do_mass_album_FP_and_AccId(folder_node_path,min_duration,prev_fpDL,prev_musi
 	mode_dif = 30
 	t_all_start = time.time()
 	process_time = 	0
-	redis_state_notifier('medialib-job-fp-albums-total-progress','init')
+	#redis_state_notifier('medialib-job-fp-albums-total-progress','init')
 	for album_path in tmp_music_folderL:
 		fpRD = {}
 		
@@ -779,7 +739,7 @@ def do_mass_album_FP_and_AccId(folder_node_path,min_duration,prev_fpDL,prev_musi
 				print('Error in pickle',e)
 			print('Saved temp dump in:',fname)	
 	
-	redis_state_notifier('medialib-job-fp-albums-total-progress','progress-stop')	
+	#redis_state_notifier('medialib-job-fp-albums-total-progress','progress-stop')	
 	d = ''
 	fname=b'fpgen_%i.dump'%int(time.time())
 	dump_path = folder_node_path+fname
@@ -986,220 +946,7 @@ def get_acoustID_from_FP_collection(fpDL):
 		print()
 	return resD		
 
-def identify_music_folder(init_dirL,*args):
-	#print args
-	logger.debug('in identify_music_folder - start [%s]'%str(init_dirL))
-	music_folderL = []
-	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 
-	for init_dir in init_dirL:
-		if not isinstance(init_dir, str):
-			print(init_dir)
-			init_dirL[init_dirL.index(init_dir)] = init_dir.decode('utf8')
-		else:
-			if not os.path.exists(init_dir):
-				print(init_dir, ': does not exists')
-				return {'music_folderL':[]}
-	i = 0
-	t = time.time()
-	print("Folders scanning ...")
-	for new_folder in init_dirL:
-		print("new_folder:",new_folder)
-		with os.scandir(new_folder) as it:
-			for entry in it:
-				print(entry)
-				if not entry.name.startswith('.') and entry.is_file():
-					if os.path.splitext(entry.name)[-1] in file_extL:
-
-						dir_name = os.path.dirname(''.join((new_folder,entry.name)))
-						print(dir_name)
-						#print [join(root.decode('utf8'),a.decode('utf8'))]
-						if dir_name not in music_folderL:
-					
-							music_folderL.append(dir_name)
-							#print 'dir_name:',type(dir_name),[dir_name]
-							break
-
-	print()
-	time_stop_diff = time.time()-t
-	print('Scanning for music folder: Finished in %i sec'%(int(time_stop_diff)))
-	logger.debug('in identify_music_folder found[%s]- finished'%str(len(music_folderL)))
-	return {'music_folderL':music_folderL}
-	
-
-
-def bulld_subfolders_list(self, init_dirL, *args):
-	#1. job run
-	#task_first_res = c_a.send_task('find_new_music_folder-new_recogn_name',([path],[],[],'initial')) 
-	#2. get progress results 
-	#res = celery_progress.backend.Progress(task_first_res).get_info()
-	# if res['state'] == 'PROGRESS': ....
-	resL = []
-	if self:
-		progress_recorder = ProgressRecorder(self)
-		progress_recorder_descr = 'medialib-job-folder-scan-progress-first-run'
-
-	for init_dir in init_dirL:
-		if 'verbose' in args:
-			print()
-			if not os.path.exists(init_dir):
-				print(init_dir,'  Not exists')
-				continue
-			else:
-				print(init_dir,'  Ok')
-		i = 0		
-		for root, dirs, files in os.walk(init_dir):
-			for a in dirs:
-				if 'verbose' in args:
-					if i%100 == 0:
-						print(i, end=' ',flush=True)
-					
-					
-				i+=1
-				if self:
-					if i%10 == 0:
-						#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
-						progress_recorder.set_progress(i + 1, i + 100, description=progress_recorder_descr)
-
-				yield(Path(root).as_posix(),a)
-				#resL.append((Path(root).as_posix(),a))	
-	if self:
-		#redis_state_notifier(state_name='medialib-job-folder-progress', action='progress')
-		progress_recorder.set_progress(i, i, description=progress_recorder_descr)
-	return
-
-def find_new_music_folder_simple(self,init_dirL,*args):
-	# similar to find_new_music_folder but more simple withou db filter and pickle
-	logger.info('in find_new_music_folder_simple - start')
-	folders_list = tuple(bulld_subfolders_list(None,dirL,'verbose'))	
-	t = time.time()
-	print()
-	print('Passed:',time.time()-t)
-	joined_folder_list = list(set([join(a[0],a[1]) for a in folders_list]))
-	joined_folder_list.sort()
-	t = time.time()
-	music_folderL = collect_media_files_in_folder_list(self,joined_folder_list,'verbose')
-	print()
-	print('Passed:',int(time.time() - t))
-	logger.debug('in find_new_music_folder_simple found[%s]- finished'%str(len(music_folderL)))
-	return {'folder_list':folders_list,'NewFolderL':joined_folder_list,'music_folderL':music_folderL}
-	
-#@JobInternalStateRedisKeeper(state_name='medialib-job-folder-progress', action='init')		
-def find_new_music_folder(self,init_dirL, prev_folderL, DB_folderL,*args):
-	# по умолчанию ищет музыкальную папку в пересечении множеств исходного дерева папок (сохраненного в ml_folder_tree_buf_path)и узла,
-	# который содержит новые данные + если запрошено по наличию папки в таблице album из DB_folderL
-	
-	#print args
-	logger.info('in find_new_music_folder - start')
-	f_l = []
-	new_folderL = []
-	resBuf_save_file_name = ''
-	f_name = ''
-	
-	creation_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-	
-	# Новый сценарий получение списка части дерева папок относительно искомого узла (init_dirL) из БД
-	
-	
-	if args != ():
-		if type(args[0]) == dict:
-			if 'resBuf_save' in args[0]:
-				resBuf_save_file_name = args[0]['resBuf_save']
-				f_name = cfgD['ml_folder_tree_buf_path']
-	
-	print('resBuf_save_file_name',resBuf_save_file_name)
-	for init_dir in init_dirL:
-		if not isinstance(init_dir, str):
-			print('Not string:',init_dir)
-			init_dirL[init_dirL.index(init_dir)] = init_dir.decode('utf8')
-		else:
-			if not os.path.exists(init_dir):
-				print(init_dir, 'does not exists')
-				return {'folder_list':[],'NewFolderL':[]}
-	i = 0
-	t = time.time()
-	print("Folders scanning ...")
-	
-	f_l= tuple(bulld_subfolders_list(self,init_dirL))			
-	print()
-	time_stop_diff = time.time()-t
-	print('Takes sec:',time_stop_diff)
-	if prev_folderL == [] and not 'initial' in args:
-		print('First run: Finished in %i sec'%(int(time_stop_diff)))
-		if resBuf_save_file_name != '':
-			f = open(f_name,'wb')
-			d = pickle.dump({'folder_list':f_l,'NewFolderL':[],'music_folderL':[],'creation_time':creation_time},f)
-			f.close()
-			print('save buffer',f_name)
-			logger.info('in find_new_music_folder - finished: Buff saved in:%s'%(f_name))
-			return {'resBuf_save':f_name}
-		else:
-			return {'folder_list':f_l,'NewFolderL':[]}
-	
-	if DB_folderL != []:
-		prev_folderL = list(set([join(a[0],a[1]) for a in DB_folderL]).difference(set([join(a[0],a[1]) for a in prev_folderL])))
-	# Вычисление пересеченеия новых папок с последним сохраненным деревом папок
-	new_folderL = list(set([join(a[0],a[1]) for a in f_l]).difference(set([join(a[0],a[1]) for a in prev_folderL])))
-	#print(new_folderL[0])
-	#new_folderL = list(set(f_l).difference(set(prev_folderL)))
-	new_folderL.sort()
-
-	if len(new_folderL) == 0:
-		print('No Change: Finished')
-	elif len(new_folderL) > 0:
-		print('Changes found!', len(new_folderL))
-		#print(new_folderL)
-	# Collect music folders
-	music_folderL = []
-	
-	music_folderL = collect_media_files_in_folder_list(self,new_folderL)
-	
-	# check if initial folder root folder itself containes media
-	if not music_folderL:
-		music_folderL = collect_media_files_in_folder_list(self, init_dirL)
-						
-	
-	
-	music_folderL = list(set(map(lambda x: x.replace('\\','/'),music_folderL)))	
-	if resBuf_save_file_name != '':
-		f = open(f_name,'wb')
-		d = pickle.dump({'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL,'creation_time':creation_time},f)
-		f.close()
-		print('save buffer',f_name)
-		logger.info('in find_new_music_folder - finished: Buff saved in:%s'%(f_name))
-		return {'resBuf_save':f_name}
-	
-
-	redis_state_notifier(state_name='medialib-job-folder-progress', action='progress-stop')
-	logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
-	return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
-	
-def collect_media_files_in_folder_list(self, folderL,*args):
-	music_folderL = []
-	if self:
-		progress_recorder = ProgressRecorder(self)
-		progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
-	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
-	i = 0
-		#print("new_folder:",[new_folder])
-	for new_folder in folderL:	
-		for root, dirs, files in os.walk(new_folder):
-			for a in files:
-				if os.path.splitext(a)[-1] in file_extL:
-					if root not in music_folderL:
-						music_folderL.append(Path(root).as_posix())
-						break
-		if 'verbose' in args:
-			if i%100 == 0:
-				print(i, end=' ',flush=True)				
-		if self:
-			if i%10 == 0:
-				progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)				
-		i+=1	
-	if self:
-		progress_recorder.set_progress(i, len(folderL), description=progress_recorder_descr)		
-	return 	music_folderL				
-					
 
 def quick_check_medialib_utf8_issue(*args):
 	# быстрая проверка таблиц на соответствие unicode
@@ -2152,24 +1899,6 @@ def unicode_migration_scenario():
 	print("Ajusting scenario finished in %i sec"%(int(time.time()-t)))
 	check_after_migrationD = quick_check_medialib_utf8_issue('with_fetch_detailes')
 	
-def get_parent_folder_stackL(path,stop_nodeL):
-	
-	if not os.path.isabs(path):
-		return([])	
-	nodesL =[]
-	
-	for a in range(20):
-		parent_dir = os.path.dirname(path)
-		if path == parent_dir:
-			break
-		path = parent_dir
-		if path in stop_nodeL:
-			break
-		nodesL.append(path)
-	return(nodesL)
-
-def path_to_posix(f_path):
-	return Path(f_path).as_posix()
 
 def update_album_track_path(path_conv_func,*args):
 	# Фунция для разового вызова изменений path в таблицах ALBUM и TRACK
@@ -2564,33 +2293,15 @@ def collect_MB_release_from_FP_response(acoustId_resp):
 			if 'releasegroups' in rcrds:
 				
 				for rel_group in rcrds['releasegroups']:
-					##if 'id' not in rel_group:
-					#	print('Error in FP response rel_group id',rel_group)
-					#	continue
-					#else:	
 					release_groupL.append(rel_group['id'])
-					
+				
 
 					for release in rel_group['releases']:
-						#if 'id' not in release:
-						#	print('Error in FP response release id',release)
-						#	continue
-						#else:	
 						releasesL.append(release['id'])
 						
 						for medium in release['mediums']:
-							#print(medium)
-							#if 'id' not in medium:
-							#	print('Error in FP response medium id',medium)
-							#	continue
-							#else:	
 							medium['release_id'] = release['id']
-							#if track_num:
-							#if medium['track_count'] == track_num:
-							#		return{'recordingsL':recordingsL,'release_groupL':release_groupL,'releasesL':releasesL,'mediumDL':mediumDL,'release_id':release['id']}
-								
 							mediumDL.append(medium)
-
 
 	return{'recordingsL':recordingsL,'release_groupL':release_groupL,'releasesL':releasesL,'mediumDL':mediumDL}
 	
@@ -2617,38 +2328,6 @@ def acoustID_lookup_celery_wrapper(self,*fp_args):
 	meta = ["recordings","recordingids","releases","releaseids","releasegroups","releasegroupids", "tracks", "compress", "usermeta", "sources"]
 	response=acoustid.lookup(API_KEY, fp_args[1], fp_args[0],meta)
 	print(response)
-	
-	# if 'error' in response:
-		# err_cnt+=1
-	# else:
-		# if 'results' in response:
-			# l = [item['score'] for item in response['results']  if 'score' in item]
-			# if l != []:
-				# scoreL.append(max(l))
-	# if response == {'results': [], 'status': 'ok'}:
-		# duration_init = fp_args[0]
-		# fp_item = list(fp_args)
-		# print('\n Empty FP response. duration [%s], trying to guess duration'%str(duration_init))
-		# for i in range(1,10):
-			# fp_item[0] = fp_item[0] - i
-			# response=acoustid.lookup(API_KEY, fp_item[1], fp_item[0],meta)
-			# if response != {'results': [], 'status': 'ok'}:
-				# if 'results' in response:
-					# print('Succeceed with duration:',fp_item['fp'][0])
-					# l = [item['score'] for item in response['results']  if 'score' in item]
-					# if l != []:
-						# scoreL.append(max(l))
-						
-					# break
-		# if response == {'results': [], 'status': 'ok'}:		
-			# fp_item['fp'][0] = duration_init
-					
-		# fp_item['response'] = response
-	
-	
-	
-	
-	
 	return {'response':response,'fname':fp_args[2]}
 
 def MB_get_releases_by_discid_celery_wrapper(self,*discID_arg):	
@@ -2692,7 +2371,7 @@ if __name__ == '__main__':
 	dirL = json.loads(cfg_fp.get('FOLDERS',"audio_files_path_list"))
 	
 	creation_time = time.time()
-	#res = bulld_subfolders_list(None,dirL,'verbose')
+	
 	folders_list_obj = find_new_music_folder_simple(None,dirL)
 	print()
 	print('Passed:', time.time()-creation_time)
