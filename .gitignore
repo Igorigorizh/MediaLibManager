@@ -13,11 +13,14 @@
 /test/test_audio_data
 /test/test_audio_data.tar.gz
 /venv
+/build
+/dist
 /db
 /log
 /config
 *.xml
 *.pyc
+*.egg*
 ./__pycache__
 .coverage
 
