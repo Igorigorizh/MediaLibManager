@@ -4,7 +4,6 @@ from posixpath import join, dirname
 from os import scandir
 
 import json
-
 import time
 import logging
 from pathlib import Path
