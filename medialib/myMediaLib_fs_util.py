@@ -7,9 +7,19 @@ import json
 import time
 import logging
 from pathlib import Path
-
+import functools
 logger = logging.getLogger('controller_logger.fs_utils')
 
+def time_mesure(function):
+    """A general decorator function"""
+    import time
+    @functools.wraps(function)
+    def wrapper(*args, **kwargs):
+        t = time.time()
+        result = function(*args, **kwargs)
+        print('Passed:%i sec'%int(time.time() -t))
+        return result
+    return wrapper
 
 class Media_FileSystem_Helper:
 	""" Media file system processing helper"""
@@ -33,7 +43,7 @@ class Media_FileSystem_Helper:
             
 
 	def _collect_media_files_in_folder_list(self, folderL, *args):
-        """ Looks for audio files in folder and coolects such folder"""
+		""" Looks for audio files in folder and coolects such folder"""
 		music_folderL = []
 
 		self._current_iteration = 0
@@ -44,15 +54,15 @@ class Media_FileSystem_Helper:
 					if os.path.splitext(a)[-1] in self._file_extL:
 						if root not in music_folderL:
 							music_folderL.append(Path(root).as_posix())
-                            break
+							break
 			
-            self.iterrration_extention_point(self._current_iteration)	
+			self.iterrration_extention_point(self._current_iteration,*args)	
 			self._current_iteration +=1
            
 		return 	music_folderL				
 
 	def _bulld_subfolders_list(self, folderL, *args):
-        # Идентично методу выше но возвращает 
+        # Идентично методу выше но возвращает пары(root,folder)
 		""" Collects subfolders of given folders list in folderL """
 
 		for new_folder in folderL:
@@ -64,10 +74,10 @@ class Media_FileSystem_Helper:
 				else:
 					print(new_folder,'  Ok')
 			i = 0		
-			for root, dirs, files in os.walk(new_folder):
+			for root, dirs, files in os.scandir(new_folder):
 				for a in dirs:
 					self.iterrration_extention_point(self._current_iteration)	
-                    self._current_iteration +=1	
+					self._current_iteration += 1
 					yield(Path(root).as_posix(),a)
 		return
 
