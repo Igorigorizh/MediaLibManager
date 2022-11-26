@@ -33,7 +33,7 @@ class Media_FileSystem_Helper:
 		#self._progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
 		#self._progress_thredhold = 10
 	def iterrration_extention_point(self, *args):
-        """ iterrration_extention_point designed for redefine in a child class"""
+		""" iterrration_extention_point designed for redefine in a child class"""
 		if 'verbose' in args:
 			if self._current_iteration%self._EXT_CALL_FREQ == 0:
 				print(self._current_iteration, end=' ',flush=True)
@@ -63,21 +63,19 @@ class Media_FileSystem_Helper:
 		return 	music_folderL				
 
 	def _bulld_subfolders_list(self, folderL, *args):
-        # Возвращает пары(root,folder) любого типа, без вильтра 
+        # Возвращает пары(root,folder) любого типа, без фильтра 
 		""" Collects all any type subfolders recursivelly  of a given folders list in folderL """
-
+		self._current_iteration = 0
 		for new_folder in folderL:
-			if 'verbose' in args:
-				print()
+			if 'validate_input' in args:
 				if not os.path.exists(new_folder):
 					print(new_folder,'  Not exists')
 					continue
-				else:
-					print(new_folder,'  Ok')
-			i = 0		
+
+					
 			for root, dirs, files in os.walk(new_folder):
 				for a in dirs:
-					self.iterrration_extention_point(self._current_iteration)	
+					self.iterrration_extention_point(self._current_iteration,*args)	
 					self._current_iteration += 1
 					yield(Path(root).as_posix(),a)
 		return
@@ -114,6 +112,7 @@ class Media_FileSystem_Helper:
 								music_folderL.append(dir_name)
 								#print 'dir_name:',type(dir_name),[dir_name]
 								break
+								
 
 		print()
 		time_stop_diff = time.time()-t
@@ -167,14 +166,17 @@ class Media_FileSystem_Helper:
 				if not os.path.exists(init_dir):
 					print(init_dir, 'does not exists')
 					return {'folder_list':[],'NewFolderL':[]}
-		i = 0
-		t = time.time()
-		print("Folders scanning ...")
 		
-		f_l= tuple(self._bulld_subfolders_list(init_dirL, *args))			
-		print()
-		time_stop_diff = time.time()-t
-		print('Takes sec:',time_stop_diff)
+		
+		if ( prev_folderL or DB_folderL ) and not 'initial' in args:
+			i = 0
+			t = time.time()
+			print("Folders scanning ...")
+			f_l= tuple(self._bulld_subfolders_list(init_dirL, *args))			
+			print()
+			time_stop_diff = time.time()-t
+			print('Takes sec:',time_stop_diff)
+			
 		if prev_folderL == [] and not 'initial' in args:
 			print('First run: Finished in %i sec'%(int(time_stop_diff)))
 			if resBuf_save_file_name != '':
@@ -195,7 +197,7 @@ class Media_FileSystem_Helper:
 		new_folderL.sort()
 
 		if len(new_folderL) == 0:
-			print('No Change: Finished')
+			print('No Changes: Finished')
 		elif len(new_folderL) > 0:
 			print('Changes found!', len(new_folderL))
 			#print(new_folderL)
@@ -203,15 +205,18 @@ class Media_FileSystem_Helper:
 		music_folderL = []
 		
 		t = time.time()
-		print("Media Folders collecting ...")
-		music_folderL = self._collect_media_files_in_folder_list(new_folderL)
-		time_stop_diff = time.time()-t
-		print('2nd scan takes sec:',time_stop_diff)
+		if new_folderL:
+			print("Media Folders collecting ...")
+			music_folderL = self._collect_media_files_in_folder_list(new_folderL, *args)
+			time_stop_diff = time.time()-t
+		
 		# check if initial folder root folder itself containes media
 		if not music_folderL:
-			music_folderL = self._collect_media_files_in_folder_list(init_dirL)
+			print("Media Folders collecting ...")
+			music_folderL = self._collect_media_files_in_folder_list(init_dirL, *args)
+			time_stop_diff = time.time()-t
 							
-		
+		print('2nd scan takes sec:',time_stop_diff)
 		
 		music_folderL = list(set(map(lambda x: x.replace('\\','/'),music_folderL)))	
 		if resBuf_save_file_name != '':
