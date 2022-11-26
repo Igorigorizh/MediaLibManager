@@ -11,11 +11,18 @@ from pathlib import Path
 logger = logging.getLogger('controller_logger.fs_utils')
 
 class Media_FileSystem_Helper:
-	_EXT_CALL_FREQ = 10
-	file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
+	""" Media file system processing helper"""
 	
-	def extention_point_func(self, *args):
-		pass	
+	def __init__(self):
+		self._current_iteration = 0
+		self._file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
+		self._EXT_CALL_FREQ = 100
+		
+		
+	def iterrration_extention_point(self, *args):
+		if 'verbose' in args:
+			if self._current_iteration%self._EXT_CALL_FREQ == 0:
+				print(self._current_iteration, end=' ',flush=True)					
 
 	def _collect_media_files_in_folder_list(self, folderL, *args):
 		music_folderL = []
@@ -23,25 +30,22 @@ class Media_FileSystem_Helper:
 		#	progress_recorder = ProgressRecorder(self)
 		#	progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
 		#file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
-		i = 0
+		self._current_iteration = 0
 			#print("new_folder:",[new_folder])
 		for new_folder in folderL:	
 			for root, dirs, files in os.walk(new_folder):
 				for a in files:
-					if os.path.splitext(a)[-1] in self.file_extL:
+					if os.path.splitext(a)[-1] in self._file_extL:
 						if root not in music_folderL:
 							music_folderL.append(Path(root).as_posix())
-							break
-			if 'verbose' in args:
-				if i%100 == 0:
-					print(i, end=' ',flush=True)				
+			break
+			
+			self._current_iteration +=1
+			self.iterrration_extention_point(self._current_iteration)	
+					
 			#if self:
 			#	if i%10 == 0:
-					#progress_recorder.set_progress(i + 1, len(folderL), description=progress_recorder_descr)
-			i+=1			
-			if i%self._EXT_CALL_FREQ == 0:
-				self.extention_point_func(i)	
-			
+					#progress_recorder.set_progress(i, len(folderL), description=progress_recorder_descr)
 		#if self:
 		#	progress_recorder.set_progress(i, len(folderL), description=progress_recorder_descr)		
 		return 	music_folderL				
@@ -94,7 +98,7 @@ class Media_FileSystem_Helper:
 				for entry in it:
 					print(entry)
 					if not entry.name.startswith('.') and entry.is_file():
-						if os.path.splitext(entry.name)[-1] in self.file_extL:
+						if os.path.splitext(entry.name)[-1] in self._file_extL:
 							dir_name = os.path.dirname(''.join((new_folder,entry.name)))
 							print(dir_name)
 							#print [join(root.decode('utf8'),a.decode('utf8'))]
@@ -159,7 +163,7 @@ class Media_FileSystem_Helper:
 		t = time.time()
 		print("Folders scanning ...")
 		
-		f_l= tuple(self._bulld_subfolders_list(init_dirL))			
+		f_l= tuple(self._bulld_subfolders_list(init_dirL, *args))			
 		print()
 		time_stop_diff = time.time()-t
 		print('Takes sec:',time_stop_diff)
@@ -190,8 +194,11 @@ class Media_FileSystem_Helper:
 		# Collect music folders
 		music_folderL = []
 		
+		t = time.time()
+		print("Media Folders collecting ...")
 		music_folderL = self._collect_media_files_in_folder_list(new_folderL)
-		
+		time_stop_diff = time.time()-t
+		print('2nd scan takes sec:',time_stop_diff)
 		# check if initial folder root folder itself containes media
 		if not music_folderL:
 			music_folderL = self._collect_media_files_in_folder_list(init_dirL)
