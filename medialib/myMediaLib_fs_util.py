@@ -33,6 +33,7 @@ class Media_FileSystem_Helper:
 		#self._progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
 		#self._progress_thredhold = 10
 	def iterrration_extention_point(self, *args):
+        """ iterrration_extention_point designed for redefine in a child class"""
 		if 'verbose' in args:
 			if self._current_iteration%self._EXT_CALL_FREQ == 0:
 				print(self._current_iteration, end=' ',flush=True)
@@ -56,14 +57,14 @@ class Media_FileSystem_Helper:
 							music_folderL.append(Path(root).as_posix())
 							break
 			
-			self.iterrration_extention_point(self._current_iteration,*args)	
-			self._current_iteration +=1
+				self.iterrration_extention_point(self._current_iteration,*args)	
+				self._current_iteration +=1
            
 		return 	music_folderL				
 
 	def _bulld_subfolders_list(self, folderL, *args):
-        # Идентично методу выше но возвращает пары(root,folder)
-		""" Collects subfolders of given folders list in folderL """
+        # Возвращает пары(root,folder) любого типа, без вильтра 
+		""" Collects all any type subfolders recursivelly  of a given folders list in folderL """
 
 		for new_folder in folderL:
 			if 'verbose' in args:
@@ -74,7 +75,7 @@ class Media_FileSystem_Helper:
 				else:
 					print(new_folder,'  Ok')
 			i = 0		
-			for root, dirs, files in os.scandir(new_folder):
+			for root, dirs, files in os.walk(new_folder):
 				for a in dirs:
 					self.iterrration_extention_point(self._current_iteration)	
 					self._current_iteration += 1
