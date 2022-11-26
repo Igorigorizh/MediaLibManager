@@ -10,6 +10,7 @@ from pathlib import Path
 
 logger = logging.getLogger('controller_logger.fs_utils')
 
+
 class Media_FileSystem_Helper:
 	""" Media file system processing helper"""
 	
@@ -17,60 +18,56 @@ class Media_FileSystem_Helper:
 		self._current_iteration = 0
 		self._file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 		self._EXT_CALL_FREQ = 100
-		
-		
+		#
+        #progress_recorder = ProgressRecorder(self)
+		#self._progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
+		#self._progress_thredhold = 10
 	def iterrration_extention_point(self, *args):
 		if 'verbose' in args:
 			if self._current_iteration%self._EXT_CALL_FREQ == 0:
-				print(self._current_iteration, end=' ',flush=True)					
+				print(self._current_iteration, end=' ',flush=True)
+        #нельзья даже оценить начальное количество папок до конца обхода дерева, поэтому
+        # вначале считать прогресс до self._progress_thredhold. а затем каждый раз оценивать
+        # по отношению текущего итератора к итератору +1.    
+        #progress_recorder.set_progress(i, i+1, description=progress_recorder_descr)
+            
 
 	def _collect_media_files_in_folder_list(self, folderL, *args):
+        """ Looks for audio files in folder and coolects such folder"""
 		music_folderL = []
-		#if self:
-		#	progress_recorder = ProgressRecorder(self)
-		#	progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
-		#file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
+
 		self._current_iteration = 0
-			#print("new_folder:",[new_folder])
+
 		for new_folder in folderL:	
 			for root, dirs, files in os.walk(new_folder):
 				for a in files:
 					if os.path.splitext(a)[-1] in self._file_extL:
 						if root not in music_folderL:
 							music_folderL.append(Path(root).as_posix())
-			break
+                            break
 			
+            self.iterrration_extention_point(self._current_iteration)	
 			self._current_iteration +=1
-			self.iterrration_extention_point(self._current_iteration)	
-					
-			#if self:
-			#	if i%10 == 0:
-					#progress_recorder.set_progress(i, len(folderL), description=progress_recorder_descr)
-		#if self:
-		#	progress_recorder.set_progress(i, len(folderL), description=progress_recorder_descr)		
+           
 		return 	music_folderL				
 
-	def _bulld_subfolders_list(self, init_dirL, *args):
-		""" Collects subfolders of given folders list in init_dirL """
+	def _bulld_subfolders_list(self, folderL, *args):
+        # Идентично методу выше но возвращает 
+		""" Collects subfolders of given folders list in folderL """
 
-		for init_dir in init_dirL:
+		for new_folder in folderL:
 			if 'verbose' in args:
 				print()
-				if not os.path.exists(init_dir):
-					print(init_dir,'  Not exists')
+				if not os.path.exists(new_folder):
+					print(new_folder,'  Not exists')
 					continue
 				else:
-					print(init_dir,'  Ok')
+					print(new_folder,'  Ok')
 			i = 0		
-			for root, dirs, files in os.walk(init_dir):
+			for root, dirs, files in os.walk(new_folder):
 				for a in dirs:
-					if 'verbose' in args:
-						if i%100 == 0:
-							print(i, end=' ',flush=True)
-					i+=1
-					if i%self._EXT_CALL_FREQ == 0:
-						self.extention_point_func(i)	
-					
+					self.iterrration_extention_point(self._current_iteration)	
+                    self._current_iteration +=1	
 					yield(Path(root).as_posix(),a)
 		return
 
@@ -116,7 +113,7 @@ class Media_FileSystem_Helper:
 	def find_new_music_folder_simple(self, init_dirL,*args):
 		""" similar to find_new_music_folder but more simple without db filter and pickle """
 		logger.info('in find_new_music_folder_simple - start')
-		folders_list = tuple(self._bulld_subfolders_list(dirL,'verbose'))	
+		folders_list = tuple(self._bulld_subfolders_list(init_dirL,'verbose'))	
 		t = time.time()
 		print()
 		print('Passed:',time.time()-t)
