@@ -120,7 +120,7 @@ class Media_FileSystem_Helper:
 		logger.debug('in identify_music_folder found[%s]- finished'%str(len(music_folderL)))
 		return {'music_folderL':music_folderL}
 		
-	@classmethod
+
 	def find_new_music_folder_simple(self, init_dirL,*args):
 		""" similar to find_new_music_folder but more simple without db filter and pickle """
 		logger.info('in find_new_music_folder_simple - start')
