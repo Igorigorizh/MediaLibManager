@@ -169,13 +169,11 @@ class Media_FileSystem_Helper:
 					return {'folder_list':[],'NewFolderL':[]}
 		
 		print("Folders scanning ...")
+		t = time.time()
 		if ( prev_folderL or DB_folderL ) and not 'initial' in args:
-			i = 0
-			t = time.time()
-			
 			f_l= tuple(self._bulld_subfolders_list(init_dirL, *args))			
-			print()
 			
+		print()	
 		time_stop_diff = time.time()-t
 		print('Takes sec:',time_stop_diff)
 			
