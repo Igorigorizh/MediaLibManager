@@ -168,15 +168,16 @@ class Media_FileSystem_Helper:
 					print(init_dir, 'does not exists')
 					return {'folder_list':[],'NewFolderL':[]}
 		
-		
+		print("Folders scanning ...")
 		if ( prev_folderL or DB_folderL ) and not 'initial' in args:
 			i = 0
 			t = time.time()
-			print("Folders scanning ...")
+			
 			f_l= tuple(self._bulld_subfolders_list(init_dirL, *args))			
 			print()
-			time_stop_diff = time.time()-t
-			print('Takes sec:',time_stop_diff)
+			
+		time_stop_diff = time.time()-t
+		print('Takes sec:',time_stop_diff)
 			
 		if prev_folderL == [] and not 'initial' in args:
 			print('First run: Finished in %i sec'%(int(time_stop_diff)))
@@ -217,7 +218,7 @@ class Media_FileSystem_Helper:
 			music_folderL = self._collect_media_files_in_folder_list(init_dirL, *args)
 			time_stop_diff = time.time()-t
 							
-		print('2nd scan takes sec:',time_stop_diff)
+		
 		
 		music_folderL = list(set(map(lambda x: x.replace('\\','/'),music_folderL)))	
 		if resBuf_save_file_name != '':
@@ -225,7 +226,8 @@ class Media_FileSystem_Helper:
 				d = pickle.dump({'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL,'creation_time':creation_time},f)
 			logger.info('in find_new_music_folder - finished: Buff saved in:%s'%(f_name))
 			return {'resBuf_save':f_name}
-		
+			
+		print('2nd scan takes sec:',time_stop_diff,len(music_folderL))
 		logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
 		return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
 	
