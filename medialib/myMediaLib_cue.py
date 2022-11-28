@@ -23,7 +23,7 @@ from mutagen.mp4 import MP4
 from mutagen.monkeysaudio import MonkeysAudioInfo
 
 from medialib import BASE_ENCODING
-
+from medialib.myMediaLib_fs_util import is_only_one_media_type
 logger = logging.getLogger('controller_logger.cue')
 
 def myMusicStr2TimeDelta(strTime):
@@ -39,6 +39,100 @@ def sec2min(secs):
         # raise CodingError('non-float passed to sec2min')
         return ''
     return '%d:%.2d' % (int(secs / 60), secs % 60)	
+	
+
+def detect_cue_scenario(album_path,*args):
+
+	image_cue = ''
+	
+	cueD = {}
+	cueD = {}	
+	orig_cue_title_cnt = 0
+	f_numb = 0
+	real_track_numb=0
+	error_logL=[]
+	cue_state = {'single_image_CUE':False, 'multy_tracs_CUE': False, 'only_tracks_wo_CUE':False,'media_format_mixture':False}
+	
+	if not os.path.exists(album_path):
+		print('---!Album path Error:%s - not exists'%album_path)
+		error_logL.append('[CUE check]:---!Album path Error:%s - not exists'%album_path)
+		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':0,cue_state:cue_state,'error_logL':error_logL}
+	
+	filesL = os.listdir(album_path)
+	
+	cue_cnt = 0
+	#Валидация CUE через соответствие реальным данным для цели дальнейшей разбивки
+	# Либо это нормальный CUE (TITLES > 1 и образ физически есть) -> нужна разбивка на трэки - ОК 
+	# Либо это любой в тч 'битый' CUE, но есть отдельные трэки -> разбивка не нужна проверить соотв. количества трэков и титлов в #`CUE приоритет tracks и сверка с КУЕ
+	
+	normal_trackL = []
+
+	for a in filesL:
+		#print(a)
+		ext = os.path.splitext(a)[1]
+		#print(ext,a)
+		if ext == b'.cue':
+			print('in cue')
+			image_cue = a
+			
+			normal_trackL = []
+			try:	
+				cueD = simple_parseCue(album_path+image_cue)	
+			except Exception as e:
+				print(e)
+				return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':0,'errorL':['cue_corrupted'],cue_state:cue_state}
+				
+			cue_cnt+=1
+			if cue_cnt>1:
+				print('--!-- Error Critical! several CUE Files! Keep only one CUE!')
+				error_logL.append('[CUE state check]:--!-- Error Critical! several CUE Files! Keep only one CUE!')
+				return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':0,'errorL':['cue','cue_error','several cue'],cue_state:cue_state,'error_logL':error_logL}
+				
+			if 'orig_file_pathL' in cueD:
+				orig_cue_title_cnt = len(cueD['songL'])
+				real_track_numb = len(cueD['orig_file_pathL'])
+				if real_track_numb == 1:
+					if os.path.exists(cueD['orig_file_pathL'][0]['orig_file_path']):
+						cue_state['single_image_CUE']=True
+						break
+				elif real_track_numb > 1:
+					cue_state['multy_tracs_CUE']=True
+					for orig_file in cueD['orig_file_pathL']:
+						if not os.path.exists(orig_file['orig_file_path']):
+							print('Failed CUE albumfile not exists:%s'%str(orig_file['orig_file_path'],BASE_ENCODING))
+							error_logL.append('[CUE state check]: multy track mode. no real media detected for cue title:%s'%str(orig_file['orig_file_path'],BASE_ENCODING)) 
+					break
+				else:
+					error_logL.append('[CUE state check]:--!-- Error Critical! - no media detected')
+					return {'RC':-1,'f_numb':0,'title_numb':0,'errorL':['cue_corrupted','no media detected'],'orig_cue_title_numb':orig_cue_title_cnt,cue_state:cue_state,'cueD':cueD,'f_numb':real_track_numb,'error_logL':error_logL}
+		else:
+
+			# если до этого найден CUE, то проверка на only tracs не нужно
+			if  cue_state['single_image_CUE'] or  cue_state['multy_tracs_CUE']: continue
+			ext = os.path.splitext(a)[1]
+			#print('in tracks 1',ext)
+			
+			if ext in [b'.ape',b'.mp3',b'.flac',b'.wv',b'.m4a',b'.dsf']:
+				#print('in tracks 3')
+				normal_trackL.append(a)
+
+	RC = real_track_numb
+	if (not cue_state['single_image_CUE'] and not cue_state['multy_tracs_CUE']) and normal_trackL and is_only_one_media_type(filesL):
+		cue_state['only_tracks_wo_CUE']=True
+	elif (not cue_state['single_image_CUE'] and not cue_state['multy_tracs_CUE']) and normal_trackL and not is_only_one_media_type(filesL):
+		cue_state['media_format_mixture']=True
+			
+		
+			
+	#1. ОК - single CUE, 1 -original image, several tracks frof cue -> split is possible
+	#2. ОК - several tracks > 1 ape,mp3,flac - no mix of them -> no split 
+	#3. OK 2. tracks > 1 + splited CUE files from CUE tracks = cue title - Good cue can me ignored  -> no needed
+	#4.  2. tracks > 1 + cue with no existed 1 image file  - BAD cue can me ignored  -> no needed
+	#5.  2. tracks > 1 + cue with no existed several slitted tracks files - BAD cue can me ignored  -> no needed
+	
+	# В этом месте необходимо иметь образ wav и ссылку на него во временном CUE
+	
+	return {'RC':RC,'cue_state':cue_state,'orig_cue_title_numb':orig_cue_title_cnt,'title_numb':0,'f_numb':real_track_numb,'cueD':cueD,'normal_trackL':normal_trackL,'error_logL':error_logL}
 	
 def parseCue(fName,*args):
 	# Чтобы не перегружать функцию parseCue, перед ee вызовом обязательно проверить на существование файла!

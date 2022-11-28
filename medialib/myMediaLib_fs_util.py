@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
-from posixpath import join, dirname
-from os import scandir
-
 import json
 import time
 import logging
 from pathlib import Path
 import functools
+from posixpath import join, dirname
+
+from pydantic import BaseModel, Field
+from uuid import UUID, uuid4
+
+from medialib import BASE_ENCODING
+
 logger = logging.getLogger('controller_logger.fs_utils')
 
 def time_mesure(function):
@@ -20,6 +24,14 @@ def time_mesure(function):
         print('Passed:%i sec'%int(time.time() -t))
         return result
     return wrapper
+	
+class Job(BaseModel):
+	uid: UUID = Field(default_factory=uuid4)
+	name: str = ""
+	status: str = "" # planned, in progress, failed, success
+	progress: int = 0
+	result: int = None
+	max_iteration: int = 0 	
 
 class Media_FileSystem_Helper:
 	""" Media file system processing helper"""
@@ -28,10 +40,14 @@ class Media_FileSystem_Helper:
 		self._current_iteration = 0
 		self._file_extL = ['.flac','.mp3','.ape','.wv','.m4a','.dsf']
 		self._EXT_CALL_FREQ = 100
+		self._job = Job(name = "Media-files-scanning", status="planned", max_iteration = 2)
 		#
         #progress_recorder = ProgressRecorder(self)
 		#self._progress_recorder_descr = 'medialib-job-folder-scan-progress-media_files'
 		#self._progress_thredhold = 10
+	def get_job(self):
+		return self._job
+		
 	def iterrration_extention_point(self, *args):
 		""" iterrration_extention_point designed for redefine in a child class"""
 		if 'verbose' in args:
@@ -59,6 +75,7 @@ class Media_FileSystem_Helper:
 			
 				self.iterrration_extention_point(self._current_iteration,*args)	
 				self._current_iteration +=1
+				self._job.progress +=1
            
 		return 	music_folderL				
 
@@ -229,7 +246,23 @@ class Media_FileSystem_Helper:
 		logger.debug('in find_new_music_folder found[%s]- finished'%str(len(music_folderL)))
 		return {'folder_list':f_l,'NewFolderL':new_folderL,'music_folderL':music_folderL}
 	
-	
+def is_only_one_media_type(filesL):
+	fTypeL = []
+	media_typeL = ['flac', 'mp3', 'ape', 'wv', 'm4a', 'dsf']
+	if type(filesL[0]) == bytes:
+		media_typeL = list(map(lambda x: bytes(x,BASE_ENCODING), media_typeL))
+
+	for orig_file in filesL:
+		fType = os.path.splitext(orig_file)[1][1:]
+		if (fType in media_typeL) and (fType not in fTypeL):
+			fTypeL.append(fType)
+			if len(fTypeL) > 1:
+				return False
+		elif (fType in media_typeL) and (fType in fTypeL):
+			continue
+	if len(fTypeL) == 1:
+		return True
+	return False		
 
 def get_parent_folder_stackL(path,stop_nodeL):
 	""" Builds folder parents stack from given folder root with respect to folders stop list """
