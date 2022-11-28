@@ -238,9 +238,9 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 			
 			res = ''
 			if self:
-				progress_recorder = ProgressRecorder(self)
+				#progress_recorder = ProgressRecorder(self)
 				progress_recorder_descr = 'medialib-job-folder-FP-album:'+str(album_path)
-				progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
+				#progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
 
 			start_t = time.time()
 			try:
@@ -320,9 +320,9 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 					
 					
 					if self:
-						progress_recorder = ProgressRecorder(self)
+						#progress_recorder = ProgressRecorder(self)
 						progress_recorder_descr = 'medialib-job-folder-FP-album:'+str(album_path)
-						progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
+						#progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
 	elif scenarioD['cue_state']['multy_tracs_CUE']:
 		print("\n\n FP generation for CUE scenario:  multy_tracs_CUE")
 		try:
@@ -410,9 +410,9 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 				
 				
 			if self:
-				progress_recorder = ProgressRecorder(self)
+				#progress_recorder = ProgressRecorder(self)
 				progress_recorder_descr = 'medialib-job-folder-FP-album:'+str(album_path)
-				progress_recorder.set_progress(0, len(trackL), description=progress_recorder_descr)	
+				#progress_recorder.set_progress(0, len(trackL), description=progress_recorder_descr)	
 		else:
 			for track in  scenarioD['normal_trackL']:
 				fp = []
@@ -429,9 +429,9 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 					print("*", end=' ')
 					
 					if self:
-						progress_recorder = ProgressRecorder(self)
+						#progress_recorder = ProgressRecorder(self)
 						progress_recorder_descr = 'medialib-job-folder-FP-album:'+str(album_path)
-						progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
+						#progress_recorder.set_progress(0, len(cueD['trackD']), description=progress_recorder_descr)
 		
 			
 	time_stop_diff = time.time()-t_all_start	
