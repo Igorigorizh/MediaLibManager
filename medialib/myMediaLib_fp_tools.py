@@ -772,10 +772,10 @@ def get_TOC_from_log(album_folder):
 			start_offset = 150
 			offsetL = []
 			for tl in matches:
-			     TOC_line = tl.string.split('|')
-			     TOC_lineD = {'Track':int(TOC_line[0]),'Start':TOC_line[1],'Length':TOC_line[2],'Start_Sector':int(TOC_line[3]),'End_Sector':int(TOC_line[4])}
-			     TOC_dataL.append(TOC_lineD)
-			     offsetL.append(start_offset+int(TOC_line[3]))
+				TOC_line = tl.string.split('|')
+				TOC_lineD = {'Track':int(TOC_line[0]),'Start':TOC_line[1],'Length':TOC_line[2],'Start_Sector':int(TOC_line[3]),'End_Sector':int(TOC_line[4])}
+				TOC_dataL.append(TOC_lineD)
+				offsetL.append(start_offset+int(TOC_line[3]))
 			break
 	toc_string = 	''		
 	if TOC_dataL:
