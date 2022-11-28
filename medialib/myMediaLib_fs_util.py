@@ -6,12 +6,16 @@ import logging
 from pathlib import Path
 import functools
 from posixpath import join, dirname
+import pickle
 
 from pydantic import BaseModel, Field
 from uuid import UUID, uuid4
 
 from medialib import BASE_ENCODING
+from medialib.myMediaLib_init import readConfigData
 
+from medialib import mymedialib_cfg
+cfgD = readConfigData(mymedialib_cfg)
 logger = logging.getLogger('controller_logger.fs_utils')
 
 def time_mesure(function):
