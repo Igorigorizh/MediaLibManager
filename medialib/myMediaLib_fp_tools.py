@@ -55,9 +55,10 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 posix_nice_value = int(cfg_fp['FP_PROCESS']['posix_nice_value'])
 
+#class Album_FP_discID_generator:
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
 	hi_res = False
-	scenarioD = detect_cue_scenario(album_path,*args)
+	
 	print('Self:',type(self))
 
 	TOC_dataD = get_TOC_from_log(album_path)
@@ -91,6 +92,8 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	#redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
 	#redis_state_notifier('medialib-job-fp-album-progress','init')
 	
+	scenarioD = detect_cue_scenario(album_path,*args)
+	
 	if scenarioD['cue_state']['single_image_CUE']:
 		print("\n\n-------FP generation for CUE scenario:  single_image_CUE-----------")
 		try:
@@ -98,7 +101,8 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 			cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
 		except Exception as e:
 				print(e)
-				return {'RC':-1,'cueD':cueD}	
+				return {'RC':-1,'cueD':cueD}
+		
 		if 'multy' in args and ('FP' in  args or 'split_only_keep' in args):
 			print('--MULTY processing of FP --- on [%i] CPU Threads'%(cpu_num))
 			image_name = cueD['orig_file_pathL'][0]['orig_file_path']
@@ -485,10 +489,10 @@ def worker_ffmpeg_and_fingerprint(ffmpeg_command, new_name, *args):
 		out, err = res.communicate()
 	except OSError as e:
 		print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
-		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decompression of [%i]'%(int(num))] }
+		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,'errorL':['Error at decompression of [%s]'%(str(f_name))] }
 	except Exception as e:
 		print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
-		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title_numb':num,'errorL':['Error at decompression of [%i]'%(int(num))]}
+		return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,'errorL':['Error at decompression of [%s]'%(str(f_name))]}
 	
 	fp = []
 	#print("+", end=' ')
@@ -570,7 +574,7 @@ def do_mass_album_FP_and_AccId(folder_node_path,min_duration,prev_fpDL,prev_musi
 
 		if fpDL == []:		
 			print('Error with last result folder. Not found in current folders structures')
-			return{'music_folderL':music_folderL,'last_folder':last_folder}
+			return{'music_folderL':music_folderL,'last_folder':None}
 	print(tmp_music_folderL)
 	
 
@@ -768,10 +772,10 @@ def get_TOC_from_log(album_folder):
 			start_offset = 150
 			offsetL = []
 			for tl in matches:
-			     TOC_line = tl.string.split('|')
-			     TOC_lineD = {'Track':int(TOC_line[0]),'Start':TOC_line[1],'Length':TOC_line[2],'Start_Sector':int(TOC_line[3]),'End_Sector':int(TOC_line[4])}
-			     TOC_dataL.append(TOC_lineD)
-			     offsetL.append(start_offset+int(TOC_line[3]))
+				TOC_line = tl.string.split('|')
+				TOC_lineD = {'Track':int(TOC_line[0]),'Start':TOC_line[1],'Length':TOC_line[2],'Start_Sector':int(TOC_line[3]),'End_Sector':int(TOC_line[4])}
+				TOC_dataL.append(TOC_lineD)
+				offsetL.append(start_offset+int(TOC_line[3]))
 			break
 	toc_string = 	''		
 	if TOC_dataL:
@@ -883,10 +887,12 @@ def build_FP_db_tracks_record(fpDL):
 	# подготовка записи в базе FP для последующего сохранения в БД
 	# учитывать полное или частичное отсутствие FP для трэка - это позволит иметь статистику покрытия медиа коллекции FP, делать регулярный повторный расчет,
 	# иметь снимок всей медиатеки
+	db_record = None
 	for item in fpDL:
 		if item['scenarioD']['cue_state']['only_tracks_wo_CUE']:
 			for track in 'normal_trackL':
 				pass
+
 	return db_record	
 
 def album_FP_discid_response_validate(fpDL):

@@ -1,6 +1,5 @@
 # # -*- coding: cp1251 -*-
 #-*- coding: utf-8 -*-
-#import  wx
 
 import xmlrpc.client
 from xmlrpc.server import SimpleXMLRPCServer
@@ -1837,30 +1836,30 @@ class PlayerController():
 		# except:
 			# pass
 		
-		for a in range(5):
-			try:
-				self.__winampObj = winamp.Winamp()
-				if self.__winampObj.getVersion() != None and self.__winampObj.getVersion() != '0.':
-					print('Winamp %s is OK'%(self.__winampObj.getVersion()))
-					break
+		# for a in range(5):
+			# try:
+				# self.__winampObj = winamp.Winamp()
+				# if self.__winampObj.getVersion() != None and self.__winampObj.getVersion() != '0.':
+					# print('Winamp %s is OK'%(self.__winampObj.getVersion()))
+					# break
 				
-				print('No Winamp at the moment try to start it ...')
+				# print('No Winamp at the moment try to start it ...')
 					
-				#startfile('winamp.exe')
-				for i in range(10):
-					time.sleep(1)
-					print('.', end=' ')
-					self.__winampObj = winamp.Winamp()
-					if self.__winampObj.getVersion() != None and self.__winampObj.getVersion() != '0.':
-						print('Winamp %s is OK'%(self.__winampObj.getVersion()))
-						break
+				# #startfile('winamp.exe')
+				# for i in range(10):
+					# time.sleep(1)
+					# print('.', end=' ')
+					# self.__winampObj = winamp.Winamp()
+					# if self.__winampObj.getVersion() != None and self.__winampObj.getVersion() != '0.':
+						# print('Winamp %s is OK'%(self.__winampObj.getVersion()))
+						# break
 			
 				
-			except:
-				print('No Winamp at the moment try to start it ...')
-				for i in range(10):
-					time.sleep(1)
-					print('.', end=' ')
+			# except:
+				# print('No Winamp at the moment try to start it ...')
+				# for i in range(10):
+					# time.sleep(1)
+					# print('.', end=' ')
 				
 		#configDict = {'mediaPath':'','winampext':'','player_cntrl_port':0,,'appl_cntrl_port':0}	
 		
@@ -1949,17 +1948,17 @@ class PlayerController():
 		self.__TagD = {}
 		self.__configDict = {}
 		
-		for a in range(5):
-			try:
-				self.__winampObj = winamp.Winamp()
-				if self.__winampObj.getVersion() != None:
-					print('Winamp %s is OK'%(self.__winampObj.getVersion()))
-					break
-			except:
-				print('No Winamp at the moment try to start it ...')
-				for i in range(10):
-					time.sleep(1)
-					print('.', end=' ')
+		# for a in range(5):
+			# try:
+				# self.__winampObj = winamp.Winamp()
+				# if self.__winampObj.getVersion() != None:
+					# print('Winamp %s is OK'%(self.__winampObj.getVersion()))
+					# break
+			# except:
+				# print('No Winamp at the moment try to start it ...')
+				# for i in range(10):
+					# time.sleep(1)
+					# print('.', end=' ')
 				
 		#configDict = {'mediaPath':'','winampext':'','player_cntrl_port':0,,'appl_cntrl_port':0}	
 		
