@@ -1,0 +1,16 @@
+[flake8]
+exclude = docs .tox
+include = .\medialib\myMediaLib_cue.py
+
+select = C, E, F,W , B, B950
+ignore = E203,  W503, B902
+
+[pydocstyle]
+ignore = D415,D107,D104,D202,D203,D204,D205,D207,D208,D211,D212,D213,D215
+
+
+[mypy]
+disallow_untyped_defs = True
+ignore_missing_imports = True
+
+
