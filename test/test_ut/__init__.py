@@ -13,6 +13,10 @@ cfg = ConfigParser()
 cfg.read(medialib_test_cfg)
 
 flac_file = cfg['AUDIO_DATA_PATH']['flac_file'].encode(BASE_ENCODING)
+ape_file = cfg['AUDIO_DATA_PATH']['flac_file'].encode(BASE_ENCODING)
+wv_file = cfg['AUDIO_DATA_PATH']['flac_file'].encode(BASE_ENCODING)
+mp3_file = cfg['AUDIO_DATA_PATH']['mp3_file'].encode(BASE_ENCODING)
+m4a_file = cfg['AUDIO_DATA_PATH']['m4a_file'].encode(BASE_ENCODING)
 flac_file_data = cfg['TEST_DATA_PATH']['flac_file_data'].encode(BASE_ENCODING)
 cue_flac_file = cfg['AUDIO_DATA_PATH']['cue_flac'].encode(BASE_ENCODING)
 cue_flac_file_no_unicode = cfg['AUDIO_DATA_PATH']['cue_flac']

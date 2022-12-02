@@ -26,7 +26,7 @@ from medialib.myMediaLib_init import readConfigData
 
 from medialib.myMediaLib_cue import simple_parseCue
 from medialib.myMediaLib_cue import parseCue
-from medialib.myMediaLib_cue import GetTrackInfoVia_ext
+from medialib.myMediaLib_cue import get_audio_object
 from medialib.myMediaLib_cue import detect_cue_scenario
 
 from medialib.myMediaLib_fs_util import Media_FileSystem_Helper as mfsh
@@ -715,9 +715,9 @@ def guess_TOC_from_tracks_list(tracksL):
 	track_num = 0
 	for track in tracksL:
 		
-		fType = os.path.splitext(track)[1][1:]
+		
 		try:
-			trackD = GetTrackInfoVia_ext(track,fType)
+			trackD = get_audio_object(track)
 		except Exception as e:
 			print('Error in guess_TOC_from_tracks_list:',e)
 			print('No TOC calculation possible')
@@ -752,6 +752,8 @@ def get_TOC_from_log(album_folder):
 	TOC_dataL = []
 	discidInputD = {}
 	TOC_lineD= {}
+	offsetL = []
+	
 	for f in logs:
 		print(f)
 		# detect file character encoding

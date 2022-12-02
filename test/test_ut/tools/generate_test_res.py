@@ -15,6 +15,7 @@ from pathlib import Path
 from medialib.myMediaLib_cue import parseCue 
 from medialib.myMediaLib_cue import simple_parseCue
 from medialib.myMediaLib_cue import GetTrackInfoVia_ext
+from medialib.myMediaLib_cue import get_audio_object
 
 #1. flac
 #res = parseCue(cue_flac_file,'with_bitrate')
@@ -43,10 +44,14 @@ from medialib.myMediaLib_cue import GetTrackInfoVia_ext
 #5. cue flac tracks
 #res = parseCue(cue_flac_tracks_file,'with_bitrate')
 #res = parseCue(cue_flac_tracks_file)
-res = simple_parseCue(cue_flac_tracks_file)
+#res = simple_parseCue(cue_flac_tracks_file)
 
-dump_path = os.path.join(os.path.dirname(str(cue_flac_tracks_file,BASE_ENCODING)),'cue_flac_tracks_simple.data')
+#dump_path = os.path.join(os.path.dirname(str(cue_flac_tracks_file,BASE_ENCODING)),'cue_flac_tracks_simple.data')
 #dump_path = os.path.join(os.path.dirname(str(cue_flac_file,BASE_ENCODING)),'cue_flac_simple.data')
+
+#6. get_audio_object
+res = get_audio_object(cue_flac_tracks_file)
+dump_path = os.path.join(os.path.dirname(str(flac_file,BASE_ENCODING)),'flac_file_audio.data')
 
 
 dump_path = Path(dump_path).as_posix()
