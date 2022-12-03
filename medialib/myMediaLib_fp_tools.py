@@ -265,10 +265,10 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	elif scenarioD['cue_state']['only_tracks_wo_CUE']:
 		print("\n\n FP generation for scenario only_tracks_wo_CUE")	
 		scenarioD['normal_trackL'].sort()
+        
 		trackL = []
-		for a in scenarioD['normal_trackL']:
-			trackL.append(str(album_path,BASE_ENCODING)+str(a,BASE_ENCODING))
-		
+		trackL = [join(album_path,a)  for a in scenarioD['normal_trackL']]
+				
 		try:	
 			guess_TOC_dataD = guess_TOC_from_tracks_list(trackL)
 		except Exception as e:
@@ -702,7 +702,7 @@ def check_MB_discID_in_fpDL(fpDL):
 	print('OK - One release in MB:',one_release_cnt)
 	print('OK - More releases in MB:',more_release_cnt)
 
-def guess_TOC_from_tracks_list(tracksL):
+def guess_TOC_from_tracks_list(trackL):
 	track_offset_cnt = 0
 	total_track_sectors = 0
 	first_track_offset = 150
@@ -713,9 +713,7 @@ def guess_TOC_from_tracks_list(tracksL):
 	trackDL = []
 	print('in guess_TOC_from_tracks_list')
 	track_num = 0
-	for track in tracksL:
-		
-		
+	for track in trackL:
 		try:
 			trackD = get_audio_object(track)
 		except Exception as e:
@@ -740,7 +738,7 @@ def guess_TOC_from_tracks_list(tracksL):
 	lead_out_track_offset=next_frame	
 	toc_string = 	''		
 	if offset_mediaL:
-		discidInputD = {'First_Track':1,'Last_Track':len(tracksL),'offsetL':offset_mediaL,'total_lead_off':lead_out_track_offset}
+		discidInputD = {'First_Track':1,'Last_Track':len(trackL),'offsetL':offset_mediaL,'total_lead_off':lead_out_track_offset}
 		toc_string = '%s %s %s %s'	%(discidInputD['First_Track'],discidInputD['Last_Track'],discidInputD['total_lead_off'],str(discidInputD['offsetL'])[1:-1].replace(',',''))
 	
 	return{'discidInput':discidInputD,'toc_string':toc_string,'trackDL':trackDL}	
