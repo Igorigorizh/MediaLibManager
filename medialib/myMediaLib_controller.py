@@ -120,7 +120,6 @@ from medialib.myMediaLib_mpd import get_mpd_playlistinfo
 
 from medialib.myMediaLib_fs_util import Media_FileSystem_Helper as mfsh
 from medialib.myMediaLib_fs_util import get_parent_folder_stackL
-from medialib.myMediaLib_fs_util import identify_music_folder
 from medialib.myMediaLib_cue import generate_play_list_from_fileData
 
 from PIL import Image
@@ -133,6 +132,7 @@ from pathlib import Path, PosixPath, WindowsPath, PurePosixPath
 
 # monkey patch for old code reuse
 find_new_music_folder = mfsh().find_new_music_folder
+identify_music_folder = mfsh().identify_music_folder
 
 
 def is_ip(address):
