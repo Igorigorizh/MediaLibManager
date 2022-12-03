@@ -1,0 +1,67 @@
+import datetime
+from medialib.myMediaLib_fp_tools import guess_TOC_from_tracks_list
+
+
+def test_guess_TOC_from_tracks_list():
+    trackL = [
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/01. Der Sionitin Wiegenlied - Nun, ich singe! Gott, ich knie.flac',
+        b"V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/02. Lamento - Ach, dass ich Wassers g'nug h\xc3\xa4tte.flac",
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/03. Ich suchte des Nachts in meinem Bette.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/04. Gott, hilf mir.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/05. O amantissime sponse.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/06. Chiaccona a 4 in C Major.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/07. Von Gott will ich nicht lassen, SWV 366.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/08. Kommt, ihr Stunden, macht mich frei.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/09. Aria. Ein kleines Kindelein.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/10. Bleib bei uns, denn es will Abend werden.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/11. Sonata a 6 in E Minor.flac',
+        b'V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/12. Erbarm Dich mein, o Herre Gott, SWV 447.flac',
+        b"V:/MUSIC/ORIGINAL_MUSIC/ORIGINAL_CLASSICAL/LArpeggiata - Christina Pluhar/_HI-RES/Christina Pluhar - Himmelsmusik (2018) [24-96]/13. Komm, s\xc3\xbcsser Tod, komm, sel'ge Ruh, BWV 478.flac"
+    ]
+
+    result_expected = {'discidInput': {'First_Track': 1, 'Last_Track': 13,
+                                       'offsetL': [150, 33280, 64858, 90568, 118249, 165074, 185318, 211068, 248665,
+                                                   261297, 286245, 309951, 328834],
+                                       'total_lead_off': 339935},
+                       'toc_string': '1 13 339935 150 33280 64858 90568 118249 165074 185318 211068 248665 261297 286245 309951 328834',
+                       'trackDL': [{'sample_rate': 96000, 'full_length': 441.73333333333335,
+                                    'full_time': datetime.timedelta(seconds=441), 'bitrate': 2468,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 421.04,
+                                    'full_time': datetime.timedelta(seconds=421), 'bitrate': 2464,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 342.8,
+                                    'full_time': datetime.timedelta(seconds=342), 'bitrate': 2495,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 369.0933333333333,
+                                    'full_time': datetime.timedelta(seconds=369), 'bitrate': 2429,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 624.3333333333334,
+                                    'full_time': datetime.timedelta(seconds=624), 'bitrate': 2408,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 269.92,
+                                    'full_time': datetime.timedelta(seconds=269), 'bitrate': 2549,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 343.3333333333333,
+                                    'full_time': datetime.timedelta(seconds=343), 'bitrate': 2465,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 501.29333333333335,
+                                    'full_time': datetime.timedelta(seconds=501), 'bitrate': 2413,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 168.42666666666668,
+                                    'full_time': datetime.timedelta(seconds=168), 'bitrate': 2380,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 332.64,
+                                    'full_time': datetime.timedelta(seconds=332), 'bitrate': 2376,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 316.0933333333333,
+                                    'full_time': datetime.timedelta(seconds=316), 'bitrate': 2564,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 251.77333333333334,
+                                    'full_time': datetime.timedelta(seconds=251), 'bitrate': 2423,
+                                    'bits_per_sample': 24},
+                                   {'sample_rate': 96000, 'full_length': 148.01333333333332,
+                                    'full_time': datetime.timedelta(seconds=148), 'bitrate': 2264,
+                                    'bits_per_sample': 24}]
+                       }
+    assert guess_TOC_from_tracks_list(trackL) == result_expected
