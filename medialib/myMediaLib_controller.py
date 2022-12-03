@@ -205,7 +205,7 @@ class MediaLib_Controller(MediaLibPlayProcess_singletone_Wrapper):
             self.__instance_VIEW = MediaLib_ViewGen()
         except:
             from medialib.myMedialib_view import MediaLib_ViewGen
-			print('Got MediaLib_ViewGen!')
+            print('Got MediaLib_ViewGen!')
             self.__instance_VIEW = MediaLib_ViewGen()
 
         ignor_namesL = ['__doc__', '__module__', 'self_func']
