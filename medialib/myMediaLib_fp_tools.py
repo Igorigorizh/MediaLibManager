@@ -92,7 +92,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	#redis_state_notifier('medialib-job-fp-albums-total-progress','progress')
 	#redis_state_notifier('medialib-job-fp-album-progress','init')
 	
-	scenarioD = detect_cue_scenario(album_path,*args)
+	scenarioD = detect_cue_scenario(album_path)
 	
 	if scenarioD['cue_state']['single_image_CUE']:
 		print("\n\n-------FP generation for CUE scenario:  single_image_CUE-----------")
