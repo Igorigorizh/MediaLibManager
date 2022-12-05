@@ -164,22 +164,20 @@ def get_audio_object(fname):
                     audio = MonkeysAudioInfo(f)
                 except Exception as e:
                     print('probably MonkeysAudioHeaderError_1', fname)
-                    return {'Error': e}
+                    logger.critical('Exception in get_audio_object [%s]: mutagen error %s: [%s] {fname}'
+                                        %(str(e), str(file_ext, BASE_ENCODING), str(fname, BASE_ENCODING)))
+                    return None
+            
             
             if audio.length:
                 return {
-                    'sample_rate': audio.sample_rate,
-                    'full_length': audio.length,
-                    'full_time': myMusicStr2TimeDelta(sec2hour(audio.length)),
-                    'bitrate': round(os.path.getsize(fname) * 8 / 1000 / audio.length),
-                    'bits_per_sample': audio.bits_per_sample
-                }
-            else: 
-                return {
-                        'sample_rate': audio.sample_rate, 'full_length': audio.length,
-                        'full_time': myMusicStr2TimeDelta(sec2hour(audio.length)), 'bitrate': 0,
+                        'sample_rate': audio.sample_rate,
+                        'full_length': audio.length,
+                        'full_time': myMusicStr2TimeDelta(sec2hour(audio.length)),
+                        'bitrate': round(os.path.getsize(fname) * 8 / 1000 / audio.length),
                         'bits_per_sample': audio.bits_per_sample
                         }
+			
         try:
             if b'flac' in file_ext: audio = FLAC(fname)
             if b'm4a' in file_ext: audio = MP4(fname)
@@ -187,26 +185,32 @@ def get_audio_object(fname):
             if b'wv' in file_ext: audio = WavPack(fname)
             if b'mp3' in file_ext: audio = MP3(fname, ID3=EasyID3)
         except Exception as e:
-            print(f'{file_ext[1:]} mutagen error')
-            return {'Error': e}
+            logger.critical('Exception in get_audio_object [%s]: mutagen error %s: [%s]'
+                            %(str(e), str(file_ext, BASE_ENCODING),str(fname, BASE_ENCODING)))
+            return None
+		
+        if audio.info.length:
+            full_length = audio.info.length
+            tmp_length = sec2hour(full_length)
+            full_time = myMusicStr2TimeDelta(tmp_length)
+            if b'mp3' in file_ext:
+                bits_per_sample = None
+            else:
+                bits_per_sample = audio.info.bits_per_sample
+            if b'flac' in file_ext or  b'dsf' in file_ext or b'mp3' in file_ext:
+                bitrate = round(audio.info.bitrate / 1000)
+            else:    
+                if full_length: 
+                    # general format case
+                    bitrate = round(os.path.getsize(fname) * 8 / 1000 / full_length)
 
-        full_length = audio.info.length
-        tmp_length = sec2hour(full_length)
-        full_time = myMusicStr2TimeDelta(tmp_length)
-        if b'mp3' in file_ext:
-            bits_per_sample = None
+            sample_rate = audio.info.sample_rate
+            return {'sample_rate': sample_rate, 'full_length': full_length, 'full_time': full_time,
+                    'bitrate': bitrate,'bits_per_sample':bits_per_sample}
         else:
-            bits_per_sample = audio.info.bits_per_sample
-        if b'flac' in file_ext or  b'dsf' in file_ext or b'mp3' in file_ext:
-            bitrate = round(audio.info.bitrate / 1000)
-        else:    
-            if full_length: 
-                # general format case
-                bitrate = round(os.path.getsize(fname) * 8 / 1000 / full_length)
-
-        sample_rate = audio.info.sample_rate
-        return {'sample_rate': sample_rate, 'full_length': full_length, 'full_time': full_time,
-                'bitrate': bitrate,'bits_per_sample':bits_per_sample}
+            logger.critical('Exception in get_audio_object [audio.info.length = 0]: mutagen error %s: [%s]'%(str(file_ext,BASE_ENCODING),str(fname,BASE_ENCODING)))
+            return None
+                    
 
 
 def parseCue(fName, *args):
@@ -376,23 +380,23 @@ def parseCue(fName, *args):
 
             if orig_file_path_exist and 'with_bitrate' in args:
                 audio = get_audio_object(orig_file_path)
+                if audio:
+                    full_length = audio['full_length']
+                    full_time = audio['full_time']
+                    bitrate = audio['bitrate']
+                    sample_rate = audio['sample_rate']
+                    bits_per_sample = audio['bits_per_sample']
+                    # For all formats  keep the same approach of TOC data calculation. Only for multy tracks cue
+                    lead_out_track_offset = int(full_length * 75) + first_track_offset
 
-                full_length = audio['full_length']
-                full_time = audio['full_time']
-                bitrate = audio['bitrate']
-                sample_rate = audio['sample_rate']
-                bits_per_sample = audio['bits_per_sample']
-                # For all formats  keep the same approach of TOC data calculation. Only for multy tracks cue
-                lead_out_track_offset = int(full_length * 75) + first_track_offset
-
-                total_track_sectors = total_track_sectors + int(full_length * 75) + 1
-                if track_num == 0:
-                    offset_mediaL.append(first_track_offset + pregap)
+                    total_track_sectors = total_track_sectors + int(full_length * 75) + 1
+                    if track_num == 0:
+                        offset_mediaL.append(first_track_offset + pregap)
+                        next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1
+                    else:
+                        offset_mediaL.append(next_frame)
                     next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1
-                else:
-                    offset_mediaL.append(next_frame)
-                next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1
-                track_offset_cnt += 1
+                    track_offset_cnt += 1
 
             if orig_file_path != '' and orig_file_path != b"":
 
