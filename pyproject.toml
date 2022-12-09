@@ -10,7 +10,12 @@ description='Music metadata managing, navigation and playing Service'
 
 dependencies = [
     "mutagen",
-    "chardet"
+    "chardet",
+    "acoustid",
+    "discid",
+    "musicbrainzngs"
+
+
 
 ]
 
