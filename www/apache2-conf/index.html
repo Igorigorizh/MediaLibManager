@@ -191,7 +191,7 @@ div.section_header_blue {
   }
     </style>
   </head>
-  <body>
+  <body onload="myFunction()">
     <div class="main_page">
       <div class="page_header floating_element">
         <img src="/icons/openlogo-75.png" alt="Debian Logo" class="floating_element"/>
@@ -259,8 +259,8 @@ div.section_header_blue {
 		<TR> 
 			<TD> <div><a href="#" onclick="javascript:window.location.port=8010">  FpGenerator health check  </a></div> </td> 
 			<TD> <div><a href="#" onclick="javascript:window.location.port=5556">  Flower  </a></div> </td> 
-			<TD> <div><a href="form" onclick="javascript:window.location.port=8010">  FpGenerator service  </a></div> </td> 
-			<TD> <div><a href="docs" onclick="javascript:window.location.port=8010">  FastAPI Swagger  </a></div> </td> 
+			<TD> <div><a id="fps" href="#" >  FpGenerator service  </a></div> </td> 
+			<TD> <div><a id="fas" href="#" >  FastAPI Swagger  </a></div> </td> 
 			
 				
 		</TR> 
@@ -392,6 +392,12 @@ div.section_header_blue {
     </div>
     <div class="validator">
     </div>
+	<script>
+		function myFunction() {
+		document.getElementById("fps").href = window.location.origin + ":8000/form"
+		document.getElementById("fas").href = window.location.host + ":8000/docs"
+		}
+		</script>
   </body>
 </html>
 
