@@ -118,13 +118,19 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 			iter_start_sec_3 = iter(cueD['trackD'][num]['start_in_sec']  for num in cueD['trackD'])
 			if fp_min_duration > 10:
 				iter_total_sec_2 = iter(fp_time_cut(cueD['trackD'][num]['total_in_sec'],fp_min_duration)	for num in cueD['trackD'])
-				iter_total_sec_orig = iter(float('%.1f'%cueD['trackD'][num]['total_in_sec'])  for num in cueD['trackD'])
+				iter_total_sec_orig = iter( \
+                               float('%.1f'%cueD['trackD'][num]['total_in_sec']) for num in cueD['trackD']\
+                                )
 				# get iterator for ffmpeg command
-				iter_command_ffmpeg = map(lambda x: command_ffmpeg%x,zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4))
+				iter_command_ffmpeg = map(
+                                lambda x: command_ffmpeg%x,\
+                                zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4)\
+                                )
 			else:
 				iter_total_sec_2 = iter(cueD['trackD'][num]['total_in_sec']  for num in cueD['trackD'])
 				# get iterator for ffmpeg command
-				iter_command_ffmpeg = map(lambda x: command_ffmpeg%x,zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4 ))
+				iter_command_ffmpeg = map(lambda x: command_ffmpeg%x,zip(iter_image_name_1,\
+                iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4 ))
 			
 			
 			res = ''
