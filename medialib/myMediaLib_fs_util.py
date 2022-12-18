@@ -184,7 +184,7 @@ class Media_FileSystem_Helper:
 			if not isinstance(init_dir, str):
 				print('Not string:',init_dir)
 				init_dirL[init_dirL.index(init_dir)] = init_dir.decode('utf8')
-                if not os.path.exists(init_dir):
+				if not os.path.exists(init_dir):
 					print(init_dir, 'does not exists')
 					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {str(init_dir,BASE_ENCODING)}'}
 			else:
