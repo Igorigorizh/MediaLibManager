@@ -186,12 +186,12 @@ class Media_FileSystem_Helper:
 				init_dirL[init_dirL.index(init_dir)] = init_dir.decode('utf8')
 				if not os.path.exists(init_dir):
 					print('1:',init_dir, 'does not exists')
-                    print(f'Folder {str(init_dir,BASE_ENCODING)}  not exists')
+					print(f'Folder {str(init_dir,BASE_ENCODING)}  not exists')
 					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {str(init_dir,BASE_ENCODING)}  not exists'}
 			else:
 				if not os.path.exists(init_dir):
 					print('2:',init_dir, 'does not exists')
-                    print(f'Folder {init_dir} not exists')
+					print(f'Folder {init_dir} not exists')
 					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {init_dir} not exists'}
 		
 		print("Folders scanning ...",init_dirL)
