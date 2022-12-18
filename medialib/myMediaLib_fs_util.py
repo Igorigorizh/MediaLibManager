@@ -185,14 +185,16 @@ class Media_FileSystem_Helper:
 				print('Not string:',init_dir)
 				init_dirL[init_dirL.index(init_dir)] = init_dir.decode('utf8')
 				if not os.path.exists(init_dir):
-					print(init_dir, 'does not exists')
-					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {str(init_dir,BASE_ENCODING)}'}
+					print('1:',init_dir, 'does not exists')
+                    print(f'Folder {str(init_dir,BASE_ENCODING)}  not exists')
+					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {str(init_dir,BASE_ENCODING)}  not exists'}
 			else:
 				if not os.path.exists(init_dir):
-					print(init_dir, 'does not exists')
-					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {init_dir} no exists'}
+					print('2:',init_dir, 'does not exists')
+                    print(f'Folder {init_dir} not exists')
+					return {'folder_list':[],'NewFolderL':[], 'error': f'Folder {init_dir} not exists'}
 		
-		print("Folders scanning ...")
+		print("Folders scanning ...",init_dirL)
 		t = time.time()
 		if ( prev_folderL or DB_folderL ) and not 'initial' in args:
 			f_l= tuple(self._bulld_subfolders_list(init_dirL, *args))			
