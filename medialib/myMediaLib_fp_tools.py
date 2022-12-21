@@ -104,7 +104,13 @@ class FpGenerator():
                 iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4 ))
             
             job_input = {'scenario': 'single_image_CUE', 'params':list(zip(iter_command_ffmpeg,iter_dest_tmp_name,))}    
-        elif scenarioD['cue_state']['multy_tracs_CUE']:       
+        elif scenarioD['cue_state']['multy_tracs_CUE']: 
+            try:
+                logger.debug('in class FpGenerator: meth: build_fp_task_param - cue multy tracks and FP gen')
+                cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
+            except Exception as e:
+                    logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
+                    return {'RC':-1,'cueD':cueD}	
             logger.debug('in class FpGenerator: meth: build_fp_task_param - mltr cue parsing and FP gen')
             job_input = {'scenario': 'multy_tracs_CUE', 'params':[a['orig_file_path'] for a in cueD['orig_file_pathL']]}
 					
@@ -113,7 +119,7 @@ class FpGenerator():
             scenarioD['normal_trackL'].sort()
                     
             job_input = {
-                        'scenario': 'multy_tracs_CUE', \
+                        'scenario': 'only_tracks_wo_CUE', \
                         'params':list(map(lambda x: str(join(album_path,x),BASE_ENCODING), scenarioD['normal_trackL']))
                         }
         return  job_input       
