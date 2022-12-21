@@ -48,14 +48,85 @@ cfgD = readConfigData(mymedialib_cfg)
 cfg_fp = ConfigParser()
 cfg_fp.read(medialib_fp_cfg)
 
-logger = logging.getLogger('controller_logger.tools')
+logger = logging.getLogger('controller_logger.fp_tools')
 
 musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 
 posix_nice_value = int(cfg_fp['FP_PROCESS']['posix_nice_value'])
 
-#class Album_FP_discID_generator:
+class FpGenerator():
+    API_KEY = 'cSpUJKpD'
+    meta = ["recordings","recordingids","releases","releaseids","releasegroups",\
+            "releasegroupids", "tracks", "compress", "usermeta", "sources"]
+    def __init__(self, fp_min_duration = 10):
+        self._fp_min_duration = fp_min_duration
+        
+    def build_fp_task_param(self, album_path):
+        logger.debug('in class FpGenerator: meth: build_fp_task_param - Start')
+        scenarioD = detect_cue_scenario(album_path)
+        job_input = {}
+        
+        # 1. Single image cue scenario
+        if scenarioD['cue_state']['single_image_CUE']:
+            try:
+                logger.debug('in class FpGenerator: meth: build_fp_task_param - Full cue split and FP gen')
+                cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
+            except Exception as e:
+                    logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
+                    return {'RC':-1,'cueD':cueD}
+             
+            image_name = cueD['orig_file_pathL'][0]['orig_file_path']
+            command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
+			
+            # Get 4 iterators for image name,  total_sec, start_sec, temp_file_name
+            iter_image_name_1 = iter(image_name for i in range(len(cueD['trackD'])))
+            #iter_params = iter(args for i in range(len(cueD['trackD'])))
+            iter_dest_tmp_name_4 = iter(join(album_path,b'temp%i.wav'%(num))  for num in cueD['trackD'])
+            iter_dest_tmp_name_4, iter_dest_tmp_name = tee(iter_dest_tmp_name_4)
+            
+            iter_start_sec_3 = iter(cueD['trackD'][num]['start_in_sec']  for num in cueD['trackD'])
+            if self._fp_min_duration > 10:
+                iter_total_sec_2 = iter(fp_time_cut(cueD['trackD'][num]['total_in_sec'],self._fp_min_duration)	for num in cueD['trackD'])
+                iter_total_sec_orig = iter( \
+                               float('%.1f'%cueD['trackD'][num]['total_in_sec']) for num in cueD['trackD']\
+                                          )
+				# get iterator for ffmpeg command
+                iter_command_ffmpeg = map(
+                                lambda x: command_ffmpeg%x,\
+                                zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4)\
+                                )
+            else:
+                iter_total_sec_2 = iter(cueD['trackD'][num]['total_in_sec']  for num in cueD['trackD'])
+                
+                # get iterator for ffmpeg command
+                iter_command_ffmpeg = map(lambda x: command_ffmpeg%x,zip(iter_image_name_1,\
+                iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4 ))
+            
+            job_input = {'scenario': 'single_image_CUE', 'params':list(zip(iter_command_ffmpeg,iter_dest_tmp_name,))}    
+        elif scenarioD['cue_state']['multy_tracs_CUE']: 
+            try:
+                logger.debug('in class FpGenerator: meth: build_fp_task_param - cue multy tracks and FP gen')
+                cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
+            except Exception as e:
+                    logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
+                    return {'RC':-1,'cueD':cueD}	
+            logger.debug('in class FpGenerator: meth: build_fp_task_param - mltr cue parsing and FP gen')
+            job_input = {'scenario': 'multy_tracs_CUE', 'params':[a['orig_file_path'] for a in cueD['orig_file_pathL']]}
+					
+        elif scenarioD['cue_state']['only_tracks_wo_CUE']:
+            logger.debug('in class FpGenerator: meth: build_fp_task_param - only tracks wo cue')
+            scenarioD['normal_trackL'].sort()
+                    
+            job_input = {
+                        'scenario': 'only_tracks_wo_CUE', \
+                        'params':list(map(lambda x: str(join(album_path,x),BASE_ENCODING), scenarioD['normal_trackL']))
+                        }
+        return  job_input       
+			
+			
+            
+            
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
 	hi_res = False
 	
@@ -142,7 +213,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 			start_t = time.time()
 			try:
 				with Pool(cpu_num) as p:
-					res = p.starmap_async(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params,)).get()
+					res = p.starmap_async(worker_ffmpeg_and_fingerprint, zip(iter_command_ffmpeg,iter_dest_tmp_name,iter_params)).get()
 			except Exception as e:
 				print("Caught exception in map_async 1",str(e))
 				return {'RC':-1,'cueD':cueD}
