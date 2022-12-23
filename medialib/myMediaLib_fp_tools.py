@@ -59,10 +59,27 @@ class FpGenerator():
     API_KEY = 'cSpUJKpD'
     meta = ["recordings","recordingids","releases","releaseids","releasegroups",\
             "releasegroupids", "tracks", "compress", "usermeta", "sources"]
-    def __init__(self, fp_min_duration = 10):
+    
+    def __init__(self, fp_min_duration = 10, posix_nice_value = 0):
         self._fp_min_duration = fp_min_duration
+        self._posix_nice_value = posix_nice_value  
+        
+    def exec_fp_process(self, album_path):
+        """ Simple process execution, use this for local process testing """
+        result = []
+        job_settings = self.build_fp_task_param(album_path)
+        if job_settings['scenario'] == 'single_image_CUE':
+            for item_params in job_settings['params']: 
+                res_fp = self.worker_ffmpeg_and_fingerprint(*item_params)
+                result.append(res_fp)
+        else:
+            for item_params in job_settings['params']: 
+                res_fp = self.worker_fingerprint(*item_params)
+                result.append(res_fp)
+        return result    
         
     def build_fp_task_param(self, album_path):
+        """ Builds fp process execution parameters depending on scenario detected"""
         logger.debug('in class FpGenerator: meth: build_fp_task_param - Start')
         scenarioD = detect_cue_scenario(album_path)
         job_input = {}
@@ -123,8 +140,71 @@ class FpGenerator():
                         'params':list(map(lambda x: str(join(album_path,x),BASE_ENCODING), scenarioD['normal_trackL']))
                         }
         return  job_input       
-			
-			
+        
+    def worker_ffmpeg_and_fingerprint(self, ffmpeg_command, new_name):
+        """ Splits cue image into wav files  via ffmpeg and generate acoustic finger print for each of them"""
+        #command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'( new_name )
+        failed_fpL = []
+        f_name = os.path.basename(new_name)			
+        prog = 'ffmpeg'				
+        if os.name == 'posix':
+            try:
+                nice_value = os.nice(self._posix_nice_value)	
+            except Exception as e:
+                print('Error in nice:',e)
+            
+        try:
+            #print("Decompressing partly with:",prog)
+            res = subprocess.Popen(ffmpeg_command.decode(), stderr=subprocess.PIPE ,stdout=subprocess.PIPE,shell=True)
+            out, err = res.communicate()
+        except OSError as e:
+            print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
+            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
+                                command:{ffmpeg_command}')
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
+                        'errorL':['Error at decompression of [%s]'%(str(f_name))] }
+        except Exception as e:
+            print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
+            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
+                                command:{ffmpeg_command}')
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,'errorL':['Error at decompression of [%s]'%(str(f_name))]}
+            
+        fp = []
+        try:
+            fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
+        except  Exception as e:
+            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint acousticid [{e}] \
+                                name:{new_name}')
+            print("Error in fp gen with:",new_name,e)
+            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint \
+                                                                    acousticid [{ffmpeg_command}]')
+            print('ffmpeg command:',ffmpeg_command)
+            f_name = os.path.basename(new_name)
+            os.rename(new_name,new_name.replace(f_name,bytes(str(time.time()).replace('.','_'),BASE_ENCODING)+f_name))
+            failed_fpL.append((new_name,e))
+
+            #print("*", end=' ')
+        os.remove(new_name)	
+            
+        return (fp,f_name,failed_fpL)	
+            
+    def worker_fingerprint(self, file_path):
+        """ Generate acoustic finger print for audio file"""
+        print("Worker acoustid.fingerprint pid:",os.getpid())
+        if os.name == 'posix':
+            try:
+                nice_value = os.nice(self._posix_nice_value)	
+            except Exception as e:
+                print('Error in nice:',e)
+                
+        try:
+            fp = acoustid.fingerprint_file(file_path)
+        except  Exception as e:
+            print("Error [%s] in fp gen with:"%(str(e)),file_path)
+            return ((),os.path.split(file_path)[-1])
+            #print(fp[0],os.path.split(file_path)[-1])	
+
+        return (fp,os.path.split(file_path)[-1])    
             
             
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
