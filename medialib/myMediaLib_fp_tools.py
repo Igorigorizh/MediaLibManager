@@ -159,13 +159,13 @@ class FpGenerator():
             out, err = res.communicate()
         except OSError as e:
             print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
-            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
+            logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
             return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
                         'errorL':['Error at decompression of [%s]'%(str(f_name))] }
         except Exception as e:
             print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
-            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
+            logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
             return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,'errorL':['Error at decompression of [%s]'%(str(f_name))]}
             
@@ -173,10 +173,10 @@ class FpGenerator():
         try:
             fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
         except  Exception as e:
-            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint acousticid [{e}] \
-                                name:{new_name}')
+            logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint\
+                acousticid [{e}] name:{new_name}')
             print("Error in fp gen with:",new_name,e)
-            logger.critical('Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint \
+            logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint \
                                                                     acousticid [{ffmpeg_command}]')
             print('ffmpeg command:',ffmpeg_command)
             f_name = os.path.basename(new_name)
