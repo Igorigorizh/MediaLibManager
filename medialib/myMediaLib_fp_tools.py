@@ -168,7 +168,12 @@ class FpGenerator():
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
             return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,'errorL':['Error at decompression of [%s]'%(str(f_name))]}
-            
+        
+        if not os.path.exists(new_name):
+            logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint\
+                splitt name:{new_name}, file not created after splitting')
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
+                        'errorL':['Error 2 decompression of [%s]'%(str(f_name))] }    
         fp = []
         try:
             fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
