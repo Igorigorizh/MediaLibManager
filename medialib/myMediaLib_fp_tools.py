@@ -208,7 +208,7 @@ class FpGenerator():
             fp = acoustid.fingerprint_file(file_path)
         except  Exception as e:
             print("Error [%s] in fp gen with:"%(str(e)),file_path)
-            return ('RC':-1,(),'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
+            return {'RC':-1,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
             #print(fp[0],os.path.split(file_path)[-1])	
 
         return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
