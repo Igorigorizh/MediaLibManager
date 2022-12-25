@@ -81,7 +81,13 @@ class FpGenerator():
     def build_fp_task_param(self, album_path):
         """ Builds fp process execution parameters depending on scenario detected"""
         logger.debug('in class FpGenerator: meth: build_fp_task_param - Start')
-        scenarioD = detect_cue_scenario(album_path)
+        try:
+            scenarioD = detect_cue_scenario(album_path)
+        except Exception as e:
+            logger.critical(f'in class FpGenerator: meth: build_fp_task_param - exception in scenario detect [{e}],\
+                                path:{album_path}')
+            return {'RC':-1, 'album_path':album_path,'error': f'Exception in scenario detect: {e}'}
+            
         job_input = {}
         
         # 1. Single image cue scenario
