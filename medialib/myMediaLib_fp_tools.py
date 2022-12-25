@@ -163,18 +163,19 @@ class FpGenerator():
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
             return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
-                        'errorL':['Error at decompression of [%s]'%(str(f_name))] }
+                        'errorL':['Error at decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start} 
         except Exception as e:
             print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,'errorL':['Error at decompression of [%s]'%(str(f_name))]}
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,\
+                    'errorL':['Error at decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start}
         
         if not os.path.exists(new_name):
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint\
                 splitt name:{new_name}, file not created after splitting')
             return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
-                        'errorL':['Error 2 decompression of [%s]'%(str(f_name))] }    
+                        'errorL':['Error 2 decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start} }    
         fp = []
         try:
             fp = acoustid.fingerprint_file(str(new_name,BASE_ENCODING))
@@ -192,7 +193,7 @@ class FpGenerator():
             #print("*", end=' ')
         os.remove(new_name)	
             
-        return (fp,f_name,failed_fpL,time.time()-t_start)	
+        return {'fp':fp,'file_name':f_name,'failed':failed_fpL,'runtime':time.time()-t_start}	
             
     def worker_fingerprint(self, file_path):
         """ Generate acoustic finger print for audio file"""
@@ -207,10 +208,10 @@ class FpGenerator():
             fp = acoustid.fingerprint_file(file_path)
         except  Exception as e:
             print("Error [%s] in fp gen with:"%(str(e)),file_path)
-            return ((),os.path.split(file_path)[-1])
+            return ('RC':-1,(),'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
             #print(fp[0],os.path.split(file_path)[-1])	
 
-        return (fp,os.path.split(file_path)[-1],time.time()-t_start)    
+        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
             
             
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
