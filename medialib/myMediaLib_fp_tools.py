@@ -192,8 +192,9 @@ class FpGenerator():
 
             #print("*", end=' ')
         os.remove(new_name)	
-            
-        return {'fp':fp,'file_name':f_name,'failed':failed_fpL,'runtime':time.time()-t_start}	
+        t_finished = time.time()    
+        return {'fp':fp,'file_name':f_name,'failed':failed_fpL,\
+                'runtime':time.time()-t_start,'finished_at':t_finished}	
             
     def worker_fingerprint(self, file_path):
         """ Generate acoustic finger print for audio file"""
@@ -210,8 +211,9 @@ class FpGenerator():
             print("Error [%s] in fp gen with:"%(str(e)),file_path)
             return {'RC':-1,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
             #print(fp[0],os.path.split(file_path)[-1])	
-
-        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
+        t_finished = time.time()
+        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1],\
+                'runtime':t_finished-t_start,'finished_at':t_finished}  
             
             
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
