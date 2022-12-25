@@ -144,6 +144,7 @@ class FpGenerator():
     def worker_ffmpeg_and_fingerprint(self, ffmpeg_command, new_name):
         """ Splits cue image into wav files  via ffmpeg and generate acoustic finger print for each of them"""
         #command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'( new_name )
+        t_start = time.time()
         failed_fpL = []
         f_name = os.path.basename(new_name)			
         prog = 'ffmpeg'				
@@ -191,11 +192,11 @@ class FpGenerator():
             #print("*", end=' ')
         os.remove(new_name)	
             
-        return (fp,f_name,failed_fpL)	
+        return (fp,f_name,failed_fpL,time.time()-t_start)	
             
     def worker_fingerprint(self, file_path):
         """ Generate acoustic finger print for audio file"""
-        print("Worker acoustid.fingerprint pid:",os.getpid())
+        t_start = time.time()
         if os.name == 'posix':
             try:
                 nice_value = os.nice(self._posix_nice_value)	
@@ -209,12 +210,11 @@ class FpGenerator():
             return ((),os.path.split(file_path)[-1])
             #print(fp[0],os.path.split(file_path)[-1])	
 
-        return (fp,os.path.split(file_path)[-1])    
+        return (fp,os.path.split(file_path)[-1],time.time()-t_start)    
             
             
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):
 	hi_res = False
-	
 	print('Self:',type(self))
 
 	TOC_dataD = get_TOC_from_log(album_path)
