@@ -48,8 +48,6 @@ def sec2min(secs):
 def detect_cue_scenario(album_path):
     """ Detects CUE processing scenario: single image cue, multy tracks image cue, multy tracs album (NO CUE), multy format mix, uncompatible CUE """
     image_cue = ''
-
-    cueD = {}
     cueD = {}
     orig_cue_title_cnt = 0
     f_numb = 0
