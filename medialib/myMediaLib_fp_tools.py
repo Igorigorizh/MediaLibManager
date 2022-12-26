@@ -152,6 +152,7 @@ class FpGenerator():
         #command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'( new_name )
         t_start = time.time()
         failed_fpL = []
+        RC = 1
         f_name = os.path.basename(new_name)			
         prog = 'ffmpeg'				
         if os.name == 'posix':
@@ -195,11 +196,12 @@ class FpGenerator():
             f_name = os.path.basename(new_name)
             os.rename(new_name,new_name.replace(f_name,bytes(str(time.time()).replace('.','_'),BASE_ENCODING)+f_name))
             failed_fpL.append((new_name,e))
+            RC = -1
 
             #print("*", end=' ')
         os.remove(new_name)	
         t_finished = time.time()    
-        return {'fp':fp,'file_name':f_name,'failed':failed_fpL,\
+        return {'RC':RC,'fp':fp,'file_name':f_name,'failed':failed_fpL,\
                 'runtime':time.time()-t_start,'finished_at':t_finished}	
             
     def worker_fingerprint(self, file_path):
