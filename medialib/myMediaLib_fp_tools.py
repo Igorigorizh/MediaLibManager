@@ -153,7 +153,8 @@ class FpGenerator():
         t_start = time.time()
         failed_fpL = []
         RC = 1
-        f_name = os.path.basename(new_name)			
+        f_name = os.path.basename(new_name)
+        folder_name = os.path.dirname(new_name)
         prog = 'ffmpeg'				
         if os.name == 'posix':
             try:
@@ -169,19 +170,19 @@ class FpGenerator():
             print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name, 'folder_name':folder_name,\
                         'errorL':['Error at decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start} 
         except Exception as e:
             print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,\
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name, 'folder_name':folder_name,\
                     'errorL':['Error at decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start}
         
         if not os.path.exists(new_name):
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint\
                 splitt name:{new_name}, file not created after splitting')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,  'folder_name':folder_name,\
                         'errorL':['Error 2 decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start}   
         fp = []
         try:
@@ -201,12 +202,13 @@ class FpGenerator():
             #print("*", end=' ')
         os.remove(new_name)	
         t_finished = time.time()    
-        return {'RC':RC,'fp':fp,'file_name':f_name,'failed':failed_fpL,\
+        return {'RC':RC,'fp':fp,'file_name':f_name,'failed':failed_fpL, 'folder_name':folder_name,\
                 'runtime':time.time()-t_start,'finished_at':t_finished}	
             
     def worker_fingerprint(self, file_path):
         """ Generate acoustic finger print for audio file"""
         t_start = time.time()
+        folder_name = os.path.dirname(file_path)
         if os.name == 'posix':
             try:
                 nice_value = os.nice(self._posix_nice_value)	
@@ -217,10 +219,11 @@ class FpGenerator():
             fp = acoustid.fingerprint_file(file_path)
         except  Exception as e:
             print("Error [%s] in fp gen with:"%(str(e)),file_path)
-            return {'RC':-1,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
+            return {'RC':-1,'file_name':os.path.split(file_path)[-1], 'folder_name':folder_name,\
+                    'runtime':time.time()-t_start}  
             #print(fp[0],os.path.split(file_path)[-1])	
         t_finished = time.time()
-        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1],\
+        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1], 'folder_name':folder_name,\
                 'runtime':t_finished-t_start,'finished_at':t_finished}  
             
             
