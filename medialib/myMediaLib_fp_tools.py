@@ -86,7 +86,7 @@ class FpGenerator():
         except Exception as e:
             logger.critical(f'in class FpGenerator: meth: build_fp_task_param - exception in scenario detect [{e}],\
                                 path:{album_path}')
-            return {'RC':-1, 'album_path':album_path,'error': f'Exception in scenario detect: {e}'}
+            return {'RC':-1, 'album_path':album_path,'error': f'Exception 1 in scenario detect: {e}'}
             
         job_input = {}
         
@@ -97,7 +97,7 @@ class FpGenerator():
                 cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
             except Exception as e:
                     logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
-                    return {'RC':-1,'cueD':cueD}
+                    return {'RC':-1,'error': f'Exception 2 in scenario detect: {e}'}
              
             image_name = cueD['orig_file_pathL'][0]['orig_file_path']
             command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
@@ -114,7 +114,7 @@ class FpGenerator():
                 iter_total_sec_orig = iter( \
                                float('%.1f'%cueD['trackD'][num]['total_in_sec']) for num in cueD['trackD']\
                                           )
-				# get iterator for ffmpeg command
+                # get iterator for ffmpeg command
                 iter_command_ffmpeg = map(
                                 lambda x: command_ffmpeg%x,\
                                 zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4)\
@@ -133,7 +133,7 @@ class FpGenerator():
                 cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
             except Exception as e:
                     logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
-                    return {'RC':-1,'cueD':cueD}	
+                    return {'RC':-1,'error': f'Exception 3 in scenario detect: {e}'}	
             logger.debug('in class FpGenerator: meth: build_fp_task_param - mltr cue parsing and FP gen')
             job_input = {'scenario': 'multy_tracs_CUE', 'params':[a['orig_file_path'] for a in cueD['orig_file_pathL']]}
 					
