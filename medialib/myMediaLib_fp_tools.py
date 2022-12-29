@@ -88,10 +88,10 @@ class CueCheckAlbumProcesing(metaclass=ABCMeta):
                     logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
                     return {'RC':-1,'cueD':cueD}    
             
-            return self._cue_multy_tracks_operation(cueD)
+            return self._cue_multy_tracks_operation(album_path, cueD)
             
         elif scenarioD['cue_state']['only_tracks_wo_CUE']:
-            return self._multy_tracks_only_operation(scenarioD)
+            return self._multy_tracks_only_operation(album_path, scenarioD)
             
     @abstractmethod
     def _cue_single_image_operation(self, album_path, cueD):
