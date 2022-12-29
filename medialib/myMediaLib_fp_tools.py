@@ -174,7 +174,13 @@ class FpGenerator(CueCheckAlbumProcesing):
     def build_fp_task_param(self, album_path):
         """ Builds fp process execution parameters depending on scenario detected"""
         logger.debug('in class FpGenerator: meth: build_fp_task_param - Start')
-        scenarioD = detect_cue_scenario(album_path)
+        try:
+            scenarioD = detect_cue_scenario(album_path)
+        except Exception as e:
+            logger.critical(f'in class FpGenerator: meth: build_fp_task_param - exception in scenario detect [{e}],\
+                                path:{album_path}')
+            return {'RC':-1, 'album_path':album_path,'error': f'Exception 1 in scenario detect: {e}'}
+            
         job_input = {}
         
         # 1. Single image cue scenario
@@ -184,7 +190,7 @@ class FpGenerator(CueCheckAlbumProcesing):
                 cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
             except Exception as e:
                     logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
-                    return {'RC':-1,'cueD':cueD}
+                    return {'RC':-1,'error': f'Exception 2 in scenario detect: {e}'}
              
             image_name = cueD['orig_file_pathL'][0]['orig_file_path']
             command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
@@ -201,7 +207,7 @@ class FpGenerator(CueCheckAlbumProcesing):
                 iter_total_sec_orig = iter( \
                                float('%.1f'%cueD['trackD'][num]['total_in_sec']) for num in cueD['trackD']\
                                           )
-				# get iterator for ffmpeg command
+                # get iterator for ffmpeg command
                 iter_command_ffmpeg = map(
                                 lambda x: command_ffmpeg%x,\
                                 zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4)\
@@ -220,7 +226,7 @@ class FpGenerator(CueCheckAlbumProcesing):
                 cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
             except Exception as e:
                     logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
-                    return {'RC':-1,'cueD':cueD}	
+                    return {'RC':-1,'error': f'Exception 3 in scenario detect: {e}'}	
             logger.debug('in class FpGenerator: meth: build_fp_task_param - mltr cue parsing and FP gen')
             job_input = {'scenario': 'multy_tracs_CUE', 'params':[a['orig_file_path'] for a in cueD['orig_file_pathL']]}
 					
@@ -239,7 +245,9 @@ class FpGenerator(CueCheckAlbumProcesing):
         #command template b'ffmpeg -y -i "%b" -aframes %i -ss %i "%b"'( new_name )
         t_start = time.time()
         failed_fpL = []
-        f_name = os.path.basename(new_name)			
+        RC = 1
+        f_name = os.path.basename(new_name)
+        folder_name = os.path.dirname(new_name)
         prog = 'ffmpeg'				
         if os.name == 'posix':
             try:
@@ -255,19 +263,19 @@ class FpGenerator(CueCheckAlbumProcesing):
             print('get_FP_and_discID_for_cue 232:', e, "-->",prog,ffmpeg_command)
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name, 'folder_name':folder_name,\
                         'errorL':['Error at decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start} 
         except Exception as e:
             print('Error in get_FP_and_discID_for_cue 235:', e, "-->", prog,ffmpeg_command)
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint Popen [{e}] \
                                 command:{ffmpeg_command}')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name,\
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title':f_name, 'folder_name':folder_name,\
                     'errorL':['Error at decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start}
         
         if not os.path.exists(new_name):
             logger.critical(f'Error: in class FpGenerator: meth: worker_ffmpeg_and_fingerprint\
                 splitt name:{new_name}, file not created after splitting')
-            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,\
+            return {'RC':-1,'f_numb':0,'orig_cue_title_numb':0,'title': f_name,  'folder_name':folder_name,\
                         'errorL':['Error 2 decompression of [%s]'%(str(f_name))],'runtime':time.time()-t_start}   
         fp = []
         try:
@@ -282,15 +290,18 @@ class FpGenerator(CueCheckAlbumProcesing):
             f_name = os.path.basename(new_name)
             os.rename(new_name,new_name.replace(f_name,bytes(str(time.time()).replace('.','_'),BASE_ENCODING)+f_name))
             failed_fpL.append((new_name,e))
+            RC = -1
 
             #print("*", end=' ')
         os.remove(new_name)	
-            
-        return {'fp':fp,'file_name':f_name,'failed':failed_fpL,'runtime':time.time()-t_start}	
+        t_finished = time.time()    
+        return {'RC':RC,'fp':fp,'file_name':f_name,'failed':failed_fpL, 'folder_name':folder_name,\
+                'runtime':time.time()-t_start,'finished_at':t_finished}	
             
     def worker_fingerprint(self, file_path):
         """ Generate acoustic finger print for audio file"""
         t_start = time.time()
+        folder_name = os.path.dirname(file_path)
         if os.name == 'posix':
             try:
                 nice_value = os.nice(self._posix_nice_value)	
@@ -301,10 +312,12 @@ class FpGenerator(CueCheckAlbumProcesing):
             fp = acoustid.fingerprint_file(file_path)
         except  Exception as e:
             print("Error [%s] in fp gen with:"%(str(e)),file_path)
-            return {'RC':-1,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
+            return {'RC':-1,'file_name':os.path.split(file_path)[-1], 'folder_name':folder_name,\
+                    'runtime':time.time()-t_start}  
             #print(fp[0],os.path.split(file_path)[-1])	
-
-        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1],'runtime':time.time()-t_start}  
+        t_finished = time.time()
+        return {'RC':1,'fp':fp,'file_name':os.path.split(file_path)[-1], 'folder_name':folder_name,\
+                'runtime':t_finished-t_start,'finished_at':t_finished}  
             
             
 def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,*args):

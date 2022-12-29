@@ -48,8 +48,6 @@ def sec2min(secs):
 def detect_cue_scenario(album_path):
     """ Detects CUE processing scenario: single image cue, multy tracks image cue, multy tracs album (NO CUE), multy format mix, uncompatible CUE """
     image_cue = ''
-
-    cueD = {}
     cueD = {}
     orig_cue_title_cnt = 0
     f_numb = 0
@@ -273,6 +271,7 @@ def parseCue(fName, *args):
     track_flag = False
     album = ''
     full_time = ''
+    full_length = 0
     orig_file = ''
     orig_file_path = ''
     orig_file_pathL = []
@@ -397,7 +396,8 @@ def parseCue(fName, *args):
                         offset_mediaL.append(next_frame)
                     next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1
                     track_offset_cnt += 1
-
+                else:    
+                    logger.critical('in parseCue - mutagen audio object issue with [%s]' % (orig_file_path))
             if orig_file_path != '' and orig_file_path != b"":
 
                 if isinstance(orig_file_path, str):
