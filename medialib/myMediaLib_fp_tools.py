@@ -15,6 +15,8 @@ from multiprocessing import Pool, cpu_count
 from itertools import tee
 import json
 
+from abc import ABCMeta, abstractmethod
+
 import discid
 
 import musicbrainzngs
@@ -55,7 +57,56 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 posix_nice_value = int(cfg_fp['FP_PROCESS']['posix_nice_value'])
 
-class FpGenerator():
+class CueCheckAlbumProcesing(metaclass=abc.ABCMeta):
+    """
+    Define abstract primitive operations that concrete subclasses define
+    to implement steps of an algorithm.
+    Implement a template method defining the skeleton of an algorithm.
+    The template method calls primitive operations as well as operations
+    defined in AbstractClass or those of other objects.
+    """
+
+    def cue_process_template(self, album_path):
+        """Template cue processing with cue detected scenario variation"""
+        scenarioD = detect_cue_scenario(album_path)
+        
+        if scenarioD['cue_state']['single_image_CUE']:
+            try:
+                logger.debug('in class CueCheckAlbumProcesing: meth: cue_process_template - Full cue split and FP gen')
+                cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
+            except Exception as e:
+                    logger.critical('Error: in class FpGenerator: meth: cue_process_template: {str(e)}')
+                    return {'RC':-1,'cueD':cueD}
+                    
+            return self._cue_single_image_operation(cueD)
+            
+        elif scenarioD['cue_state']['multy_tracs_CUE']: 
+            try:
+                logger.debug('in class FpGenerator: meth: build_fp_task_param - cue multy tracks and FP gen')
+                cueD = parseCue(scenarioD['cueD']['cue_file_name'],'with_bitrate')
+            except Exception as e:
+                    logger.debug('Error: in class FpGenerator: meth: build_fp_task_param: {str(e)}')
+                    return {'RC':-1,'cueD':cueD}    
+            
+            return self._cue_multy_tracks_operation(cueD)
+            
+        elif scenarioD['cue_state']['only_tracks_wo_CUE']:
+            return self._multy_tracks_only_operation(scenarioD)
+            
+    @abc.abstractmethod
+    def _cue_single_image_operation(self, cueD):
+        pass
+
+    @abc.abstractmethod
+    def _cue_multy_tracks_operation(self, cueD):
+        pass
+        
+    @abc.abstractmethod
+    def _multy_tracks_only_operation(self, scenarioD):
+        pass
+
+
+class FpGenerator(CueCheckAlbumProcesing):
     API_KEY = 'cSpUJKpD'
     meta = ["recordings","recordingids","releases","releaseids","releasegroups",\
             "releasegroupids", "tracks", "compress", "usermeta", "sources"]
@@ -77,7 +128,49 @@ class FpGenerator():
                 res_fp = self.worker_fingerprint(*item_params)
                 result.append(res_fp)
         return result    
+    
+    def _cue_single_image_operation(self, cueD):
+        image_name = cueD['orig_file_pathL'][0]['orig_file_path']
+        command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
+			
+        # Get 4 iterators for image name,  total_sec, start_sec, temp_file_name
+        iter_image_name_1 = iter(image_name for i in range(len(cueD['trackD'])))
+        #iter_params = iter(args for i in range(len(cueD['trackD'])))
+        iter_dest_tmp_name_4 = iter(join(album_path,b'temp%i.wav'%(num))  for num in cueD['trackD'])
+        iter_dest_tmp_name_4, iter_dest_tmp_name = tee(iter_dest_tmp_name_4)
         
+        iter_start_sec_3 = iter(cueD['trackD'][num]['start_in_sec']  for num in cueD['trackD'])
+        if self._fp_min_duration > 10:
+            iter_total_sec_2 = iter(fp_time_cut(cueD['trackD'][num]['total_in_sec'],self._fp_min_duration)	for num in cueD['trackD'])
+            iter_total_sec_orig = iter( \
+                               float('%.1f'%cueD['trackD'][num]['total_in_sec']) for num in cueD['trackD']\
+                                      )
+			# get iterator for ffmpeg command
+            iter_command_ffmpeg = map(
+                            lambda x: command_ffmpeg%x,\
+                            zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4)\
+                            )
+        else:
+            iter_total_sec_2 = iter(cueD['trackD'][num]['total_in_sec']  for num in cueD['trackD'])
+                
+            # get iterator for ffmpeg command
+            iter_command_ffmpeg = map(lambda x: command_ffmpeg%x,zip(iter_image_name_1,\
+                                      iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4 ))
+            
+        return  {'scenario': 'single_image_CUE', 'params':list(zip(iter_command_ffmpeg,iter_dest_tmp_name,))}
+        
+    def _cue_multy_tracks_operation(self, cueD):    
+        return {'scenario': 'multy_tracs_CUE', 'params':[a['orig_file_path'] for a in cueD['orig_file_pathL']]}
+					
+    
+    def _multy_tracks_only_operation(self, scenarioD):    
+        scenarioD['normal_trackL'].sort()
+                    
+        return  {
+                   'scenario': 'only_tracks_wo_CUE', \
+                   'params':list(map(lambda x: str(join(album_path,x),BASE_ENCODING), scenarioD['normal_trackL']))
+                }
+    
     def build_fp_task_param(self, album_path):
         """ Builds fp process execution parameters depending on scenario detected"""
         logger.debug('in class FpGenerator: meth: build_fp_task_param - Start')

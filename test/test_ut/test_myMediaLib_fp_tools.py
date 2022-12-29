@@ -12,7 +12,7 @@ def test_FpGenerator_build_fp_task_param_single_image_cue():
     result_expected = {'scenario':'single_image_CUE','params': flac_image_cue_expected}
     path = b"./test/test_audio_data/test_flac_cue/" 
     fp = FpGenerator()
-    assert fp.build_fp_task_param(path) == result_expected
+    assert fp.cue_process_template(path) == result_expected
 
 def test_FpGenerator_build_fp_task_param_multy_tracks_cue():
     result_expected = {'scenario': 'multy_tracs_CUE', 'params': [b'./test/test_audio_data/test_ape_cue_tracks/01 - test_s.ape', b'./test/test_audio_data/test_ape_cue_tracks/02 - test_s.ape', b'./test/test_audio_data/test_ape_cue_tracks/03 - test_s.ape']}
