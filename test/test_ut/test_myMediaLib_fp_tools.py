@@ -1,6 +1,7 @@
 import datetime
 from medialib.myMediaLib_fp_tools import guess_TOC_from_tracks_list
 from medialib.myMediaLib_fp_tools import FpGenerator
+from medialib.myMediaLib_fp_tools import CdTocGenerator
 
 path_list = [b"./test/test_audio_data/test_flac_cue/",\
                 b"./test/test_audio_data/test_ape_cue_tracks/",\
@@ -92,9 +93,12 @@ def test_guess_TOC_from_tracks_list():
     assert guess_TOC_from_tracks_list(trackL) == result_expected
 
 def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_image():
-
     toc_expected = {}
-    result_expected = {'scenario':'single_image_CUE','params': flac_image_cue_expected}
+    result_expected = {'discID': 'NFETLyeIQvKUEfe.y86MbMaROk0-',
+                        'toc_string': '1 21 271367 150 13796 19195 28158 49872 63838 77119 93068 112570 121823 135029 149156 162853 173235 183936 194204 208832 217565 229319 245875 259311',
+                        'toc_type': 'cue',
+                        'validated': False}
+
     path = b"./test/test_audio_data/test_flac_cue/" 
     cdtoc = CdTocGenerator()
     assert cdtoc.cue_folder_check_scenario_processing(path) == result_expected

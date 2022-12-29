@@ -69,7 +69,7 @@ class CueCheckAlbumProcesing(metaclass=ABCMeta):
     def cue_folder_check_scenario_processing(self, album_path):
         """Template cue processing method with cue detected scenario variation"""
         scenarioD = detect_cue_scenario(album_path)
-        
+        cueD = {}
         if scenarioD['cue_state']['single_image_CUE']:
             try:
                 logger.debug('in class CueCheckAlbumProcesing: meth: cue_process_template - Full cue split and FP gen')
@@ -98,11 +98,11 @@ class CueCheckAlbumProcesing(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _cue_multy_tracks_operation(self, cueD):
+    def _cue_multy_tracks_operation(self, album_path, cueD):
         pass
         
     @abstractmethod
-    def _multy_tracks_only_operation(self, scenarioD):
+    def _multy_tracks_only_operation(self, album_path, scenarioD):
         pass
 
 class CdTocGenerator(CueCheckAlbumProcesing):
@@ -136,7 +136,7 @@ class CdTocGenerator(CueCheckAlbumProcesing):
                     # log Toc has higher prio over guess -> take it instead of cue!
                     toc_list = log_toc_list
                     toc_type = 'log'
-        
+        discID = ""
         try:
             discID = discid.put(*toc_list)
         except Exception as e:
@@ -149,13 +149,12 @@ class CdTocGenerator(CueCheckAlbumProcesing):
            
         return {'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':validated}
     
-    def _cue_multy_tracks_operation(self, cueD):
+    def _cue_multy_tracks_operation(self, album_path, cueD):
         # here we can have log, cue_toc, and tracs data. in order to simlify we reuse single image scenario
         # in order to keep method signature we get album path from cueD
-        album_path = os.path.dirname( cueD['cue_f_name'])
         return self._cue_single_image_operation(album_path, cueD)
         
-    def _multy_tracks_only_operation(self, scenarioD):  
+    def _multy_tracks_only_operation(self, album_path, scenarioD):  
         # in case log file exists (cue is just lost) there is still a low possibility to restore toc from tracks dats
         # even for mp3 albums it is possible sometimes to guess original toc
         # 1. try log toc
@@ -240,7 +239,7 @@ class FpGenerator(CueCheckAlbumProcesing):
             iter_total_sec_orig = iter( \
                                float('%.1f'%cueD['trackD'][num]['total_in_sec']) for num in cueD['trackD']\
                                       )
-			# get iterator for ffmpeg command
+            # get iterator for ffmpeg command
             iter_command_ffmpeg = map(
                             lambda x: command_ffmpeg%x,\
                             zip(iter_image_name_1,iter_total_sec_2,iter_start_sec_3,iter_dest_tmp_name_4)\
@@ -254,11 +253,11 @@ class FpGenerator(CueCheckAlbumProcesing):
             
         return  {'scenario': 'single_image_CUE', 'params':list(zip(iter_command_ffmpeg,iter_dest_tmp_name,))}
         
-    def _cue_multy_tracks_operation(self, cueD):    
+    def _cue_multy_tracks_operation(self, album_path, cueD):    
         return {'scenario': 'multy_tracs_CUE', 'params':[a['orig_file_path'] for a in cueD['orig_file_pathL']]}
 					
     
-    def _multy_tracks_only_operation(self, scenarioD):    
+    def _multy_tracks_only_operation(self, album_path, scenarioD):    
         scenarioD['normal_trackL'].sort()
                     
         return  {
