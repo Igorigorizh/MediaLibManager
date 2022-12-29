@@ -25,7 +25,7 @@ def test_FpGenerator_build_fp_task_param_multy_tracks():
     result_expected = {'scenario': 'only_tracks_wo_CUE', 'params': ['./test/test_audio_data/test_mp3/01 - test_s.mp3', './test/test_audio_data/test_mp3/02 - test_s.mp3', './test/test_audio_data/test_mp3/03 - test_s.mp3']}
     path = b"./test/test_audio_data/test_mp3/"
     fp = FpGenerator()
-    assert fp.build_fp_task_param(path) == result_expected	
+    assert fp.cue_folder_check_scenario_processing(path) == result_expected	
 	
 
 def test_guess_TOC_from_tracks_list():
@@ -92,8 +92,7 @@ def test_guess_TOC_from_tracks_list():
                        }
     assert guess_TOC_from_tracks_list(trackL) == result_expected
 
-def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_image():
-    toc_expected = {}
+def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_single_image():
     result_expected = {'discID': 'NFETLyeIQvKUEfe.y86MbMaROk0-',
                         'toc_string': '1 21 271367 150 13796 19195 28158 49872 63838 77119 93068 112570 121823 135029 149156 162853 173235 183936 194204 208832 217565 229319 245875 259311',
                         'toc_type': 'cue',
@@ -102,3 +101,25 @@ def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_image():
     path = b"./test/test_audio_data/test_flac_cue/" 
     cdtoc = CdTocGenerator()
     assert cdtoc.cue_folder_check_scenario_processing(path) == result_expected
+   
+def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_multy_tracks():
+    result_expected = {'discID': 'XdoGSCXQCiiHIRkoHevRuBeERTk-',
+                        'toc_string': '1 3 38852 150 9498 20215',
+                        'toc_type': 'guess',
+                        'validated': True}
+
+
+    path =  b"./test/test_audio_data/test_ape_cue_tracks/" 
+    cdtoc = CdTocGenerator()
+    assert cdtoc.cue_folder_check_scenario_processing(path) == result_expected   
+    
+def test_CdTocGenerator_cue_folder_check_scenario_processing_multy_tracks():
+    result_expected = {'discID': 'XdoGSCXQCiiHIRkoHevRuBeERTk-',
+                        'toc_string': '1 3 38852 150 9498 20215',
+                        'toc_type': 'guess',
+                        'validated': True}
+
+
+    path = b"./test/test_audio_data/test_mp3/" 
+    cdtoc = CdTocGenerator()
+    assert cdtoc.cue_folder_check_scenario_processing(path) == result_expected     
