@@ -59,7 +59,7 @@ def detect_cue_scenario(album_path):
     if not os.path.exists(album_path):
         print('---!Album path Error:%s - not exists' % album_path)
         error_logL.append('[CUE check]:---!Album path Error:%s - not exists' % album_path)
-        return {'RC': -1, 'f_numb': 0, 'orig_cue_title_numb': 0, 'title_numb': 0, cue_state: cue_state,
+        return {'RC': -1, 'f_numb': 0, 'orig_cue_title_numb': 0, 'title_numb': 0, 'cue_state': cue_state,
                 'error_logL': error_logL}
 
     filesL = os.listdir(album_path)
@@ -85,14 +85,14 @@ def detect_cue_scenario(album_path):
             except Exception as e:
                 print(e)
                 return {'RC': -1, 'f_numb': 0, 'orig_cue_title_numb': 0, 'title_numb': 0, 'errorL': ['cue_corrupted'],
-                        cue_state: cue_state}
+                        'cue_state': cue_state}
 
             cue_cnt += 1
             if cue_cnt > 1:
                 print('--!-- Error Critical! several CUE Files! Keep only one CUE!')
                 error_logL.append('[CUE state check]:--!-- Error Critical! several CUE Files! Keep only one CUE!')
                 return {'RC': -1, 'f_numb': 0, 'orig_cue_title_numb': 0, 'title_numb': 0,
-                        'errorL': ['cue', 'cue_error', 'several cue'], cue_state: cue_state, 'error_logL': error_logL}
+                        'errorL': ['cue', 'cue_error', 'several cue'], 'cue_state': cue_state, 'error_logL': error_logL}
 
             if 'orig_file_pathL' in cueD:
                 orig_cue_title_cnt = len(cueD['songL'])
@@ -114,7 +114,7 @@ def detect_cue_scenario(album_path):
                 else:
                     error_logL.append('[CUE state check]:--!-- Error Critical! - no media detected')
                     return {'RC': -1, 'title_numb': 0, 'errorL': ['cue_corrupted', 'no media detected'],
-                            'orig_cue_title_numb': orig_cue_title_cnt, cue_state: cue_state, 'cueD': cueD,
+                            'orig_cue_title_numb': orig_cue_title_cnt, 'cue_state': cue_state, 'cueD': cueD,
                             'f_numb': real_track_numb, 'error_logL': error_logL}
         else:
 
