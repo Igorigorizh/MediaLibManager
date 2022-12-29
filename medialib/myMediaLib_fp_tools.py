@@ -136,7 +136,7 @@ class CdTocGenerator(CueCheckAlbumProcesing):
                  validated = True
             else:
                 # check number of tracs in log and in folder, if log contains incorrect data -> ignore him
-                if log_toc_list[1] == len(cueD['cue_tracks_number']):
+                if log_toc_list[1] == cueD['cue_tracks_number']:
                     # log Toc has higher prio over guess -> take it instead of cue!
                     toc_list = log_toc_list
                     toc_type = 'log'
