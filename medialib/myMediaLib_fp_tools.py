@@ -116,12 +116,16 @@ class CdTocGenerator(CueCheckAlbumProcesing):
         # in rear cases when validation failed it is necessary to check the cause later on
         toc_type = 'cue'
         validated = False
-        TOC_log_dataD = get_TOC_from_log(album_path)
+        TOC_log_dataD = {'discidInput':{}, 'toc_string':''}
+        try:
+            TOC_log_dataD = get_TOC_from_log(album_path)
+        except Exception as e:
+            logger.critical(f'Exception in class {__class__.__name__}: meth: _cue_single_image_operation: [{e}]')
         
         #  CUE TOC list
         toc_list = [1, cueD['cue_tracks_number'],cueD['lead_out_track_offset'], cueD['offsetL']]
         
-        if TOC_log_dataD['TOC_dataL']:
+        if TOC_log_dataD['discidInput']:
             # best case scenario log found
             log_toc_list = [TOC_log_dataD['discidInput']['First_Track'],\
                                 TOC_log_dataD['discidInput']['Last_Track'],\
@@ -140,14 +144,15 @@ class CdTocGenerator(CueCheckAlbumProcesing):
         try:
             discID = discid.put(*toc_list)
         except Exception as e:
-            logger.critical(f'Exception in class {__class__.__name__}: meth: _cue_single_image_operation: [{e}]')
+            logger.critical(f'Exception in class {__class__.__name__}: meth: _cue_single_image_operation: [{e}], path:[{album_path}]')
             if 'offsetL' not in cueD: 
                 logger.debug('Exception info: offsetL is missing in cueD')
             else:	
                 ln = len(cueD['offsetL'])
                 logger.debug(f'Exception info: Issue with CUE TOC len(offsetL):{ln}')
-           
-        return {'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':validated}
+            return {'RC': -1, 'error':f'guess TOC calculation break at: {album_path}'}
+        
+        return {'RC': 1, 'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':validated}
     
     def _cue_multy_tracks_operation(self, album_path, cueD):
         # here we can have log, cue_toc, and tracs data. in order to simlify we reuse single image scenario
@@ -158,7 +163,12 @@ class CdTocGenerator(CueCheckAlbumProcesing):
         # in case log file exists (cue is just lost) there is still a low possibility to restore toc from tracks dats
         # even for mp3 albums it is possible sometimes to guess original toc
         # 1. try log toc
-        TOC_log_dataD = get_TOC_from_log(album_path)
+        TOC_log_dataD = {'discidInput':{}, 'toc_string':''}
+        try:
+            TOC_log_dataD = get_TOC_from_log(album_path)
+        except Exception as e:
+            logger.critical(f'Exception in class {__class__.__name__}: meth: _multy_tracks_only_operation: [{e}]')
+            
         TOC_dataD = {}
         trackL = []
         TOC_dataD = []
@@ -170,7 +180,7 @@ class CdTocGenerator(CueCheckAlbumProcesing):
             TOC_dataD = guess_TOC_from_tracks_list(trackL)
         except Exception as e:
             logger.critical(f'Exception in class {__class__.__name__}: meth: _multy_tracks_only_operation: [{e}]')
-		
+            return {'RC': -1, 'error':f'guess TOC calculation not possible for {album_path}'}
         sample_rate = TOC_dataD['trackDL'][0]['sample_rate']
         if sample_rate > 44100:
             print('------------HI-RES check scenario details------------')
@@ -179,16 +189,18 @@ class CdTocGenerator(CueCheckAlbumProcesing):
         toc_validated = False
         toc_type = 'guess'
         
-        if TOC_log_dataD['TOC_dataL']:
+        if TOC_log_dataD['discidInput'] and TOC_log_dataD['toc_string']:
             # best case scenario log found
             if  TOC_log_dataD['toc_string'] == TOC_dataD['toc_string']:
                  validated = True
             else:
                 # check number of tracs in log and in folder, if log contains incorrect data -> ignore him
-                if len(TOC_log_dataD['offsetL']) == len(trackL):
+                if TOC_log_dataD['discidInput']['Last_Track'] == len(trackL):
                     # log Toc has higher prio over guess -> take it instead of guess!
                     TOC_dataD = TOC_log_dataD
                     toc_type = 'log'
+        
+            
         try:
             discID = discid.put(TOC_dataD['discidInput']['First_Track'],\
                                 TOC_dataD['discidInput']['Last_Track'],\
@@ -197,8 +209,9 @@ class CdTocGenerator(CueCheckAlbumProcesing):
                                 
         except Exception as e:
             logger.critical(f'Exception 2 in class {__class__.__name__}: meth: _multy_tracks_only_operation at discid: [{e}]')
+            return {'RC': -1, 'error':f'guess TOC calculation break at: {album_path}'}
         
-        return {'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':True}      
+        return {'RC': 1, 'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':True}      
         
 class FpGenerator(CueCheckAlbumProcesing):
     API_KEY = 'cSpUJKpD'
