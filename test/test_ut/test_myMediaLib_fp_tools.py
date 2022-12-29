@@ -12,13 +12,13 @@ def test_FpGenerator_build_fp_task_param_single_image_cue():
     result_expected = {'scenario':'single_image_CUE','params': flac_image_cue_expected}
     path = b"./test/test_audio_data/test_flac_cue/" 
     fp = FpGenerator()
-    assert fp.cue_process_template(path) == result_expected
+    assert fp.cue_folder_check_scenario_processing(path) == result_expected
 
 def test_FpGenerator_build_fp_task_param_multy_tracks_cue():
     result_expected = {'scenario': 'multy_tracs_CUE', 'params': [b'./test/test_audio_data/test_ape_cue_tracks/01 - test_s.ape', b'./test/test_audio_data/test_ape_cue_tracks/02 - test_s.ape', b'./test/test_audio_data/test_ape_cue_tracks/03 - test_s.ape']}
     path =  b"./test/test_audio_data/test_ape_cue_tracks/"
     fp = FpGenerator()
-    assert fp.build_fp_task_param(path) == result_expected
+    assert fp.cue_folder_check_scenario_processing(path) == result_expected
 
 def test_FpGenerator_build_fp_task_param_multy_tracks():
     result_expected = {'scenario': 'only_tracks_wo_CUE', 'params': ['./test/test_audio_data/test_mp3/01 - test_s.mp3', './test/test_audio_data/test_mp3/02 - test_s.mp3', './test/test_audio_data/test_mp3/03 - test_s.mp3']}
@@ -90,3 +90,11 @@ def test_guess_TOC_from_tracks_list():
                                     'bits_per_sample': 24}]
                        }
     assert guess_TOC_from_tracks_list(trackL) == result_expected
+
+def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_image():
+
+    toc_expected = {}
+    result_expected = {'scenario':'single_image_CUE','params': flac_image_cue_expected}
+    path = b"./test/test_audio_data/test_flac_cue/" 
+    cdtoc = CdTocGenerator()
+    assert cdtoc.cue_folder_check_scenario_processing(path) == result_expected

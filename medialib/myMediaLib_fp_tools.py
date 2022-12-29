@@ -57,7 +57,7 @@ musicbrainzngs.set_useragent("python-discid-example", "0.1", "your@mail")
 
 posix_nice_value = int(cfg_fp['FP_PROCESS']['posix_nice_value'])
 
-class CueCheckAlbumProcesing(metaclass=abc.ABCMeta):
+class CueCheckAlbumProcesing(metaclass=ABCMeta):
     """
     Define abstract primitive operations that concrete subclasses define
     to implement steps of an algorithm.
@@ -66,8 +66,8 @@ class CueCheckAlbumProcesing(metaclass=abc.ABCMeta):
     defined in AbstractClass or those of other objects.
     """
 
-    def cue_process_template(self, album_path):
-        """Template cue processing with cue detected scenario variation"""
+    def cue_folder_check_scenario_processing(self, album_path):
+        """Template cue processing method with cue detected scenario variation"""
         scenarioD = detect_cue_scenario(album_path)
         
         if scenarioD['cue_state']['single_image_CUE']:
@@ -78,7 +78,7 @@ class CueCheckAlbumProcesing(metaclass=abc.ABCMeta):
                     logger.critical('Error: in class FpGenerator: meth: cue_process_template: {str(e)}')
                     return {'RC':-1,'cueD':cueD}
                     
-            return self._cue_single_image_operation(cueD)
+            return self._cue_single_image_operation(album_path, cueD)
             
         elif scenarioD['cue_state']['multy_tracs_CUE']: 
             try:
@@ -93,19 +93,114 @@ class CueCheckAlbumProcesing(metaclass=abc.ABCMeta):
         elif scenarioD['cue_state']['only_tracks_wo_CUE']:
             return self._multy_tracks_only_operation(scenarioD)
             
-    @abc.abstractmethod
-    def _cue_single_image_operation(self, cueD):
+    @abstractmethod
+    def _cue_single_image_operation(self, album_path, cueD):
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def _cue_multy_tracks_operation(self, cueD):
         pass
         
-    @abc.abstractmethod
+    @abstractmethod
     def _multy_tracks_only_operation(self, scenarioD):
         pass
 
-
+class CdTocGenerator(CueCheckAlbumProcesing):
+    """
+    toc_type - type of toc source [log, cue, guess], guess is quasi toc based on album tracks length 
+    validate - check that toc from different sources are equal
+    """
+    
+    def _cue_single_image_operation(self, album_path, cueD):
+        # Basicaly cue and log data have the same data, validation just to check this
+        # in rear cases when validation failed it is necessary to check the cause later on
+        toc_type = 'cue'
+        validated = False
+        TOC_log_dataD = get_TOC_from_log(album_path)
+        
+        #  CUE TOC list
+        toc_list = [1, cueD['cue_tracks_number'],cueD['lead_out_track_offset'], cueD['offsetL']]
+        
+        if TOC_log_dataD['TOC_dataL']:
+            # best case scenario log found
+            log_toc_list = [TOC_log_dataD['discidInput']['First_Track'],\
+                                TOC_log_dataD['discidInput']['Last_Track'],\
+                                TOC_log_dataD['discidInput']['total_lead_off'],\
+                                TOC_log_dataD['discidInput']['offsetL']]
+                                
+            if  log_toc_list == toc_list:
+                 validated = True
+            else:
+                # check number of tracs in log and in folder, if log contains incorrect data -> ignore him
+                if log_toc_list[1] == len(cueD['cue_tracks_number']):
+                    # log Toc has higher prio over guess -> take it instead of cue!
+                    toc_list = log_toc_list
+                    toc_type = 'log'
+        
+        try:
+            discID = discid.put(*toc_list)
+        except Exception as e:
+            logger.critical(f'Exception in class {__class__.__name__}: meth: _cue_single_image_operation: [{e}]')
+            if 'offsetL' not in cueD: 
+                logger.debug('Exception info: offsetL is missing in cueD')
+            else:	
+                ln = len(cueD['offsetL'])
+                logger.debug(f'Exception info: Issue with CUE TOC len(offsetL):{ln}')
+           
+        return {'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':validated}
+    
+    def _cue_multy_tracks_operation(self, cueD):
+        # here we can have log, cue_toc, and tracs data. in order to simlify we reuse single image scenario
+        # in order to keep method signature we get album path from cueD
+        album_path = os.path.dirname( cueD['cue_f_name'])
+        return self._cue_single_image_operation(album_path, cueD)
+        
+    def _multy_tracks_only_operation(self, scenarioD):  
+        # in case log file exists (cue is just lost) there is still a low possibility to restore toc from tracks dats
+        # even for mp3 albums it is possible sometimes to guess original toc
+        # 1. try log toc
+        TOC_log_dataD = get_TOC_from_log(album_path)
+        TOC_dataD = {}
+        trackL = []
+        TOC_dataD = []
+        scenarioD['normal_trackL'].sort()
+        trackL = [join(album_path,a)  for a in scenarioD['normal_trackL']]
+		
+        # 2. try to restore toc from tracks data, this is a dafault TOC data here  
+        try:	
+            TOC_dataD = guess_TOC_from_tracks_list(trackL)
+        except Exception as e:
+            logger.critical(f'Exception in class {__class__.__name__}: meth: _multy_tracks_only_operation: [{e}]')
+		
+        sample_rate = TOC_dataD['trackDL'][0]['sample_rate']
+        if sample_rate > 44100:
+            print('------------HI-RES check scenario details------------')
+            hi_res = True
+       
+        toc_validated = False
+        toc_type = 'guess'
+        
+        if TOC_log_dataD['TOC_dataL']:
+            # best case scenario log found
+            if  TOC_log_dataD['toc_string'] == TOC_dataD['toc_string']:
+                 validated = True
+            else:
+                # check number of tracs in log and in folder, if log contains incorrect data -> ignore him
+                if len(TOC_log_dataD['offsetL']) == len(trackL):
+                    # log Toc has higher prio over guess -> take it instead of guess!
+                    TOC_dataD = TOC_log_dataD
+                    toc_type = 'log'
+        try:
+            discID = discid.put(TOC_dataD['discidInput']['First_Track'],\
+                                TOC_dataD['discidInput']['Last_Track'],\
+                                TOC_dataD['discidInput']['total_lead_off'],\
+                                TOC_dataD['discidInput']['offsetL'])
+                                
+        except Exception as e:
+            logger.critical(f'Exception 2 in class {__class__.__name__}: meth: _multy_tracks_only_operation at discid: [{e}]')
+        
+        return {'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':True}      
+        
 class FpGenerator(CueCheckAlbumProcesing):
     API_KEY = 'cSpUJKpD'
     meta = ["recordings","recordingids","releases","releaseids","releasegroups",\
@@ -118,7 +213,7 @@ class FpGenerator(CueCheckAlbumProcesing):
     def exec_fp_process(self, album_path):
         """ Simple process execution, use this for local process testing """
         result = []
-        job_settings = self.build_fp_task_param(album_path)
+        job_settings = super().cue_folder_check_scenario_processing(album_path)
         if job_settings['scenario'] == 'single_image_CUE':
             for item_params in job_settings['params']: 
                 res_fp = self.worker_ffmpeg_and_fingerprint(*item_params)
@@ -129,7 +224,7 @@ class FpGenerator(CueCheckAlbumProcesing):
                 result.append(res_fp)
         return result    
     
-    def _cue_single_image_operation(self, cueD):
+    def _cue_single_image_operation(self, album_path, cueD):
         image_name = cueD['orig_file_pathL'][0]['orig_file_path']
         command_ffmpeg = b'ffmpeg -y -i "%b" -t %.3f -ss %.3f "%b"'
 			
@@ -730,6 +825,7 @@ def get_FP_and_discID_for_album(self, album_path,fp_min_duration,cpu_reduce_num,
 	print("********** Album process in total takes:%i sec.***********************"%(int(time.time() - t_all_start )))
 	
 	return{'RC':len(convDL),'cueD':cueD,'TOC_dataD':TOC_dataD,'scenarioD':scenarioD,'MB_discID':MB_discID_result,'convDL':convDL,'discID':str(discID),'failed_fpL':failed_fpL,'guess_TOC_dataD':guess_TOC_dataD,'hi_res':hi_res,'album_path':album_path,'TOC_src':TOC_src}
+    
 def fp_time_cut(x,cut_sec):
 	if x > cut_sec:
 		return cut_sec
@@ -1013,45 +1109,45 @@ def guess_TOC_from_tracks_list(trackL):
 	return{'discidInput':discidInputD,'toc_string':toc_string,'trackDL':trackDL}	
 	
 def get_TOC_from_log(album_folder):
-	files = os.listdir(album_folder)
-	logs = [f for f in files if os.path.splitext(f)[1] == b'.log']
-	logs.sort()
-	TOC_dataL = []
-	discidInputD = {}
-	TOC_lineD= {}
-	offsetL = []
+    files = os.listdir(album_folder)
+    logs = [f for f in files if os.path.splitext(f)[1] == b'.log']
+    logs.sort()
+    TOC_dataL = []
+    discidInputD = {}
+    TOC_lineD= {}
+    offsetL = []
 	
-	for f in logs:
-		print(f)
-		# detect file character encoding
-		with open(os.path.join(album_folder,f),'rb') as fh:
-			d = chardet.universaldetector.UniversalDetector()
-			for line in fh.readlines():
-				d.feed(line)
-			d.close()
-			encoding = d.result['encoding']
-			print(encoding)
-		with codecs.open( os.path.join(album_folder,f),'rb', encoding=encoding) as fh:
-			lines = fh.readlines()
-			regex = re.compile(r'^\s+[0-9]+\s+\|.+\|\s+(.+)\s+\|\s+[0-9]+\s+|\s+[0-9]+\s+$')
+    for f in logs:
+        print(f)
+        # detect file character encoding
+        with open(os.path.join(album_folder,f),'rb') as fh:
+            d = chardet.universaldetector.UniversalDetector()
+            for line in fh.readlines():
+                d.feed(line)
+            d.close()
+            encoding = d.result['encoding']
+            print(encoding)
+        with codecs.open( os.path.join(album_folder,f),'rb', encoding=encoding) as fh:
+            lines = fh.readlines()
+            regex = re.compile(r'^\s+[0-9]+\s+\|.+\|\s+(.+)\s+\|\s+[0-9]+\s+|\s+[0-9]+\s+$')
 			
-		matches = [tl for tl in map(regex.match,lines) if tl]
+        matches = [tl for tl in map(regex.match,lines) if tl]
 
-		if matches:
-			start_offset = 150
-			offsetL = []
-			for tl in matches:
-				TOC_line = tl.string.split('|')
-				TOC_lineD = {'Track':int(TOC_line[0]),'Start':TOC_line[1],'Length':TOC_line[2],'Start_Sector':int(TOC_line[3]),'End_Sector':int(TOC_line[4])}
-				TOC_dataL.append(TOC_lineD)
-				offsetL.append(start_offset+int(TOC_line[3]))
-			break
-	toc_string = 	''		
-	if TOC_dataL:
-		discidInputD = {'First_Track':TOC_dataL[0]['Track'],'Last_Track':TOC_dataL[-1]['Track'],'offsetL':offsetL,'total_lead_off':1+start_offset+int(TOC_lineD['End_Sector'])}
-		toc_string = '%s %s %s %s'	%(discidInputD['First_Track'],discidInputD['Last_Track'],discidInputD['total_lead_off'],str(discidInputD['offsetL'])[1:-1].replace(',',''))
-	return{'TOC_dataL':TOC_dataL,'discidInput':discidInputD,'toc_string':toc_string}
+        if matches:
+            start_offset = 150
+            offsetL = []
+            for tl in matches:
+                TOC_line = tl.string.split('|')
+                TOC_lineD = {'Track':int(TOC_line[0]),'Start':TOC_line[1],'Length':TOC_line[2],'Start_Sector':int(TOC_line[3]),'End_Sector':int(TOC_line[4])}
+                TOC_dataL.append(TOC_lineD)
+                offsetL.append(start_offset+int(TOC_line[3]))
+            break
+    toc_string = 	''
+    if TOC_dataL:
+        discidInputD = {'First_Track':TOC_dataL[0]['Track'],'Last_Track':TOC_dataL[-1]['Track'],'offsetL':offsetL,'total_lead_off':1+start_offset+int(TOC_lineD['End_Sector'])}
+        toc_string = '%s %s %s %s'	%(discidInputD['First_Track'],discidInputD['Last_Track'],discidInputD['total_lead_off'],str(discidInputD['offsetL'])[1:-1].replace(',',''))
 	
+    return{'TOC_dataL':TOC_dataL,'discidInput':discidInputD,'toc_string':toc_string}
 		
 def get_acoustID_from_FP_collection(fpDL):
 	API_KEY = 'cSpUJKpD'
