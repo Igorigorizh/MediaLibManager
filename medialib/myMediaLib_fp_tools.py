@@ -116,30 +116,43 @@ class CdTocGenerator(CueCheckAlbumProcesing):
         # in rear cases when validation failed it is necessary to check the cause later on
         toc_type = 'cue'
         validated = False
+        toc_list = log_toc_list = []
         TOC_log_dataD = {'discidInput':{}, 'toc_string':''}
         try:
             TOC_log_dataD = get_TOC_from_log(album_path)
         except Exception as e:
             logger.critical(f'Exception in class {__class__.__name__}: meth: _cue_single_image_operation: [{e}]')
+            
+        if TOC_log_dataD['discidInput']:
+           log_toc_list = [TOC_log_dataD['discidInput']['First_Track'],\
+                                TOC_log_dataD['discidInput']['Last_Track'],\
+                                TOC_log_dataD['discidInput']['total_lead_off'],\
+                                TOC_log_dataD['discidInput']['offsetL']] 
+            
         
         #  CUE TOC list
         toc_list = [1, cueD['cue_tracks_number'],cueD['lead_out_track_offset'], cueD['offsetL']]
         
-        if TOC_log_dataD['discidInput']:
+        if log_toc_list and toc_list:
             # best case scenario log found
-            log_toc_list = [TOC_log_dataD['discidInput']['First_Track'],\
-                                TOC_log_dataD['discidInput']['Last_Track'],\
-                                TOC_log_dataD['discidInput']['total_lead_off'],\
-                                TOC_log_dataD['discidInput']['offsetL']]
-                                
             if  log_toc_list == toc_list:
                  validated = True
+                 toc_type = 'log'
             else:
                 # check number of tracs in log and in folder, if log contains incorrect data -> ignore him
                 if log_toc_list[1] == cueD['cue_tracks_number']:
                     # log Toc has higher prio over guess -> take it instead of cue!
                     toc_list = log_toc_list
                     toc_type = 'log'
+        elif log_toc_list:
+            # check number of tracs in log and in folder, if log contains incorrect data -> ignore him
+                if log_toc_list[1] == cueD['cue_tracks_number']:
+                    # log Toc has higher prio over guess -> take it instead of cue!
+                    toc_list = log_toc_list
+                    toc_type = 'log'
+        elif not log_toc_list and not toc_list:
+            return {'RC': -1,  'toc_type': toc_type,'error':f'in _cue_single_image_operation: Both TOCs data not avalable at: {album_path}. discId calculation is not possible.'}    
+            
         discID = ""
         try:
             discID = discid.put(*toc_list)
@@ -150,7 +163,9 @@ class CdTocGenerator(CueCheckAlbumProcesing):
             else:	
                 ln = len(cueD['offsetL'])
                 logger.debug(f'Exception info: Issue with CUE TOC len(offsetL):{ln}')
-            return {'RC': -1, 'error':f'guess TOC calculation break at: {album_path}'}
+            return {'RC': -1,  'toc_type': toc_type, 
+                    'error':f'in _cue_single_image_operation at: {album_path}. \
+                    discId calculation is failed for {toc_type}.'}
         
         return {'RC': 1, 'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':validated}
     
@@ -163,15 +178,15 @@ class CdTocGenerator(CueCheckAlbumProcesing):
         # in case log file exists (cue is just lost) there is still a low possibility to restore toc from tracks dats
         # even for mp3 albums it is possible sometimes to guess original toc
         # 1. try log toc
+        trackL = []
+        hi_res = False
+        TOC_dataD = {'discidInput':{}, 'toc_string':''}
         TOC_log_dataD = {'discidInput':{}, 'toc_string':''}
         try:
             TOC_log_dataD = get_TOC_from_log(album_path)
         except Exception as e:
             logger.critical(f'Exception in class {__class__.__name__}: meth: _multy_tracks_only_operation: [{e}]')
-            
-        TOC_dataD = {}
-        trackL = []
-        TOC_dataD = []
+        
         scenarioD['normal_trackL'].sort()
         trackL = [join(album_path,a)  for a in scenarioD['normal_trackL']]
 		
@@ -180,17 +195,18 @@ class CdTocGenerator(CueCheckAlbumProcesing):
             TOC_dataD = guess_TOC_from_tracks_list(trackL)
         except Exception as e:
             logger.critical(f'Exception in class {__class__.__name__}: meth: _multy_tracks_only_operation: [{e}]')
-            return {'RC': -1, 'error':f'guess TOC calculation not possible for {album_path}'}
-        sample_rate = TOC_dataD['trackDL'][0]['sample_rate']
-        if sample_rate > 44100:
-            print('------------HI-RES check scenario details------------')
-            hi_res = True
+        
+        if 'error' not in TOC_dataD:
+            sample_rate = TOC_dataD['trackDL'][0]['sample_rate']
+            if sample_rate > 44100:
+                print('------------HI-RES check scenario details------------')
+                hi_res = True
        
         toc_validated = False
         toc_type = 'guess'
         
-        if TOC_log_dataD['discidInput'] and TOC_log_dataD['toc_string']:
-            # best case scenario log found
+        if TOC_log_dataD['toc_string'] and TOC_dataD['toc_string']:
+            # best case scenario both toc found
             if  TOC_log_dataD['toc_string'] == TOC_dataD['toc_string']:
                  validated = True
             else:
@@ -199,19 +215,29 @@ class CdTocGenerator(CueCheckAlbumProcesing):
                     # log Toc has higher prio over guess -> take it instead of guess!
                     TOC_dataD = TOC_log_dataD
                     toc_type = 'log'
+                    
+        elif  TOC_log_dataD['discidInput']:
+            # validation not possible only log is avalable
+            if TOC_log_dataD['discidInput']['Last_Track'] == len(trackL):
+                TOC_dataD = TOC_log_dataD
+                toc_type = 'log'
         
+        elif not TOC_log_dataD['toc_string'] and not TOC_dataD['toc_string']:
+            return {'RC': -1, 'toc_type': toc_type, 'error':f'in _multy_tracks_only_operation guess: Both TOCs not avalable at: {album_path}. discId calculation is not possible.'}
             
         try:
             discID = discid.put(TOC_dataD['discidInput']['First_Track'],\
                                 TOC_dataD['discidInput']['Last_Track'],\
                                 TOC_dataD['discidInput']['total_lead_off'],\
                                 TOC_dataD['discidInput']['offsetL'])
-                                
         except Exception as e:
             logger.critical(f'Exception 2 in class {__class__.__name__}: meth: _multy_tracks_only_operation at discid: [{e}]')
-            return {'RC': -1, 'error':f'guess TOC calculation break at: {album_path}'}
+            return {'RC': -1,  'toc_type': toc_type, 
+                    'error':f'in _multy_tracks_only_operation:  at: {album_path}. \
+                    discId calculation is failed for {toc_type}.'}
         
-        return {'RC': 1, 'discID': str(discID), 'toc_string': discID.toc_string, 'toc_type': toc_type, 'validated':True}      
+        return {'RC': 1, 'discID': str(discID), 'toc_string': discID.toc_string,\
+                 'toc_type': toc_type, 'validated':True, 'hi_res':hi_res}      
         
 class FpGenerator(CueCheckAlbumProcesing):
     API_KEY = 'cSpUJKpD'
@@ -1080,46 +1106,46 @@ def check_MB_discID_in_fpDL(fpDL):
 	print('OK - More releases in MB:',more_release_cnt)
 
 def guess_TOC_from_tracks_list(trackL):
-	track_offset_cnt = 0
-	total_track_sectors = 0
-	first_track_offset = 150
-	pregap = 0
-	offset_mediaL = []
-	discidInputD = {}
-	next_frame = 0
-	trackDL = []
-	print('in guess_TOC_from_tracks_list')
-	track_num = 0
-	for track in trackL:
-		try:
-			trackD = get_audio_object(track)
-		except Exception as e:
-			print('Error in guess_TOC_from_tracks_list:',e)
-			print('No TOC calculation possible')
-			return{'TOC_dataL':[],'discidInput':{},'toc_string':''}
-		full_length = trackD['full_length']
-		
-		total_track_sectors = total_track_sectors + int(full_length *75)+1
-		if track_num == 0:
-			offset_mediaL.append(first_track_offset + pregap)	
-			next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1	
-		else:
-			offset_mediaL.append(next_frame)
-		#print('Sector:',next_frame)	
-		next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1		
-		track_offset_cnt+=1	
-		track_num +=1
-		trackDL.append(trackD)
-		
-		
-	lead_out_track_offset=next_frame	
-	toc_string = 	''		
-	if offset_mediaL:
-		discidInputD = {'First_Track':1,'Last_Track':len(trackL),'offsetL':offset_mediaL,'total_lead_off':lead_out_track_offset}
-		toc_string = '%s %s %s %s'	%(discidInputD['First_Track'],discidInputD['Last_Track'],discidInputD['total_lead_off'],str(discidInputD['offsetL'])[1:-1].replace(',',''))
-	
-	return{'discidInput':discidInputD,'toc_string':toc_string,'trackDL':trackDL}	
-	
+    track_offset_cnt = 0
+    total_track_sectors = 0
+    first_track_offset = 150
+    pregap = 0
+    offset_mediaL = []
+    discidInputD = {}
+    next_frame = 0
+    trackDL = []
+    print('in guess_TOC_from_tracks_list')
+    track_num = 0
+    for track in trackL:
+        try:
+            trackD = get_audio_object(track)
+        except Exception as e:
+            error_mess = f'Error in guess_TOC_from_tracks_list:{e}. No TOC calculation is possible'
+            logger.critical(error_mess)
+            return{'TOC_dataL':[],'discidInput':{},'toc_string':'',\
+                    'error':error_mess}
+        full_length = trackD['full_length']
+        
+        total_track_sectors = total_track_sectors + int(full_length *75)+1
+        if track_num == 0:
+            offset_mediaL.append(first_track_offset + pregap)	
+            next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1	
+        else:
+            offset_mediaL.append(next_frame)
+        #print('Sector:',next_frame)	
+        next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1		
+        track_offset_cnt+=1	
+        track_num +=1
+        trackDL.append(trackD)
+
+    lead_out_track_offset=next_frame	
+    toc_string = ''
+    if offset_mediaL:
+        discidInputD = {'First_Track':1,'Last_Track':len(trackL),'offsetL':offset_mediaL,'total_lead_off':lead_out_track_offset}
+        toc_string = '%s %s %s %s'	%(discidInputD['First_Track'],discidInputD['Last_Track'],discidInputD['total_lead_off'],str(discidInputD['offsetL'])[1:-1].replace(',',''))
+
+    return{'discidInput':discidInputD,'toc_string':toc_string,'trackDL':trackDL}	
+
 def get_TOC_from_log(album_folder):
     files = os.listdir(album_folder)
     logs = [f for f in files if os.path.splitext(f)[1] == b'.log']
@@ -1128,7 +1154,7 @@ def get_TOC_from_log(album_folder):
     discidInputD = {}
     TOC_lineD= {}
     offsetL = []
-	
+
     for f in logs:
         print(f)
         # detect file character encoding
@@ -1142,7 +1168,7 @@ def get_TOC_from_log(album_folder):
         with codecs.open( os.path.join(album_folder,f),'rb', encoding=encoding) as fh:
             lines = fh.readlines()
             regex = re.compile(r'^\s+[0-9]+\s+\|.+\|\s+(.+)\s+\|\s+[0-9]+\s+|\s+[0-9]+\s+$')
-			
+
         matches = [tl for tl in map(regex.match,lines) if tl]
 
         if matches:
@@ -1158,7 +1184,7 @@ def get_TOC_from_log(album_folder):
     if TOC_dataL:
         discidInputD = {'First_Track':TOC_dataL[0]['Track'],'Last_Track':TOC_dataL[-1]['Track'],'offsetL':offsetL,'total_lead_off':1+start_offset+int(TOC_lineD['End_Sector'])}
         toc_string = '%s %s %s %s'	%(discidInputD['First_Track'],discidInputD['Last_Track'],discidInputD['total_lead_off'],str(discidInputD['offsetL'])[1:-1].replace(',',''))
-	
+
     return{'TOC_dataL':TOC_dataL,'discidInput':discidInputD,'toc_string':toc_string}
 		
 def get_acoustID_from_FP_collection(fpDL):

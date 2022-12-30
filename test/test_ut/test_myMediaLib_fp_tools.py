@@ -96,8 +96,8 @@ def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_single_image():
     result_expected = {'RC': 1,
                         'discID': 'NFETLyeIQvKUEfe.y86MbMaROk0-',
                         'toc_string': '1 21 271367 150 13796 19195 28158 49872 63838 77119 93068 112570 121823 135029 149156 162853 173235 183936 194204 208832 217565 229319 245875 259311',
-                        'toc_type': 'cue',
-                        'validated': False}
+                        'toc_type': 'log',
+                        'validated': True}
 
     path = b"./test/test_audio_data/test_flac_cue/" 
     cdtoc = CdTocGenerator()
@@ -107,8 +107,8 @@ def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_multy_tracks():
     result_expected = {'RC': 1,
                         'discID': 'XdoGSCXQCiiHIRkoHevRuBeERTk-',
                         'toc_string': '1 3 38852 150 9498 20215',
-                        'toc_type': 'guess',
-                        'validated': True}
+                        'toc_type': 'cue',
+                        'validated': False}
 
 
     path =  b"./test/test_audio_data/test_ape_cue_tracks/" 
@@ -118,6 +118,7 @@ def test_CdTocGenerator_cue_folder_check_scenario_processing_cue_multy_tracks():
 def test_CdTocGenerator_cue_folder_check_scenario_processing_multy_tracks():
     result_expected = { 'RC': 1,
                         'discID': 'XdoGSCXQCiiHIRkoHevRuBeERTk-',
+                        'hi_res': False,
                         'toc_string': '1 3 38852 150 9498 20215',
                         'toc_type': 'guess',
                         'validated': True}
