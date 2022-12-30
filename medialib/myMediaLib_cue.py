@@ -162,7 +162,7 @@ def get_audio_object(fname):
                     audio = MonkeysAudioInfo(f)
                 except Exception as e:
                     print('probably MonkeysAudioHeaderError_1', fname)
-                    logger.critical('Exception in get_audio_object [%s]: mutagen error %s: [%s] {fname}'
+                    logger.critical(f'Exception in get_audio_object [%s]: mutagen error %s: [%s] {fname}'
                                         %(str(e), str(file_ext, BASE_ENCODING), str(fname, BASE_ENCODING)))
                     return None
             

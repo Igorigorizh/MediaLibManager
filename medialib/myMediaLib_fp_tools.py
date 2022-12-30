@@ -1116,15 +1116,21 @@ def guess_TOC_from_tracks_list(trackL):
     trackDL = []
     print('in guess_TOC_from_tracks_list')
     track_num = 0
+    track_info = None
     for track in trackL:
         try:
-            trackD = get_audio_object(track)
+            track_info = get_audio_object(track)
         except Exception as e:
             error_mess = f'Error in guess_TOC_from_tracks_list:{e}. No TOC calculation is possible'
             logger.critical(error_mess)
             return{'TOC_dataL':[],'discidInput':{},'toc_string':'',\
-                    'error':error_mess}
-        full_length = trackD['full_length']
+                    'error': error_mess}
+        if not track_info:
+            error_mess = f'Error in guess_TOC_from_tracks_list. No audio data received, TOC calculation is not possible'
+            logger.critical(error_mess)
+            return{'TOC_dataL':[],'discidInput':{},'toc_string':'',\
+                    'error': error_mess}
+        full_length = track_info['full_length']
         
         total_track_sectors = total_track_sectors + int(full_length *75)+1
         if track_num == 0:
@@ -1136,7 +1142,7 @@ def guess_TOC_from_tracks_list(trackL):
         next_frame = total_track_sectors - track_offset_cnt - pregap + first_track_offset - 1		
         track_offset_cnt+=1	
         track_num +=1
-        trackDL.append(trackD)
+        trackDL.append(track_info)
 
     lead_out_track_offset=next_frame	
     toc_string = ''
