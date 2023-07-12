@@ -116,25 +116,41 @@ function set_scroll_position(panel_id,element_numb,delta_offset,from_el_numb,mod
 							
 }
 
-function set_scroll_position_vertical(panel_id,element_numb,delta_offset,from_el_numb,do_scroll){
-		el_numb = element_numb
-		//alert(el_numb)
-		if ( el_numb > from_el_numb) {
-		$('#'+panel_id).scrollTop(delta_offset*(el_numb-from_el_numb))
+function set_scroll_position_vertical(panel_id,element_id,delta_offset,from_el_numb,do_scroll){
+
+        first_elem_offset = 200
+        if ( panel_id == 'navi_categ_artist_panel'){
+        first_elem_offset = $('#'+ m_vM.artistL()[0].key).position().top
+        //alert(first_elem_offset)
+        }
+		new_pos = 0
+
+		panel_h = parseFloat($('#'+panel_id).css('height'))
+		pos_num = m_vM.artist_play_control.pos
+		h_pos = Math.round($('#'+ element_id).position().top)
+		coeff = (h_pos -first_elem_offset)/h_pos
+        //alert(element_id+':'+pos_num )
+		if ( (h_pos - first_elem_offset) > panel_h*coeff ) {
+            new_pos = (h_pos-first_elem_offset)*coeff + 60
+            $('#'+panel_id).scrollTop(new_pos)
 		}
-	
-	
+
+
 	if ( do_scroll ){
-		
-		pos = $('#'+ element_numb).position().top
-		el_numb = Math.round((pos-delta_offset)/delta_offset)
-		//alert(el_numb)
-		//alert(element_Id+':'+pos + ':' +$('#'+ element_Id).position().top)
-		if ( pos > delta_offset*from_el_numb) {
-		
-		$('#'+panel_id).scrollTop(delta_offset*(el_numb-from_el_numb))
+
+		//alert(element_id+':'+pos_num )
+		if ((h_pos -first_elem_offset) > panel_h*coeff) {
+		    new_pos = (h_pos-first_elem_offset) * coeff + 60
+		    $('#'+panel_id).scrollTop(new_pos)
 		}
-	}	
+	}
+	$('#'+ 'dum_art0').css("padding","60px")
+    if (element_id != 'dum_art0'){
+    	$('#'+ element_id).css("border","3px solid red")
+	}
+	//alert(panel_id+';'+
+	//element_id+':'+'---pos_num:'+pos_num + ';---h_pos='+h_pos + ';'+'---HeightPanel:'+panel_h+ ';---coeff='+ coeff+';new_pos='+new_pos
+	//)
 							
 }
 
@@ -803,7 +819,7 @@ var proc_mode = 0;
 	self.album_rel_artistL = ko.observableArray();
 	
 	
-	self.artist_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
+	self.artist_play_control = ko.observable({'key':'','pos':'','name':'','active':false,'object_type':''});
 	self.album_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
 	self.tag_song_play_control = ko.observable({'key':'','name':'','active':false,'object_type':''});
 	
@@ -859,7 +875,7 @@ var proc_mode = 0;
 				if ( self.album_play_control.key != null){
 					do_scroll = true
 				}	
-				set_scroll_position_vertical('navi_categ_album_panel','albcat'+m_vM.album_play_control.key,30,8,do_scroll)
+				set_scroll_position_vertical('navi_categ_album_panel','albcat'+m_vM.album_play_control.key,30,4,do_scroll)
 				
 			
 			
@@ -890,6 +906,9 @@ var proc_mode = 0;
 	};
 	
 	self.colorMe = function (key,color) {
+	    if (key == 'dum_art0'){
+	      return
+	     }
 		self.cur_before_select_color = $('#'+key).css("background-color")
 		
 		$('#'+key).css("background-color","Goldenrod")
@@ -901,6 +920,9 @@ var proc_mode = 0;
     };
 	
 	self.uncolorMe = function (key) {
+	   if (key == 'dum_art0'){
+	      return
+	     }
 		if (self.catProfileDL_current()[self.category_type_index_selected()]["relCatL"]['cat_key'] != key){
 		$('#'+key).css("background-color",m_vM.cur_before_select_color)
 		$('#'+key).css("border","1px solid white")
@@ -915,26 +937,7 @@ var proc_mode = 0;
 		
     };
 	
-	self.selectNavObject_ = function (index,obj_type) {
-		if (obj_type == 'genre'){
-			
-			navi_categ_control_send(obj_type,index)
-			
-			} 
-			else if (obj_type == 'artist'){
-			elem = self.artistL()[index]
-			elem['sel_class'] = 'artist sel'
-			elem['selected'] = true
-			//alert(elem.value)
-			self.artist_play_control.key = elem.key
-			self.artist_play_control()['name'] = elem.value
-			self.artist_play_control.active = true
-			self.artist_play_control.valueHasMutated()
-			
-			self.album_play_control.active = false
-			navi_categ_control_send(obj_type,elem.key)
-			}
-		};		
+
 	
 	self.selectNavObject = function (index,obj_type) {
 		if (obj_type == 'genre'){
@@ -947,7 +950,7 @@ var proc_mode = 0;
 			self.artist_play_control.active = false
 			self.album_play_control.active = false
 			
-			self.artist_play_control({'key':'','name':'','active':false,'object_type':''}) 
+			self.artist_play_control({'key':'', 'pos':'', 'name':'','active':false,'object_type':''})
 			self.album_play_control({'key':'','name':'','active':false,'object_type':''}) 
 			
 			self.cur_cat_selected_index = index
@@ -956,18 +959,19 @@ var proc_mode = 0;
 			self.catProfileDL_current.valueHasMutated()
 			} 
 			else if (obj_type == 'artist'){
-			elem = self.artistL()[index]
-			elem['sel_class'] = 'artist sel'
-			elem['selected'] = true
-			//alert(elem.value)
-			self.artist_play_control.key = elem.key
-			self.artist_play_control()['name'] = elem.value
-			self.artist_play_control.active = true
-			self.artist_play_control.valueHasMutated()
-			
-			self.album_play_control.active = false
-			navi_categ_control_send(obj_type,elem.key)
-			
+                elem = self.artistL()[index]
+                elem['sel_class'] = 'artist sel'
+                elem['selected'] = true
+                //alert(elem.num)
+                self.artist_play_control.key = elem.key
+                self.artist_play_control.pos = elem.num
+                self.artist_play_control()['name'] = elem.value
+                self.artist_play_control.active = true
+                self.artist_play_control.valueHasMutated()
+
+                self.album_play_control.active = false
+                navi_categ_control_send(obj_type,elem.key)
+			    $('#'+ 'dum_art0').css("padding","60px")
 			} 
 			else if (obj_type == 'album'){
 			
@@ -1034,7 +1038,9 @@ var proc_mode = 0;
 		self.artist_rel_albumL.removeAll(self.artist_rel_albumL())
 		}
 		}
+        artist_albumObj['artistL'][artist_albumObj['artistL'].length] = {'key':'dum_art0','value':'','num':'','object_type': "0",'even_odd': "",'color':''}
 		self.artistL(artist_albumObj['artistL'])
+
 		}
 	if ('albumL' in artist_albumObj){	
 	if (self.albumL().length > 0){
@@ -1398,11 +1404,13 @@ $(document).ready(function(){
 					else if ( data == 'navi_cat_data_general'){
 						
 						var pre_str = my_JSON_object[data]
-						
+
 						album_artistL = JSON.parse(pre_str)
+						//album_artistL.add({'key':'0','value':''})
 						if ('proc' in album_artistL){
 							if( album_artistL['proc'] != 'player'){
 								m_vM.initialize_artistL_albumL(album_artistL)
+								$('#'+ 'dum_art0').css("padding","60px")
 							}else if(album_artistL['proc'] == 'player'){
 								sw_PLAYER_M.initialize_cat_artistL_albumL(album_artistL)
 							}
@@ -1439,7 +1447,7 @@ $(document).ready(function(){
 						if ( m_vM.album_play_control.key != null){
 							do_scroll = true
 						}	
-						set_scroll_position_vertical('navi_categ_album_panel','albcat'+m_vM.album_play_control.key,30,8,do_scroll)
+						set_scroll_position_vertical('navi_categ_album_panel','albcat'+m_vM.album_play_control.key,30,4,do_scroll)
 					}
 					
 					else if ( data == 'graf_data'){
@@ -1702,7 +1710,7 @@ function do_send_json_req(json_req){
 }
 
 function navi_categ_control_send(param,indx,proc) {
-
+    if (indx == 'dum_art0') {return}
 	json_req = 
 	"{" +"\"" + "navi_categ_process" +"\"" + ':' +"\"" + "navi_categ_process" + "\"" +','	+"\"" + "cat_id" +"\"" + ':'+"\""+indx.toString()+"\""+','	+"\"" + "object" +"\"" + ':'+"\"" + param +"\""+','+"\""+"proc"+"\""+ ':'+"\"" + proc +"\""+"}";	
 	//alert(json_req)
@@ -1858,9 +1866,6 @@ function setFrameOff(x) {
 
 <body>
 <div id="pagewidth" >
- <div id="header">
- 	%(bookmark_tmpl)s
- </div>
 
 <div id="playerDlg" > 
 	<table border="1" bordercolor="#FFCC00" class="ui-widget icon-collection" cellpaddding="0" cellspacing="0" data-bind="visible: sw_PLAYER_M.album_cover().length">
@@ -2517,6 +2522,9 @@ function setFrameOff(x) {
 
 
 <div id="mainWindow">
+ <div id="header">
+ 	%(bookmark_tmpl)s
+ </div>
 <table align="center">
 <tr>
 <td align="left">
@@ -2690,16 +2698,16 @@ Category:
 	 <tr>
 	<td>
 	
-	<div class="holder" style=" overflow: auto; ">	
-	 <div style=" height:60vh; width:195px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_artist_panel"  >
-		<div  style="overflow: auto;">	 
-		<ul style="list-style: none; ;  height: auto; width: 180px; padding: 2px 2px 2px 2px; overflow: auto; "  >
+	<div class="holder">
+	 <div style=" height:65vh; width:195px; margin:1px 0 1px 0;overflow-x: hidden; flow: left; " id="navi_categ_artist_panel"  >
+		<div>
+		<ul style="list-style: none; ;  height: 65vh; width: 180px; padding: 2px 2px 2px 2px;"  >
 		 
 		
 		 {{each(i, item) m_vM.artistL()}}    
 			
 			<div style="overflow: auto;">	 
-			<li style="display: outline,width:200px; margin:1px 1px 1px 1px; padding: 2px 2px 2px 2px; overflow: auto;  " data-bind=" click:function() { selectNavObject( i , 'artist' ) },attr:{'class': item.even_odd,'id':item.key}, event: { mouseover: function() { colorMe( item.key,'LightBlue' ) }, mouseout: function() { uncolorMe( item.key ) } }" >
+			<li style="display: outline,width:200px; margin:1px 1px 1px 1px; padding: 2px 2px 2px 2px;  " data-bind=" click:function() { selectNavObject( i , 'artist' ) },attr:{'class': item.even_odd,'id':item.key}, event: { mouseover: function() { colorMe( item.key,'LightBlue' ) }, mouseout: function() { uncolorMe( item.key ) } }" >
 			
 			
 			<span data-bind="text: num + '.' + value "></span>
@@ -2723,7 +2731,7 @@ Category:
 		<td>	
 		
 		{{if m_vM.artist_rel_albumL().length > 0}}
-		<div style=" height:60vh; width:230px;margin:1px 0 1px 0;overflow-y: scroll;overflow-x: hidden;" >
+		<div style=" height:65vh; width:230px;margin:1px 0 1px 0;overflow-y: scroll;overflow-x: hidden;" >
 		<ul style="list-style: none; overflow: auto;">
 		 {{each(i, item) m_vM.artist_rel_albumL()}}    
 		
@@ -2779,7 +2787,7 @@ Category:
 	 
 	 
 	 <div class="holder" style=" overflow: auto; ">	
-	 <div style=" height:60vh; width:230px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_album_panel"  >
+	 <div style=" height:65vh; width:230px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_album_panel"  >
 		<div  style="overflow: auto;">	
 	 
 	 
@@ -2811,7 +2819,7 @@ Category:
 		<td>	
 		
 		{{if m_vM.album_rel_artistL().length > 0}}
-		<div style=" height:60vh; width:230px;margin:1px 0 1px 0;overflow-y: scroll;overflow-x: hidden;" >
+		<div style=" height:65vh; width:230px;margin:1px 0 1px 0;overflow-y: scroll;overflow-x: hidden;" >
 		<ul style="list-style: none; overflow: auto;">
 		 {{each(i, item) m_vM.album_rel_artistL()}}    
 		
@@ -2856,7 +2864,7 @@ Category:
 	 
 	 
 	 <div class="holder" style=" overflow: auto; ">	
-	 <div style=" height:60vh; width:230px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_song_panel"  >
+	 <div style=" height:65vh; width:230px; margin:1px 0 1px 0;overflow-y: auto;overflow-x: hidden; flow: left; " id="navi_categ_song_panel"  >
 		<div  style="overflow: auto;">	
 	 
 	 
